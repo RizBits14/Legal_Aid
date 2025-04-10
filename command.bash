@@ -3,4 +3,4 @@ python -m venv venv
 pip install flask
 python.exe -m pip install --upgrade pip
 pip install mysql
-pip install mysql.connector
+pip install mysql-connector-python
