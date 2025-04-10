@@ -1,3 +1,3 @@
 # Legal_Aid
 A website for hiring lawyer using python (flask), html, css and phpMyAdmin to manage MySQL for database. 
-Recommended: To look into the command.bash file at the very beginning
+⚠️ **Recommended:** Check the `command.bash` file *before anything else*.
