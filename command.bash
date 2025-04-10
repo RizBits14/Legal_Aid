@@ -1,3 +1,5 @@
+#Install these on VS code terminal first one by one
+
 python -m venv venv
 .\venv\Scripts\activate
 pip install flask
