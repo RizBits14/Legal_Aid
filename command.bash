@@ -1,0 +1,6 @@
+python -m venv venv
+.\venv\Scripts\activate
+pip install flask
+python.exe -m pip install --upgrade pip
+pip install mysql
+pip install mysql.connector
