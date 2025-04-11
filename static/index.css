@@ -1,0 +1,130 @@
+/* Rich Green Color Palette */
+:root {
+    --deep-green-1: #18230F;
+    --deep-green-2: #27391C;
+    --rich-green: #255F38;
+    --emerald-green: #1F7D53;
+
+    --text-light: #ffffff;
+    --text-dark: #e4f0e8;
+    --bg-light: #f5f7f5;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: linear-gradient(to right, var(--deep-green-1), var(--rich-green));
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-light);
+    transform: translateY(-100%);
+    animation: slideDown 0.6s ease-out forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Logo Styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo img {
+    height: 45px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.logo span {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Nav Links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--emerald-green);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--emerald-green);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* Animation */
+@keyframes slideDown {
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Homepage Content */
+.home-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    text-align: center;
+}
+
+.home-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    color: var(--rich-green);
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.home-content p {
+    font-size: 1.4rem;
+    color: var(--deep-green-2);
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0.95;
+}

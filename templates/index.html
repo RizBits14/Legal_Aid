@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="RizBits14, Anindita9501, Anishaaa19" />
+    <meta name="description" content="Project for lawyer hiring using flask, html, css and MySQL" />
+    <title>Legal_Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+            <span>Legal Aid</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/lawyers">Lawyers</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Homepage Content -->
+    <main class="home-content">
+        <h1>Welcome to Legal Aid</h1>
+        <p>Your trusted platform for finding legal professionals.</p>
+    </main>
+</body>
+
+</html>
