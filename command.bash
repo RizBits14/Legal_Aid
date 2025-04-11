@@ -1,4 +1,4 @@
-#Install these on VS code terminal first one by one
+#Install these to set up the virtual environment for flask on VS code terminal first one by one
 
 python -m venv venv
 .\venv\Scripts\activate
