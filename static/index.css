@@ -32,7 +32,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../static/Background_Pic_Index.jpg');
+    background-image: url('../static/Index_Pic_01.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -82,7 +82,7 @@ body::before {
     text-shadow: 1px 2px 4px var(--shadow-dark);
 }
 
-/* Nav Links */
+/* ===== Nav Links ===== */
 .nav-links {
     list-style: none;
     display: flex;
@@ -123,7 +123,6 @@ body::before {
 
 .nav-links a:hover::after {
     width: 100%;
-    
 }
 
 .nav-links button {
@@ -166,73 +165,6 @@ body::before {
     align-items: center;
 }
 
-/* Hero Section */
-.hero-section {
-    position: relative;
-    width: 100%;
-    max-width: 1000px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px var(--shadow-dark);
-    margin-bottom: 40px;
-    animation: fadeInImage 1.5s ease-in-out;
-}
-
-.hero-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-    border-radius: 16px;
-}
-
-/* Buttons on Image */
-.hero-buttons {
-    position: absolute;
-    bottom: 40%;
-    left: 5%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    animation: fadeInButtons 1.5s ease-in-out;
-}
-
-.hero-buttons .action-button {
-    padding: 12px 28px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px var(--shadow-dark);
-    width: max-content;
-}
-
-.primary-button {
-    background-color: var(--navbar-color);
-    color: var(--text-light);
-}
-
-.secondary-button {
-    background-color: var(--text-color);
-    color: var(--text-light);
-}
-
-.action-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-dark);
-}
-
-.primary-button:hover {
-    background-color: #1d534c;
-}
-
-.secondary-button:hover {
-    background-color: #5a8b78;
-}
-
-/* Headline & Paragraph */
 .home-content h1 {
     font-size: 3.5rem;
     color: var(--navbar-color);
@@ -257,29 +189,5 @@ body::before {
 
     100% {
         transform: translateY(0);
-    }
-}
-
-@keyframes fadeInImage {
-    0% {
-        opacity: 0;
-        transform: scale(1.05);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes fadeInButtons {
-    0% {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateX(0);
     }
 }
