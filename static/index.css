@@ -61,6 +61,11 @@ body::before {
     align-items: center;
     gap: 15px;
     cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: translateX(10px);
 }
 
 .logo img {
@@ -68,10 +73,6 @@ body::before {
     width: auto;
     filter: drop-shadow(0 4px 6px var(--shadow-dark));
     transition: transform 0.3s ease;
-}
-
-.logo:hover img {
-    transform: scale(1.1);
 }
 
 .logo span {
@@ -86,6 +87,14 @@ body::before {
     list-style: none;
     display: flex;
     gap: 40px;
+}
+
+.nav-links li {
+    transition: transform 0.3s ease;
+}
+
+.nav-links li:hover {
+    transform: translateX(-10px);
 }
 
 .nav-links a {
@@ -114,6 +123,7 @@ body::before {
 
 .nav-links a:hover::after {
     width: 100%;
+    
 }
 
 .nav-links button {
@@ -179,7 +189,7 @@ body::before {
 /* Buttons on Image */
 .hero-buttons {
     position: absolute;
-    top: 10%;
+    bottom: 40%;
     left: 5%;
     display: flex;
     flex-direction: column;
