@@ -32,11 +32,13 @@
     <main class="home-content">
         <h1>Welcome to Legal Aid</h1>
         <p>Your trusted platform for finding legal professionals.</p>
-        <div class="action-buttons">
-            <a href="/post-case" class="action-button primary-button">Post Your Case Here</a>
-            <a href="/consultation" class="action-button secondary-button">Free Consultation</a>
+        <div class="hero-section">
+            <img src="{{ url_for('static', filename='Index_Pic_01.jpg') }}" alt="Legal Aid Hero Image" class="hero-image">
+            <div class="hero-buttons">
+                <a href="/post-case" class="action-button primary-button">Post Your Case</a>
+                <a href="/consultation" class="action-button secondary-button">Book A Free Consultation</a>
+            </div>
         </div>
-        <img src="{{ url_for('static', filename='Index_Pic_01.jpg') }}" alt="Legal Aid Hero Image" class="hero-image">
     </main>
 </body>
 
