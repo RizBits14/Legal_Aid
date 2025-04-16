@@ -195,7 +195,6 @@ body::before {
     box-shadow: 0 8px 16px var(--shadow-dark);
     animation: slideDownImage 0.8s ease forwards;
     opacity: 0;
-    /* Start hidden for animation */
 }
 
 .index-pic img {
@@ -204,9 +203,9 @@ body::before {
     display: block;
     object-fit: cover;
     border-radius: 16px;
+    opacity: 0.8;
 }
 
-/* Buttons inside the image container */
 .pic-buttons {
     position: absolute;
     top: 55%;
@@ -218,7 +217,6 @@ body::before {
     align-items: flex-end;
     animation: slideRightButtons 0.8s ease forwards;
     opacity: 0;
-    /* Start hidden for animation */
 }
 
 .pic-buttons .btn {
