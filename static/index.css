@@ -172,6 +172,7 @@ body::before {
     text-shadow: 1px 1px 3px var(--shadow-dark);
     margin-bottom: 20px;
     animation: slideLeft 0.8s ease forwards;
+
 }
 
 .home-content p {
@@ -181,6 +182,74 @@ body::before {
     opacity: 0.95;
     margin-bottom: 30px;
     animation: slideRight 0.8s ease forwards;
+    
+}
+
+.index-pic {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 30px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px var(--shadow-dark);
+    animation: slideDownImage 0.8s ease forwards;
+    opacity: 0;
+    /* Start hidden for animation */
+}
+
+.index-pic img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+/* Buttons inside the image container */
+.pic-buttons {
+    position: absolute;
+    top: 55%;
+    right: 5%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-end;
+    animation: slideRightButtons 0.8s ease forwards;
+    opacity: 0;
+    /* Start hidden for animation */
+}
+
+.pic-buttons .btn {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 8px var(--shadow-dark);
+    transition: all 0.3s ease;
+}
+
+.primary-btn {
+    background-color: var(--navbar-color);
+    color: var(--text-light);
+}
+
+.primary-btn:hover {
+    background-color: #1d534c;
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background-color: var(--text-color);
+    color: var(--text-light);
+}
+
+.secondary-btn:hover {
+    background-color: #5a8b78;
+    transform: translateY(-2px);
 }
 
 /* ===== Animations ===== */
@@ -199,8 +268,7 @@ body::before {
         transform: translateX(-100%);
         opacity: 0;
     }
-
-    100% {
+    100%{
         transform: translateX(0);
         opacity: 1;
     }
@@ -209,6 +277,30 @@ body::before {
 @keyframes slideRight {
     0% {
         transform: translateX(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDownImage {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideRightButtons {
+    0% {
+        transform: translateX(100px);
         opacity: 0;
     }
 
