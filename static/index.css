@@ -188,13 +188,13 @@ body::before {
 .index-pic {
     position: relative;
     width: 100%;
-    max-width: 1000px;
-    margin: 30px auto;
+    max-width: 100%;
+    margin: 0 auto;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 8px 16px var(--shadow-dark);
     animation: slideDownImage 0.8s ease forwards;
-    opacity: 0;
+    height: 400px;
 }
 
 .index-pic img {
@@ -249,6 +249,51 @@ body::before {
     background-color: #5a8b78;
     transform: translateY(-2px);
 }
+
+.text-slider {
+    position: relative;
+    width: 100%;
+    max-width: 80%;
+    height: 180px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.text-slide {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    text-align: center;
+    animation: fadeSlide 6s infinite;
+    padding: 20px;
+    background-color: var(--ui-light);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-dark);
+}
+
+.text-slide:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.text-slide:nth-child(2) {
+    animation-delay: 2s;
+}
+
+.text-slide:nth-child(3) {
+    animation-delay: 4s;
+}
+
+.text-slide h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--navbar-color);
+}
+
+.text-slide p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
 
 /* ===== Animations ===== */
 @keyframes slideDown {
@@ -305,5 +350,31 @@ body::before {
     100% {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    5% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    35% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    100% {
+        opacity: 0;
     }
 }
