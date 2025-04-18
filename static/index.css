@@ -294,6 +294,243 @@ body::before {
     color: var(--text-color);
 }
 
+.lawyer-section {
+    max-width: 1200px;
+    margin: 80px auto;
+    padding: 30px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px var(--shadow-dark);
+    position: relative;
+    overflow: hidden;
+}
+
+.lawyer-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, var(--navbar-color), var(--text-color));
+}
+
+.section-title {
+    font-size: 2.8rem;
+    color: var(--navbar-color);
+    margin-bottom: 30px;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--text-color);
+    border-radius: 2px;
+}
+
+.lawyer-slider {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 10px;
+    max-width: 100%;
+}
+
+.lawyer-cards {
+    display: flex;
+    width: 200%;
+    transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.card-group {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
+}
+
+input#slide1:checked ~ .lawyer-cards {
+    transform: translateX(0);
+}
+
+input#slide2:checked ~ .lawyer-cards {
+    transform: translateX(-50%);
+}
+
+.card {
+    background: linear-gradient(145deg, var(--ui-light) 0%, #f5f9f7 100%);
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    text-align: center;
+    transition: all 0.4s ease;
+    transform: translateY(0);
+    border: 1px solid rgba(106, 156, 137, 0.1);
+    position: relative;
+    overflow: hidden;
+    width: calc(33.333% - 20px);
+    flex: 0 0 auto;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--text-color);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: linear-gradient(180deg, rgba(22, 66, 60, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    transition: height 0.4s ease;
+    z-index: 0;
+}
+
+.card:hover::before {
+    height: 100%;
+}
+
+.card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.card:hover img {
+    transform: scale(1.05);
+}
+
+.card h3 {
+    color: var(--navbar-color);
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.card p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 10px;
+}
+
+.card p::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background-color: var(--text-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover p::after {
+    opacity: 1;
+}
+
+.slider-nav {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.slider-nav label {
+    cursor: pointer;
+    font-size: 2.5rem;
+    color: var(--navbar-color);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--ui-light);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.slider-nav label:hover {
+    color: var(--text-light);
+    background-color: var(--text-color);
+    transform: translateY(-3px);
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+@keyframes cardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: cardEntrance 0.8s ease forwards;
+    animation-delay: calc(var(--card-index, 0) * 0.1s);
+}
+
+.card-group:nth-child(1) .card:nth-child(1) { --card-index: 1; }
+.card-group:nth-child(1) .card:nth-child(2) { --card-index: 2; }
+.card-group:nth-child(1) .card:nth-child(3) { --card-index: 3; }
+.card-group:nth-child(2) .card:nth-child(1) { --card-index: 1; }
+.card-group:nth-child(2) .card:nth-child(2) { --card-index: 2; }
+.card-group:nth-child(2) .card:nth-child(3) { --card-index: 3; }
+
+/* Active slide indicator */
+input#slide1:checked ~ .slider-nav label[for="slide1"],
+input#slide2:checked ~ .slider-nav label[for="slide2"] {
+    background-color: var(--text-color);
+    color: var(--text-light);
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+    .card {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: calc(100% - 20px);
+    }
+    
+    .lawyer-section {
+        padding: 20px 15px;
+    }
+}
 
 /* ===== Animations ===== */
 @keyframes slideDown {
