@@ -166,12 +166,8 @@
             </div>
     
             <div class="testimonial-nav">
-                <button class="nav-dot active" data-index="0"></button>
-                <button class="nav-dot" data-index="1"></button>
-                <button class="nav-dot" data-index="2"></button>
-                <button class="nav-dot" data-index="3"></button>
-                <button class="nav-dot" data-index="4"></button>
-                <button class="nav-dot" data-index="5"></button>
+                <button class="nav-arrow prev" aria-label="Previous testimonial">&#10094;</button>
+                <button class="nav-arrow next" aria-label="Next testimonial">&#10095;</button>
             </div>
         </div>
     </div>
@@ -179,28 +175,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.testimonial-card');
-            const dots = document.querySelectorAll('.nav-dot');
+            const prevButton = document.querySelector('.nav-arrow.prev');
+            const nextButton = document.querySelector('.nav-arrow.next');
             let currentIndex = 0;
 
             function showTestimonial(index) {
                 cards.forEach(card => card.classList.remove('active'));
-                dots.forEach(dot => dot.classList.remove('active'));
-                
                 cards[index].classList.add('active');
-                dots[index].classList.add('active');
                 currentIndex = index;
             }
 
-            // Add click event listeners to navigation dots
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => showTestimonial(index));
+            prevButton.addEventListener('click', () => {
+                let newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = cards.length - 1;
+                showTestimonial(newIndex);
             });
 
-            // Auto-advance testimonials every 5 seconds
-            setInterval(() => {
-                let nextIndex = (currentIndex + 1) % cards.length;
-                showTestimonial(nextIndex);
-            }, 5000);
+            nextButton.addEventListener('click', () => {
+                let newIndex = (currentIndex + 1) % cards.length;
+                showTestimonial(newIndex);
+            });
         });
     </script>
 
