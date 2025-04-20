@@ -570,25 +570,34 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
 }
 
 .testimonial-cards {
-    display: flex;
-    flex-wrap: nowrap;
-    transition: transform 0.5s ease;
+    position: relative;
+    height: 400px; /* Fixed height for the container */
+    margin-bottom: 30px;
 }
 
 .testimonial-card {
-    min-width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     padding: 30px;
     background: linear-gradient(145deg, #ffffff 0%, #f5f9f7 100%);
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    margin: 10px;
     opacity: 0;
-    transform: scale(0.8);
+    visibility: hidden;
+    transform: scale(0.8) translateX(50px);
     transition: all 0.5s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
     border: 1px solid rgba(106, 156, 137, 0.1);
+}
+
+.testimonial-card.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateX(0);
 }
 
 .testimonial-img {
@@ -616,50 +625,30 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
     margin: 0 auto;
 }
 
-/* Radio button navigation */
-.testimonial-slider input[type="radio"] {
-    display: none;
-}
-
 .testimonial-nav {
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
-.testimonial-nav label {
+.nav-dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: var(--ui-light);
-    cursor: pointer;
-    transition: all 0.3s ease;
     border: 2px solid var(--text-color);
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
 }
 
-.testimonial-nav label:hover {
+.nav-dot:hover {
     background-color: var(--text-color);
+    transform: scale(1.2);
 }
 
-/* Show active testimonial based on radio selection */
-#t1:checked ~ .testimonial-cards .testimonial-card:nth-child(1),
-#t2:checked ~ .testimonial-cards .testimonial-card:nth-child(2),
-#t3:checked ~ .testimonial-cards .testimonial-card:nth-child(3),
-#t4:checked ~ .testimonial-cards .testimonial-card:nth-child(4),
-#t5:checked ~ .testimonial-cards .testimonial-card:nth-child(5),
-#t6:checked ~ .testimonial-cards .testimonial-card:nth-child(6) {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* Active navigation indicator */
-#t1:checked ~ .testimonial-nav label[for="t1"],
-#t2:checked ~ .testimonial-nav label[for="t2"],
-#t3:checked ~ .testimonial-nav label[for="t3"],
-#t4:checked ~ .testimonial-nav label[for="t4"],
-#t5:checked ~ .testimonial-nav label[for="t5"],
-#t6:checked ~ .testimonial-nav label[for="t6"] {
+.nav-dot.active {
     background-color: var(--text-color);
     transform: scale(1.2);
 }
@@ -671,6 +660,10 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
 
     .testimonial-card {
         padding: 20px;
+    }
+
+    .testimonial-cards {
+        height: 450px; /* Increased height for mobile */
     }
 
     .testimonial-img {
