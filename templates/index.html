@@ -190,6 +190,92 @@
         </div>
     </div>
 
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Company Info -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                    <h3>Legal Aid</h3>
+                </div>
+                <p class="footer-description">Connecting you with trusted legal professionals for a more accessible and transparent legal system.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/find-lawyer"><i class="fas fa-search"></i> Find a Lawyer</a></li>
+                    <li><a href="/practice-areas"><i class="fas fa-balance-scale"></i> Practice Areas</a></li>
+                    <li><a href="/pricing"><i class="fas fa-dollar-sign"></i> Pricing</a></li>
+                    <li><a href="/blog"><i class="fas fa-book-reader"></i> Legal Blog</a></li>
+                    <li><a href="/faqs"><i class="fas fa-question-circle"></i> FAQs</a></li>
+                </ul>
+            </div>
+
+            <!-- Practice Areas -->
+            <div class="footer-section">
+                <h4>Practice Areas</h4>
+                <ul class="footer-links">
+                    <li><a href="/family-law">Family Law</a></li>
+                    <li><a href="/criminal-law">Criminal Defense</a></li>
+                    <li><a href="/corporate-law">Corporate Law</a></li>
+                    <li><a href="/real-estate">Real Estate</a></li>
+                    <li><a href="/immigration">Immigration</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul class="contact-info">
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>24/7 Helpline: <a href="tel:1800-LEGAL-AID">1800-LEGAL-AID</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>Email: <a href="mailto:support@legal-aid.com">support@legal-aid.com</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Legal Avenue, Courthouse District<br>New York, NY 10001</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Newsletter Subscription -->
+        <div class="newsletter-section">
+            <h4>Subscribe to Our Newsletter</h4>
+            <p>Stay updated with legal news and tips</p>
+            <form class="newsletter-form" action="/subscribe" method="POST">
+                <div class="form-group">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Subscribe <i class="fas fa-paper-plane"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+                <ul class="bottom-links">
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/sitemap">Sitemap</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.testimonial-card');
@@ -248,8 +334,6 @@
             stats.forEach(stat => observer.observe(stat));
         });
     </script>
-
 </body>
-
 
 </html>
