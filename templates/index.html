@@ -117,6 +117,24 @@
         </div>
     </section>
 
+    <section class="stats-section">
+        <div class="stat-box">
+            <i class="fas fa-user-tie"></i>
+            <div class="stat-number" data-target="500">0</div>
+            <div class="stat-label">Verified Lawyers</div>
+        </div>
+        <div class="stat-box">
+            <i class="fas fa-users"></i>
+            <div class="stat-number" data-target="1200">0</div>
+            <div class="stat-label">Clients Served</div>
+        </div>
+        <div class="stat-box">
+            <i class="fas fa-star"></i>
+            <div class="stat-number" data-target="98">0</div>
+            <div class="stat-label">Satisfaction Rate</div>
+        </div>
+    </section>
+
     <div class="testimonial-section">
         <h2 class="testimonial-heading">What Our Clients Say</h2>
     
@@ -195,6 +213,39 @@
                 let newIndex = (currentIndex + 1) % cards.length;
                 showTestimonial(newIndex);
             });
+
+            // Stats counter animation
+            const stats = document.querySelectorAll('.stat-number');
+            
+            const observerOptions = {
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = parseInt(entry.target.getAttribute('data-target'));
+                        const duration = 2000; // 2 seconds
+                        const steps = 50;
+                        const stepValue = target / steps;
+                        let current = 0;
+                        
+                        const counter = setInterval(() => {
+                            current += stepValue;
+                            if (current >= target) {
+                                entry.target.textContent = target;
+                                clearInterval(counter);
+                            } else {
+                                entry.target.textContent = Math.floor(current);
+                            }
+                        }, duration / steps);
+
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            stats.forEach(stat => observer.observe(stat));
         });
     </script>
 
