@@ -899,6 +899,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
     margin: 10px 0;
     display: inline-block;
     background: linear-gradient(45deg, var(--ui-light), #ffffff);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     opacity: 0;
@@ -923,6 +924,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
     font-size: 2rem;
     margin-left: 5px;
     background: linear-gradient(45deg, var(--ui-light), #ffffff);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -1053,6 +1055,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
     font-size: 1.8rem;
     font-weight: 700;
     background: linear-gradient(45deg, var(--ui-light), #ffffff);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
