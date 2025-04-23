@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signup.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="signup-options-container">
+        <h2>Choose Your Role</h2>
+        <div class="options">
+            <a href="/lawyer-signup" class="option lawyer">
+                <i class="fas fa-balance-scale"></i>
+                <h3>Sign Up as Lawyer</h3>
+                <p>Join our network of legal professionals</p>
+            </a>
+            <a href="/client-signup" class="option client">
+                <i class="fas fa-user"></i>
+                <h3>Sign Up as Client</h3>
+                <p>Get access to legal services</p>
+            </a>
+        </div>
+        <p class="signin-link">Already have an account? <a href="/signin">Sign In</a></p>
+    </div>
+</body>
+
+</html> 
