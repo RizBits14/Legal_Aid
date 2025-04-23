@@ -571,7 +571,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
 
 .testimonial-cards {
     position: relative;
-    height: 250px; /* Fixed height for the container */
+    height: 250px;
     margin-bottom: 30px;
 }
 
@@ -682,7 +682,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
     }
 
     .testimonial-cards {
-        height: 450px; /* Increased height for mobile */
+        height: 450px; 
     }
 
     .testimonial-img {
@@ -821,7 +821,7 @@ input#slide2:checked~.slider-nav label[for="slide2"] {
 
 /* Stats Section */
 .stats-section {
-    background: linear-gradient(135deg, var(--navbar-color) 0%, var(--text-color) 100%);
+    background-color: var(--navbar-color); 
     padding: 60px 20px;
     display: flex;
     justify-content: space-around;
