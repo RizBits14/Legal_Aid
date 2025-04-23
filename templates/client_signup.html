@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Signup - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='account_signup.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="signup-container slide-in">
+        <a href="/signup" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h2>Client Sign Up</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('client_signup') }}" method="POST">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" placeholder="Full Name" name="name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" placeholder="Email" name="email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="Password" name="password" required>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="/signin">Sign in</a></p>
+    </div>
+</body>
+
+</html> 
