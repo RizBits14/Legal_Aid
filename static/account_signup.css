@@ -3,6 +3,8 @@
     --background-color: #C4DAD2;
     --text-color: #6A9C89;
     --ui-color: #E9EFEC;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -37,13 +39,15 @@ body::before {
     background-color: var(--ui-color);
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px var(--shadow-color);
     max-width: 400px;
     width: 90%;
     text-align: center;
     position: relative;
     box-sizing: border-box;
-    /* Add this to include padding in width calculation */
+    animation: fadeInScale 0.8s var(--transition-timing);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .back-button {
@@ -56,11 +60,16 @@ body::before {
     align-items: center;
     gap: 5px;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s var(--transition-timing);
+    padding: 8px 12px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .back-button:hover {
     color: var(--navbar-color);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-3px);
 }
 
 h2 {
@@ -86,9 +95,7 @@ h2::after {
     position: relative;
     margin-bottom: 20px;
     width: 100%;
-    /* Ensure full width */
     box-sizing: border-box;
-    /* Include padding in width calculation */
 }
 
 .input-group i {
@@ -98,6 +105,12 @@ h2::after {
     transform: translateY(-50%);
     color: var(--text-color);
     font-size: 1.1rem;
+    transition: all 0.3s var(--transition-timing);
+}
+
+.input-group:focus-within i {
+    color: var(--navbar-color);
+    transform: translateY(-50%) scale(1.1);
 }
 
 input[type="text"],
@@ -105,28 +118,26 @@ input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 12px 40px;
-    border: 1px solid var(--text-color);
+    border: 2px solid var(--text-color);
     border-radius: 5px;
     font-size: 1rem;
     color: var(--navbar-color);
-    background-color: white;
-    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s var(--transition-timing);
     box-sizing: border-box;
-    /* Include padding and border in width calculation */
 }
 
 input:focus {
     outline: none;
     border-color: var(--navbar-color);
-    box-shadow: 0 0 0 2px rgba(22, 66, 60, 0.1);
+    box-shadow: 0 0 0 3px rgba(22, 66, 60, 0.1);
+    transform: translateY(-2px);
 }
 
 .file-group {
     text-align: left;
     width: 100%;
-    /* Ensure full width */
     box-sizing: border-box;
-    /* Include padding in width calculation */
 }
 
 .file-group label {
@@ -136,11 +147,26 @@ input:focus {
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s var(--transition-timing);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
-.file-group label:hover {
+.file-group label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
     background-color: var(--navbar-color);
+    transition: all 0.4s var(--transition-timing);
+    z-index: -1;
+}
+
+.file-group label:hover::before {
+    left: 0;
 }
 
 .file-group input[type="file"] {
@@ -155,29 +181,53 @@ input:focus {
 }
 
 form {
-    width: 100%;
-    /* Ensure form takes full width of container */
+    width: 100%;    
     box-sizing: border-box;
-    /* Include padding in width calculation */
 }
 
 button {
     background-color: var(--navbar-color);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 14px 24px;
     border-radius: 5px;
     cursor: pointer;
     width: 100%;
     font-size: 1rem;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s var(--transition-timing);
     box-sizing: border-box;
-    /* Include padding in width calculation */
+    position: relative;
+    overflow: hidden;
 }
 
 button:hover {
     background-color: var(--text-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+button:hover::after {
+    width: 300px;
+    height: 300px;
 }
 
 p {
@@ -203,7 +253,19 @@ p a:hover {
     font-size: 0.9rem;
     width: 100%;
     box-sizing: border-box;
-    /* Include padding in width calculation */
+    animation: slideInAlert 0.5s var(--transition-timing);
+    transform-origin: top;
+}
+
+@keyframes slideInAlert {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .alert-success {
@@ -225,12 +287,22 @@ p a:hover {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(30px) scale(0.98);
     }
-
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
