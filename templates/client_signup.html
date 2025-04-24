@@ -32,8 +32,24 @@
                 <input type="email" placeholder="Email" name="email" required>
             </div>
             <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" placeholder="Phone Number" name="phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+            </div>
+            <div class="input-group">
                 <i class="fas fa-lock"></i>
                 <input type="password" placeholder="Password" name="password" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <textarea placeholder="Address" name="address" required rows="3"></textarea>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-city"></i>
+                <input type="text" placeholder="City" name="city" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-flag"></i>
+                <input type="text" placeholder="State" name="state" required>
             </div>
             <button type="submit">Sign Up</button>
         </form>
