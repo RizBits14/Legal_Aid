@@ -1,0 +1,62 @@
+.signin-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.signin-option {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1;
+    min-width: 250px;
+    max-width: 300px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: var(--navbar-color);
+}
+
+.signin-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.signin-option i {
+    font-size: 2.5rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+.signin-option h3 {
+    margin: 10px 0;
+    color: var(--navbar-color);
+}
+
+.signin-option p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: var(--navbar-color);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background-color: var(--text-color);
+}
+
+.signin-container {
+    max-width: 1000px;
+} 
