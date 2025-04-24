@@ -38,7 +38,5 @@ CREATE TABLE ClientDetails (
 );
 
 -- Insert default admin account
-INSERT INTO Users (UserType, FirstName, LastName, Email, Password, Phone)
-VALUES ('Admin', 'System', 'Administrator', 'admin@legalaid.com', 'pbkdf2:sha256:600000$VxZUzHAF$7a1b65a7f68406d0b2574fe7407c89fd6284c5c9c750db292d087ac5305e9fdb', '1234567890');
-
-
+INSERT INTO Users (FirstName, LastName, Email, Password, Phone, UserType)
+VALUES ('Admin', 'User', 'admin@legalaid.com', 'scrypt:32768:8:1$0ML0s4MlZJT7ZW5k$64870d670f18ce0c304daab61aaf090e7840933073cc79325431b29d76db2afbf8a6680c1716b31d6cf892b5892ffe5467aa85d2576a9ad16a55d88acf482f91', '0000000000', 'Admin');
