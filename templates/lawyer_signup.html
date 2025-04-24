@@ -32,6 +32,10 @@
                 <input type="email" placeholder="Email" name="email" required>
             </div>
             <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" placeholder="Phone Number" name="phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+            </div>
+            <div class="input-group">
                 <i class="fas fa-lock"></i>
                 <input type="password" placeholder="Password" name="password" required>
             </div>
@@ -39,10 +43,18 @@
                 <i class="fas fa-id-card"></i>
                 <input type="text" placeholder="License Number" name="license" required>
             </div>
+            <div class="input-group">
+                <i class="fas fa-gavel"></i>
+                <input type="text" placeholder="Specialization" name="specialization" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-briefcase"></i>
+                <input type="number" placeholder="Years of Experience" name="experience" required min="0" max="100">
+            </div>
             <div class="input-group file-group">
                 <i class="fas fa-file-upload"></i>
                 <label for="license_proof">Upload License Proof</label>
-                <input type="file" id="license_proof" name="license_proof" required>
+                <input type="file" id="license_proof" name="license_proof" required accept=".pdf,.png,.jpg,.jpeg">
                 <span class="file-name">No file chosen</span>
             </div>
             <button type="submit">Sign Up</button>
