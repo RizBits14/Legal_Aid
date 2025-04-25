@@ -86,6 +86,10 @@ def client_signup():
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        city = request.form.get('city')
+        state = request.form.get('state')
         
         cur = mysql.connection.cursor()
         
@@ -95,10 +99,17 @@ def client_signup():
             flash("Email already registered", "error")
             return render_template('client_signup.html')
         
-        # Insert new client
+        # Insert new client into Users table
         cur.execute(
             "INSERT INTO Users (FirstName, LastName, Email, Password, Phone, UserType) VALUES (%s, %s, %s, %s, %s, 'Client')",
-            (name.split()[0], name.split()[-1], email, generate_password_hash(password), request.form.get('phone'))
+            (name.split()[0], name.split()[-1], email, generate_password_hash(password), phone)
+        )
+        user_id = cur.lastrowid
+        
+        # Insert client details
+        cur.execute(
+            "INSERT INTO ClientDetails (UserId, Address, City, State) VALUES (%s, %s, %s, %s)",
+            (user_id, address, city, state)
         )
         mysql.connection.commit()
         cur.close()
@@ -114,7 +125,10 @@ def lawyer_signup():
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
+        phone = request.form.get('phone')
         license_number = request.form.get('license')
+        specialization = request.form.get('specialization')
+        experience = request.form.get('experience')
         
         # Handle file upload
         if 'license_proof' not in request.files:
@@ -126,6 +140,10 @@ def lawyer_signup():
             flash('No file selected', 'error')
             return render_template('lawyer_signup.html')
             
+        if not allowed_file(license_file.filename):
+            flash('Invalid file type. Please upload PDF, PNG, JPG, or JPEG files only.', 'error')
+            return render_template('lawyer_signup.html')
+            
         cur = mysql.connection.cursor()
         
         # Check if email already exists
@@ -134,21 +152,28 @@ def lawyer_signup():
             flash("Email already registered", "error")
             return render_template('lawyer_signup.html')
         
-        # Save file and insert lawyer
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(license_file.filename))
+        # Check if license number already exists
+        cur.execute("SELECT * FROM LawyerDetails WHERE LicenseNumber = %s", [license_number])
+        if cur.fetchone():
+            flash("License number already registered", "error")
+            return render_template('lawyer_signup.html')
+        
+        # Save file
+        filename = secure_filename(license_file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         license_file.save(file_path)
         
         # Insert lawyer user
         cur.execute(
             "INSERT INTO Users (FirstName, LastName, Email, Password, Phone, UserType) VALUES (%s, %s, %s, %s, %s, 'Lawyer')",
-            (name.split()[0], name.split()[-1], email, generate_password_hash(password), request.form.get('phone'))
+            (name.split()[0], name.split()[-1], email, generate_password_hash(password), phone)
         )
         user_id = cur.lastrowid
         
         # Insert lawyer details
         cur.execute(
             "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, license_number, file_path, request.form.get('specialization'), request.form.get('experience'))
+            (user_id, license_number, file_path, specialization, experience)
         )
         mysql.connection.commit()
         cur.close()
@@ -242,8 +267,7 @@ def admin_dashboard():
                 WHEN 'Pending' THEN 1
                 WHEN 'Rejected' THEN 2
                 WHEN 'Approved' THEN 3
-            END,
-            ld.CreatedAt DESC
+            END
     """)
     pending_lawyers = cur.fetchall()
     cur.close()
