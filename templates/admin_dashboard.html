@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+</head>
+<body>
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+
+    <div class="dashboard-container">
+        <h2>Lawyer Verification Requests</h2>
+        
+        <div class="verification-list">
+            {% for lawyer in pending_lawyers %}
+            <div class="verification-item">
+                <h3>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h3>
+                <div class="verification-details">
+                    <p><strong>Email:</strong> {{ lawyer.Email }}</p>
+                    <p><strong>License Number:</strong> {{ lawyer.LicenseNumber }}</p>
+                    <p><strong>Specialization:</strong> {{ lawyer.Specialization }}</p>
+                    <p><strong>Experience:</strong> {{ lawyer.YearsOfExperience }} years</p>
+                    <p><strong>Status:</strong> 
+                        <span class="status-badge status-{{ lawyer.VerificationStatus.lower() }}">
+                            {{ lawyer.VerificationStatus }}
+                        </span>
+                    </p>
+                </div>
+                <div class="verification-actions">
+                    <button class="btn view-btn" onclick="viewDocument('{{ lawyer.LicenseProof }}')">
+                        <i class="fas fa-eye"></i> View License
+                    </button>
+                    {% if lawyer.VerificationStatus == 'Pending' %}
+                    <form action="{{ url_for('verify_lawyer') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="lawyer_id" value="{{ lawyer.id }}">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="btn approve-btn">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </form>
+                    <form action="{{ url_for('verify_lawyer') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="lawyer_id" value="{{ lawyer.id }}">
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="btn reject-btn">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not pending_lawyers %}
+            <div class="verification-item">
+                <p style="text-align: center; color: #666;">No pending verification requests.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>License Document Preview</h3>
+            <img id="documentPreview" class="document-preview" src="" alt="License Document">
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById('documentModal');
+        const closeBtn = document.getElementsByClassName('close-btn')[0];
+        const documentPreview = document.getElementById('documentPreview');
+
+        function viewDocument(documentPath) {
+            documentPreview.src = documentPath;
+            modal.style.display = 'block';
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html> 
