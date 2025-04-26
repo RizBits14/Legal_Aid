@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Sign In - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="signin-container">
+        <a href="{{ url_for('signin') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h2>Lawyer Sign In</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('lawyer_signin') }}" method="POST">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password" required>
+                    <i class="fas fa-eye password-toggle" id="password-toggle"></i>
+                </div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+            {% if verification_status == 'Pending' %}
+            <div class="alert alert-warning">
+                Your account is pending verification. Please wait for admin approval.
+            </div>
+            {% endif %}
+            {% if verification_status == 'Rejected' %}
+            <div class="alert alert-error">
+                Your account verification was rejected. Please contact support.
+            </div>
+            {% endif %}
+            <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <button type="submit" class="signin-btn">Sign In</button>
+        </form>
+
+        <div class="social-signin">
+            <div class="social-signin-title">
+                <span>Or sign in with</span>
+            </div>
+            <div class="social-buttons">
+                <button type="button" class="social-btn" title="Sign in with Google">
+                    <i class="fab fa-google"></i>
+                </button>
+                <button type="button" class="social-btn" title="Sign in with Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+                <button type="button" class="social-btn" title="Sign in with LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="signup-link">
+            Don't have an account? <a href="{{ url_for('lawyer_signup') }}">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('password-toggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type');
+            passwordInput.setAttribute('type', type === 'password' ? 'text' : 'password');
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let isValid = true;
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(el => {
+                if (!el.hasAttribute('data-persistent')) {
+                    el.style.display = 'none';
+                }
+            });
+            
+            // Email validation
+            if (!email.value.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
+                document.getElementById('email-error').textContent = 'Please enter a valid email address';
+                document.getElementById('email-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Password validation
+            if (password.value.length < 6) {
+                document.getElementById('password-error').textContent = 'Password must be at least 6 characters long';
+                document.getElementById('password-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html> 
