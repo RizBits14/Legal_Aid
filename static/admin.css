@@ -1,0 +1,151 @@
+.dashboard-container {
+    max-width: 1200px;
+    padding: 40px;
+    background-color: var(--ui-light);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px var(--shadow-dark);
+}
+
+.verification-list {
+    margin-top: 30px;
+}
+
+.verification-item {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px var(--shadow-dark);
+}
+
+.verification-item h3 {
+    color: var(--navbar-color);
+    margin: 0 0 10px 0;
+}
+
+.verification-details {
+    margin-bottom: 15px;
+}
+
+.verification-details p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.verification-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.approve-btn {
+    background-color: #28a745;
+    color: var(--text-light);
+}
+
+.reject-btn {
+    background-color: #dc3545;
+    color: var(--text-light);
+}
+
+.view-btn {
+    background-color: var(--text-color);
+    color: var(--text-light);
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: var(--navbar-color);
+    color: var(--text-light);
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: var(--text-color);
+    transform: translateY(-2px);
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-dark);
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: var(--navbar-color);
+}
+
+.document-preview {
+    max-width: 100%;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-dark);
+} 
