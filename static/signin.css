@@ -402,6 +402,8 @@ h2::after {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
 }
 
 .social-btn i {
@@ -414,6 +416,7 @@ h2::after {
     background: var(--text-color);
     transform: translateY(-3px) rotate(8deg);
     box-shadow: 0 4px 12px var(--shadow-dark);
+    text-decoration: none;
 }
 
 .social-btn:hover i {
