@@ -57,6 +57,12 @@
                 <input type="file" id="license_proof" name="license_proof" required accept=".pdf,.png,.jpg,.jpeg">
                 <span class="file-name">No file chosen</span>
             </div>
+            <div class="input-group file-group">
+                <i class="fas fa-camera"></i>
+                <label for="photo">Upload Profile Photo</label>
+                <input type="file" id="photo" name="photo" required accept=".png,.jpg,.jpeg">
+                <span class="file-name">No file chosen</span>
+            </div>
             <button type="submit">Sign Up</button>
         </form>
         <p>Already have an account? <a href="/signin">Sign in</a></p>
@@ -67,6 +73,11 @@
         document.getElementById('license_proof').addEventListener('change', function() {
             const fileName = this.files[0]?.name || 'No file chosen';
             document.querySelector('.file-name').textContent = fileName;
+        });
+        
+        document.getElementById('photo').addEventListener('change', function() {
+            const fileName = this.files[0]?.name || 'No file chosen';
+            this.parentElement.querySelector('.file-name').textContent = fileName;
         });
     </script>
 </body>
