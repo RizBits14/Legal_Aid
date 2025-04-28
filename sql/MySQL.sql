@@ -18,11 +18,12 @@ CREATE TABLE LawyerDetails (
     id INT AUTO_INCREMENT PRIMARY KEY,
     UserId INT NOT NULL,
     LicenseNumber VARCHAR(50) NOT NULL UNIQUE,
-    LicenseProof VARCHAR(255) NOT NULL,  -- Path to uploaded license document
+    LicenseProof VARCHAR(255) NOT NULL,
+    Photo VARCHAR(255) NOT NULL,  
     Specialization VARCHAR(100) NOT NULL,
     YearsOfExperience INT NOT NULL,
     VerificationStatus ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    VerifiedBy INT,  -- References Admin who verified
+    VerifiedBy INT,  
     VerificationDate TIMESTAMP NULL,
     FOREIGN KEY (UserId) REFERENCES Users(id),
     FOREIGN KEY (VerifiedBy) REFERENCES Users(id)
@@ -34,6 +35,7 @@ CREATE TABLE ClientDetails (
     Address TEXT NOT NULL,
     City VARCHAR(50) NOT NULL,
     State VARCHAR(50) NOT NULL,
+    Photo VARCHAR(255) NOT NULL,  
     FOREIGN KEY (UserId) REFERENCES Users(id)
 );
 
