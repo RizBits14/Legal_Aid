@@ -33,6 +33,32 @@ body::before {
     pointer-events: none;
 }
 
+.back-to-home {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background-color: var(--navbar-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.back-to-home:hover {
+    background-color: var(--text-color);
+    transform: translateX(-5px);
+}
+
+.back-to-home i {
+    font-size: 1.1rem;
+}
+
 .signup-options-container {
     background-color: var(--ui-color);
     padding: 60px 80px;
