@@ -6,10 +6,54 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 from functools import wraps
+from authlib.integrations.flask_client import OAuth
+import json
 
 app = Flask(__name__)
 app.secret_key = 'Kage0012'
 s = URLSafeTimedSerializer(app.secret_key)
+
+# OAuth Configuration
+oauth = OAuth(app)
+
+# Google OAuth
+google = oauth.register(
+    name='google',
+    client_id='YOUR_GOOGLE_CLIENT_ID',
+    client_secret='YOUR_GOOGLE_CLIENT_SECRET',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={'scope': 'email profile'},
+)
+
+# Facebook OAuth
+facebook = oauth.register(
+    name='facebook',
+    client_id='YOUR_FACEBOOK_CLIENT_ID',
+    client_secret='YOUR_FACEBOOK_CLIENT_SECRET',
+    access_token_url='https://graph.facebook.com/oauth/access_token',
+    access_token_params=None,
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    authorize_params=None,
+    api_base_url='https://graph.facebook.com/',
+    client_kwargs={'scope': 'email'},
+)
+
+# LinkedIn OAuth
+linkedin = oauth.register(
+    name='linkedin',
+    client_id='YOUR_LINKEDIN_CLIENT_ID',
+    client_secret='YOUR_LINKEDIN_CLIENT_SECRET',
+    access_token_url='https://www.linkedin.com/oauth/v2/accessToken',
+    access_token_params=None,
+    authorize_url='https://www.linkedin.com/oauth/v2/authorization',
+    authorize_params=None,
+    api_base_url='https://api.linkedin.com/v2/',
+    client_kwargs={'scope': 'r_liteprofile r_emailaddress'},
+)
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -28,7 +72,9 @@ app.config['MYSQL_DB'] = 'Legal_Aid'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 # File Upload Configuration
-UPLOAD_FOLDER = 'static/uploads/licenses'
+UPLOAD_FOLDER = 'static/uploads'
+LICENSE_FOLDER = os.path.join(UPLOAD_FOLDER, 'licenses')
+PHOTO_FOLDER = os.path.join(UPLOAD_FOLDER, 'photos')
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -38,8 +84,9 @@ app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
 
 mysql = MySQL(app)
 
-# Create upload directory if it doesn't exist
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Create upload directories if they don't exist
+os.makedirs(LICENSE_FOLDER, exist_ok=True)
+os.makedirs(PHOTO_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -91,6 +138,20 @@ def client_signup():
         city = request.form.get('city')
         state = request.form.get('state')
         
+        # Handle photo upload
+        if 'photo' not in request.files:
+            flash('No photo uploaded', 'error')
+            return render_template('client_signup.html')
+            
+        photo_file = request.files['photo']
+        if photo_file.filename == '':
+            flash('No photo selected', 'error')
+            return render_template('client_signup.html')
+            
+        if not allowed_file(photo_file.filename):
+            flash('Invalid file type. Please upload PNG, JPG, or JPEG files only.', 'error')
+            return render_template('client_signup.html')
+        
         cur = mysql.connection.cursor()
         
         # Check if email already exists
@@ -98,6 +159,11 @@ def client_signup():
         if cur.fetchone():
             flash("Email already registered", "error")
             return render_template('client_signup.html')
+        
+        # Save photo
+        filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(PHOTO_FOLDER, filename)
+        photo_file.save(photo_path)
         
         # Insert new client into Users table
         cur.execute(
@@ -108,8 +174,8 @@ def client_signup():
         
         # Insert client details
         cur.execute(
-            "INSERT INTO ClientDetails (UserId, Address, City, State) VALUES (%s, %s, %s, %s)",
-            (user_id, address, city, state)
+            "INSERT INTO ClientDetails (UserId, Address, City, State, Photo) VALUES (%s, %s, %s, %s, %s)",
+            (user_id, address, city, state, photo_path)
         )
         mysql.connection.commit()
         cur.close()
@@ -130,18 +196,32 @@ def lawyer_signup():
         specialization = request.form.get('specialization')
         experience = request.form.get('experience')
         
-        # Handle file upload
+        # Handle license proof upload
         if 'license_proof' not in request.files:
-            flash('No file uploaded', 'error')
+            flash('No license proof uploaded', 'error')
             return render_template('lawyer_signup.html')
             
         license_file = request.files['license_proof']
         if license_file.filename == '':
-            flash('No file selected', 'error')
+            flash('No license proof selected', 'error')
             return render_template('lawyer_signup.html')
             
         if not allowed_file(license_file.filename):
             flash('Invalid file type. Please upload PDF, PNG, JPG, or JPEG files only.', 'error')
+            return render_template('lawyer_signup.html')
+            
+        # Handle photo upload
+        if 'photo' not in request.files:
+            flash('No photo uploaded', 'error')
+            return render_template('lawyer_signup.html')
+            
+        photo_file = request.files['photo']
+        if photo_file.filename == '':
+            flash('No photo selected', 'error')
+            return render_template('lawyer_signup.html')
+            
+        if not allowed_file(photo_file.filename):
+            flash('Invalid file type. Please upload PNG, JPG, or JPEG files only.', 'error')
             return render_template('lawyer_signup.html')
             
         cur = mysql.connection.cursor()
@@ -158,10 +238,14 @@ def lawyer_signup():
             flash("License number already registered", "error")
             return render_template('lawyer_signup.html')
         
-        # Save file
-        filename = secure_filename(license_file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        license_file.save(file_path)
+        # Save files
+        license_filename = secure_filename(license_file.filename)
+        license_path = os.path.join(LICENSE_FOLDER, license_filename)
+        license_file.save(license_path)
+        
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(PHOTO_FOLDER, photo_filename)
+        photo_file.save(photo_path)
         
         # Insert lawyer user
         cur.execute(
@@ -172,8 +256,8 @@ def lawyer_signup():
         
         # Insert lawyer details
         cur.execute(
-            "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, license_number, file_path, specialization, experience)
+            "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Photo, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s, %s)",
+            (user_id, license_number, license_path, photo_path, specialization, experience)
         )
         mysql.connection.commit()
         cur.close()
@@ -318,6 +402,109 @@ def lawyer_dashboard():
 @app.route('/signin')
 def signin():
     return render_template('signin.html')
+
+# Social Login Routes
+@app.route('/login/google')
+def google_login():
+    redirect_uri = url_for('google_authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/login/google/authorize')
+def google_authorize():
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    
+    # Handle user registration/login
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Users WHERE Email = %s", [user_info['email']])
+    user = cur.fetchone()
+    
+    if not user:
+        # Create new user
+        cur.execute(
+            "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
+            (user_info['given_name'], user_info['family_name'], user_info['email'])
+        )
+        user_id = cur.lastrowid
+        mysql.connection.commit()
+    else:
+        user_id = user['id']
+    
+    session['user_id'] = user_id
+    session['user_type'] = 'Client'
+    flash('Welcome!', 'success')
+    return redirect(url_for('client_dashboard'))
+
+@app.route('/login/facebook')
+def facebook_login():
+    redirect_uri = url_for('facebook_authorize', _external=True)
+    return facebook.authorize_redirect(redirect_uri)
+
+@app.route('/login/facebook/authorize')
+def facebook_authorize():
+    token = facebook.authorize_access_token()
+    resp = facebook.get('me?fields=id,name,email')
+    user_info = resp.json()
+    
+    # Handle user registration/login
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Users WHERE Email = %s", [user_info['email']])
+    user = cur.fetchone()
+    
+    if not user:
+        # Create new user
+        name_parts = user_info['name'].split()
+        cur.execute(
+            "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
+            (name_parts[0], name_parts[-1], user_info['email'])
+        )
+        user_id = cur.lastrowid
+        mysql.connection.commit()
+    else:
+        user_id = user['id']
+    
+    session['user_id'] = user_id
+    session['user_type'] = 'Client'
+    flash('Welcome!', 'success')
+    return redirect(url_for('client_dashboard'))
+
+@app.route('/login/linkedin')
+def linkedin_login():
+    redirect_uri = url_for('linkedin_authorize', _external=True)
+    return linkedin.authorize_redirect(redirect_uri)
+
+@app.route('/login/linkedin/authorize')
+def linkedin_authorize():
+    token = linkedin.authorize_access_token()
+    resp = linkedin.get('me')
+    profile = resp.json()
+    
+    # Get email
+    resp = linkedin.get('emailAddress?q=members&projection=(elements*(handle~))')
+    email_info = resp.json()
+    email = email_info['elements'][0]['handle~']['emailAddress']
+    
+    # Handle user registration/login
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Users WHERE Email = %s", [email])
+    user = cur.fetchone()
+    
+    if not user:
+        # Create new user
+        cur.execute(
+            "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
+            (profile['localizedFirstName'], profile['localizedLastName'], email)
+        )
+        user_id = cur.lastrowid
+        mysql.connection.commit()
+    else:
+        user_id = user['id']
+    
+    session['user_id'] = user_id
+    session['user_type'] = 'Client'
+    flash('Welcome!', 'success')
+    return redirect(url_for('client_dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True) 
