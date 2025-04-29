@@ -706,4 +706,135 @@ body::before {
         width: 150px;
         height: 150px;
     }
+}
+
+/* ===== Achievements Section ===== */
+.achievements-section {
+    padding: 80px 40px;
+    background-color: var(--ui-light);
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.achievement-card {
+    background-color: var(--background-color);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.achievement-card.animate {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.achievement-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px var(--shadow-dark);
+}
+
+.achievement-card i {
+    font-size: 2.5rem;
+    color: var(--navbar-color);
+    margin-bottom: 20px;
+}
+
+.achievement-card h3 {
+    font-size: 1.3rem;
+    color: var(--navbar-color);
+    margin-bottom: 15px;
+}
+
+.achievement-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+/* ===== Newsletter Section ===== */
+.newsletter-section {
+    background-color: var(--navbar-color);
+    padding: 40px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.newsletter-section h4 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.newsletter-section p {
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.newsletter-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.newsletter-form .form-group {
+    display: flex;
+    gap: 10px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.newsletter-form button {
+    background-color: var(--text-color);
+    color: var(--text-light);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    background-color: var(--ui-light);
+    color: var(--navbar-color);
+}
+
+/* ===== Bottom Links ===== */
+.bottom-links {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+.bottom-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.bottom-links a:hover {
+    opacity: 1;
+}
+
+.footer-bottom-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
 } 
