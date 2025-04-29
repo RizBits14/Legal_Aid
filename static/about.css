@@ -244,6 +244,10 @@ body::before {
     color: var(--navbar-color);
     margin-bottom: 60px;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 .section-title::after {
@@ -438,6 +442,12 @@ body::before {
     color: var(--text-color);
 }
 
+.personnel-name {
+    color: #16423C;
+    font-size: 1.5rem;
+    margin: 10px 0;
+}
+
 /* ===== History Section ===== */
 .history-section {
     padding: 80px 40px;
@@ -473,15 +483,9 @@ body::before {
     margin: 0 auto;
 }
 
+/* Removing the timeline line completely */
 .timeline::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 100%;
-    background-color: var(--text-color);
+    display: none;
 }
 
 .timeline-item {
@@ -506,6 +510,7 @@ body::before {
     border-radius: 50%;
     background-color: var(--navbar-color);
     border: 3px solid var(--ui-light);
+    z-index: 1;
 }
 
 .timeline-content {
@@ -523,97 +528,6 @@ body::before {
 .timeline-content h3 {
     color: var(--navbar-color);
     margin-bottom: 10px;
-}
-
-/* ===== Footer ===== */
-.footer {
-    background-color: var(--navbar-color);
-    color: var(--text-light);
-    padding: 60px 40px 20px;
-}
-
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
-}
-
-.footer-section {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.footer-section.animate {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.footer-logo img {
-    height: 40px;
-    width: auto;
-}
-
-.footer-logo h3 {
-    font-size: 1.8rem;
-}
-
-.footer-description {
-    margin-bottom: 20px;
-}
-
-.footer-section h4 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.footer-section h4::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 2px;
-    background-color: var(--text-color);
-}
-
-.footer-links, .contact-info {
-    list-style: none;
-}
-
-.footer-links li, .contact-info li {
-    margin-bottom: 10px;
-}
-
-.footer-links a, .contact-info a {
-    color: var(--text-light);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover, .contact-info a:hover {
-    color: var(--text-color);
-}
-
-.contact-info i {
-    margin-right: 10px;
-    color: var(--text-color);
-}
-
-.footer-bottom {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ===== Animations ===== */
