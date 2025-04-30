@@ -1,7 +1,7 @@
 #Install these to set up the virtual environment for flask on VS code terminal first one by one
 
 python -m venv venv
-.\venv\Scripts\activate
+.\venv\Scripts\activate #or `if you are using bash use source venv/Scripts/activate`
 pip install flask
 python.exe -m pip install --upgrade pip
 pip install mysql
