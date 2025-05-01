@@ -414,27 +414,34 @@ def google_authorize():
     token = google.authorize_access_token()
     resp = google.get('userinfo')
     user_info = resp.json()
-    
-    # Handle user registration/login
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Users WHERE Email = %s", [user_info['email']])
+
+    first_name = user_info.get('given_name', 'Unknown')
+    last_name = user_info.get('family_name', '')
+    email = user_info.get('email')
+
+    conn = create_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT * FROM Users WHERE Email = %s", (email,))
     user = cur.fetchone()
-    
+
     if not user:
-        # Create new user
         cur.execute(
             "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
-            (user_info['given_name'], user_info['family_name'], user_info['email'])
+            (first_name, last_name, email)
         )
+        conn.commit()
         user_id = cur.lastrowid
-        mysql.connection.commit()
     else:
         user_id = user['id']
-    
+
+    cur.close()
+    conn.close()
+
     session['user_id'] = user_id
     session['user_type'] = 'Client'
-    flash('Welcome!', 'success')
+    flash('Welcome via Google!', 'success')
     return redirect(url_for('client_dashboard'))
+
 
 @app.route('/login/facebook')
 def facebook_login():
@@ -446,28 +453,34 @@ def facebook_authorize():
     token = facebook.authorize_access_token()
     resp = facebook.get('me?fields=id,name,email')
     user_info = resp.json()
-    
-    # Handle user registration/login
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Users WHERE Email = %s", [user_info['email']])
+
+    conn = create_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("SELECT * FROM Users WHERE Email = %s", (user_info['email'],))
     user = cur.fetchone()
-    
+
     if not user:
-        # Create new user
         name_parts = user_info['name'].split()
+        first_name = name_parts[0]
+        last_name = name_parts[-1] if len(name_parts) > 1 else ''
         cur.execute(
             "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
-            (name_parts[0], name_parts[-1], user_info['email'])
+            (first_name, last_name, user_info['email'])
         )
+        conn.commit()
         user_id = cur.lastrowid
-        mysql.connection.commit()
     else:
         user_id = user['id']
-    
+
+    cur.close()
+    conn.close()
+
     session['user_id'] = user_id
     session['user_type'] = 'Client'
-    flash('Welcome!', 'success')
+    flash('Welcome via Facebook!', 'success')
     return redirect(url_for('client_dashboard'))
+
 
 @app.route('/login/linkedin')
 def linkedin_login():
@@ -477,34 +490,37 @@ def linkedin_login():
 @app.route('/login/linkedin/authorize')
 def linkedin_authorize():
     token = linkedin.authorize_access_token()
-    resp = linkedin.get('me')
-    profile = resp.json()
-    
-    # Get email
-    resp = linkedin.get('emailAddress?q=members&projection=(elements*(handle~))')
-    email_info = resp.json()
+    profile = linkedin.get('me').json()
+
+    email_info = linkedin.get(
+        'emailAddress?q=members&projection=(elements*(handle~))'
+    ).json()
     email = email_info['elements'][0]['handle~']['emailAddress']
-    
-    # Handle user registration/login
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Users WHERE Email = %s", [email])
+
+    conn = create_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("SELECT * FROM Users WHERE Email = %s", (email,))
     user = cur.fetchone()
-    
+
     if not user:
-        # Create new user
         cur.execute(
             "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
             (profile['localizedFirstName'], profile['localizedLastName'], email)
         )
+        conn.commit()
         user_id = cur.lastrowid
-        mysql.connection.commit()
     else:
         user_id = user['id']
-    
+
+    cur.close()
+    conn.close()
+
     session['user_id'] = user_id
     session['user_type'] = 'Client'
-    flash('Welcome!', 'success')
+    flash('Welcome via LinkedIn!', 'success')
     return redirect(url_for('client_dashboard'))
+
 
 @app.route('/about')
 def about():
@@ -512,4 +528,3 @@ def about():
 
 if __name__ == '__main__':
     app.run(debug=True) 
-
