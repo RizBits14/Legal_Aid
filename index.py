@@ -29,32 +29,6 @@ google = oauth.register(
     client_kwargs={'scope': 'email profile'},
 )
 
-# Facebook OAuth
-facebook = oauth.register(
-    name='facebook',
-    client_id='YOUR_FACEBOOK_CLIENT_ID',
-    client_secret='YOUR_FACEBOOK_CLIENT_SECRET',
-    access_token_url='https://graph.facebook.com/oauth/access_token',
-    access_token_params=None,
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    authorize_params=None,
-    api_base_url='https://graph.facebook.com/',
-    client_kwargs={'scope': 'email'},
-)
-
-# LinkedIn OAuth
-linkedin = oauth.register(
-    name='linkedin',
-    client_id='YOUR_LINKEDIN_CLIENT_ID',
-    client_secret='YOUR_LINKEDIN_CLIENT_SECRET',
-    access_token_url='https://www.linkedin.com/oauth/v2/accessToken',
-    access_token_params=None,
-    authorize_url='https://www.linkedin.com/oauth/v2/authorization',
-    authorize_params=None,
-    api_base_url='https://api.linkedin.com/v2/',
-    client_kwargs={'scope': 'r_liteprofile r_emailaddress'},
-)
-
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -441,86 +415,6 @@ def google_authorize():
     session['user_type'] = 'Client'
     flash('Welcome via Google!', 'success')
     return redirect(url_for('client_dashboard'))
-
-
-@app.route('/login/facebook')
-def facebook_login():
-    redirect_uri = url_for('facebook_authorize', _external=True)
-    return facebook.authorize_redirect(redirect_uri)
-
-@app.route('/login/facebook/authorize')
-def facebook_authorize():
-    token = facebook.authorize_access_token()
-    resp = facebook.get('me?fields=id,name,email')
-    user_info = resp.json()
-
-    conn = create_connection()
-    cur = conn.cursor(dictionary=True)
-
-    cur.execute("SELECT * FROM Users WHERE Email = %s", (user_info['email'],))
-    user = cur.fetchone()
-
-    if not user:
-        name_parts = user_info['name'].split()
-        first_name = name_parts[0]
-        last_name = name_parts[-1] if len(name_parts) > 1 else ''
-        cur.execute(
-            "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
-            (first_name, last_name, user_info['email'])
-        )
-        conn.commit()
-        user_id = cur.lastrowid
-    else:
-        user_id = user['id']
-
-    cur.close()
-    conn.close()
-
-    session['user_id'] = user_id
-    session['user_type'] = 'Client'
-    flash('Welcome via Facebook!', 'success')
-    return redirect(url_for('client_dashboard'))
-
-
-@app.route('/login/linkedin')
-def linkedin_login():
-    redirect_uri = url_for('linkedin_authorize', _external=True)
-    return linkedin.authorize_redirect(redirect_uri)
-
-@app.route('/login/linkedin/authorize')
-def linkedin_authorize():
-    token = linkedin.authorize_access_token()
-    profile = linkedin.get('me').json()
-
-    email_info = linkedin.get(
-        'emailAddress?q=members&projection=(elements*(handle~))'
-    ).json()
-    email = email_info['elements'][0]['handle~']['emailAddress']
-
-    conn = create_connection()
-    cur = conn.cursor(dictionary=True)
-
-    cur.execute("SELECT * FROM Users WHERE Email = %s", (email,))
-    user = cur.fetchone()
-
-    if not user:
-        cur.execute(
-            "INSERT INTO Users (FirstName, LastName, Email, UserType) VALUES (%s, %s, %s, 'Client')",
-            (profile['localizedFirstName'], profile['localizedLastName'], email)
-        )
-        conn.commit()
-        user_id = cur.lastrowid
-    else:
-        user_id = user['id']
-
-    cur.close()
-    conn.close()
-
-    session['user_id'] = user_id
-    session['user_type'] = 'Client'
-    flash('Welcome via LinkedIn!', 'success')
-    return redirect(url_for('client_dashboard'))
-
 
 @app.route('/about')
 def about():
