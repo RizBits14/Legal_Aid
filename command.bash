@@ -9,4 +9,5 @@ pip install mysql-connector-python
 pip install flask_mail
 pip install flask_mysqldb
 pip install authlib
+python.exe -m pip install --upgrade pip #if you are using bash use pip install --upgrade pip
 pip install requests authlib
