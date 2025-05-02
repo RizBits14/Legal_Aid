@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="RizBits14, Anindita9501, Anishaaa19" />
+    <meta name="description" content="Contact Legal Aid - Your trusted platform for finding legal professionals" />
+    <title>Contact Us - Legal Aid</title>
+    <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='contact.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+            <span>Legal Aid</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{url_for('index')}}">Home</a></li>
+            <li><a href="/lawyers">Lawyers</a></li>
+            <li><a href="{{url_for('about')}}">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/signin"><button>Sign In</button></a></li>
+            <li><a href="{{ url_for('signup') }}"><button>Sign Up</button></a></li>
+        </ul>
+    </nav>
+
+    <!-- Contact Hero Section -->
+    <section class="contact-hero">
+        <div class="hero-content">
+            <h1>Contact Legal Aid</h1>
+            <p>We're here to help you find the right legal assistance</p>
+        </div>
+    </section>
+
+    <!-- Contact Information Section -->
+    <section class="contact-info-section">
+        <div class="info-container">
+            <div class="info-card">
+                <i class="fas fa-phone-alt"></i>
+                <h3>24/7 Helpline</h3>
+                <p>1800-LEGAL-AID</p>
+                <p>Available round the clock for urgent legal assistance</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-envelope"></i>
+                <h3>Email Support</h3>
+                <p>support@legal-aid.com</p>
+                <p>Response within 24 hours</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-comments"></i>
+                <h3>Live Chat</h3>
+                <p>Available 9 AM - 9 PM EST</p>
+                <p>Instant support for your queries</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="contact-form-section">
+        <div class="form-container">
+            <h2>Get in Touch</h2>
+            <p>Fill out the form below and we'll get back to you as soon as possible</p>
+            <form class="contact-form" action="/contact" method="POST">
+                <div class="form-group">
+                    <input type="text" id="name" name="name" required>
+                    <label for="name">Full Name</label>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" name="email" required>
+                    <label for="email">Email Address</label>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="phone" name="phone">
+                    <label for="phone">Phone Number</label>
+                </div>
+                <div class="form-group">
+                    <select id="subject" name="subject" required>
+                        <option value="">Select Subject</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="legal">Legal Consultation</option>
+                        <option value="technical">Technical Support</option>
+                        <option value="feedback">Feedback</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="message" name="message" required></textarea>
+                    <label for="message">Your Message</label>
+                </div>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Office Locations Section -->
+    <section class="office-locations">
+        <h2>Our Offices</h2>
+        <div class="locations-container">
+            <div class="location-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>New York</h3>
+                <p>123 Legal Avenue, Courthouse District</p>
+                <p>New York, NY 10001</p>
+                <p>+1 (212) 555-0123</p>
+            </div>
+            <div class="location-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Los Angeles</h3>
+                <p>456 Justice Boulevard</p>
+                <p>Los Angeles, CA 90012</p>
+                <p>+1 (213) 555-0123</p>
+            </div>
+            <div class="location-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Chicago</h3>
+                <p>789 Law Street</p>
+                <p>Chicago, IL 60601</p>
+                <p>+1 (312) 555-0123</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>How quickly will I receive a response?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We typically respond to all inquiries within 24 hours. For urgent matters, please call our 24/7 helpline.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Is the initial consultation free?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, we offer a free 30-minute initial consultation with our legal experts to discuss your case.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>How do I schedule an appointment?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can schedule an appointment through our online booking system, by phone, or by filling out the contact form above.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                    <h3>Legal Aid</h3>
+                </div>
+                <p class="footer-description">Connecting you with trusted legal professionals for a more accessible and transparent legal system.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // FAQ Accordion
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', () => {
+                    const answer = item.querySelector('.faq-answer');
+                    const icon = question.querySelector('i');
+                    
+                    // Close other open items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.querySelector('.faq-answer').style.maxHeight = null;
+                            otherItem.querySelector('.faq-question i').style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    // Toggle current item
+                    if (answer.style.maxHeight) {
+                        answer.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            // Form input animation
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                const input = group.querySelector('input, textarea, select');
+                const label = group.querySelector('label');
+                
+                input.addEventListener('focus', () => {
+                    label.classList.add('active');
+                });
+                
+                input.addEventListener('blur', () => {
+                    if (!input.value) {
+                        label.classList.remove('active');
+                    }
+                });
+            });
+
+            // Scroll animations
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.info-card, .location-card, .form-container, .faq-item').forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>
