@@ -67,6 +67,15 @@
         <div class="form-container">
             <h2>Get in Touch</h2>
             <p>Fill out the form below and we'll get back to you as soon as possible</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <form class="contact-form" action="/contact" method="POST">
                 <div class="form-group">
                     <input type="text" id="name" name="name" required>
