@@ -420,5 +420,59 @@ def google_authorize():
 def about():
     return render_template('about.html')
 
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        # Get form data
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        
+        # Basic validation
+        if not name or not email or not message:
+            flash('Please fill in all required fields', 'error')
+            return redirect(url_for('contact'))
+        
+        try:
+            # Create a message for the email
+            msg = Message(
+                subject=f"New Contact Form Submission - {subject}",
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[app.config['MAIL_USERNAME']],  # Send to admin email
+                body=f"""
+                Name: {name}
+                Email: {email}
+                Phone: {phone}
+                Subject: {subject}
+                
+                Message:
+                {message}
+                """
+            )
+            
+            # Send the email
+            mail.send(msg)
+            
+            # Store in database if needed
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                INSERT INTO ContactMessages (name, email, phone, subject, message, created_at)
+                VALUES (%s, %s, %s, %s, %s, NOW())
+            """, (name, email, phone, subject, message))
+            mysql.connection.commit()
+            cur.close()
+            
+            flash('Thank you for your message! We will get back to you soon.', 'success')
+            return redirect(url_for('contact'))
+            
+        except Exception as e:
+            flash('An error occurred while sending your message. Please try again later.', 'error')
+            app.logger.error(f"Contact form error: {str(e)}")
+            return redirect(url_for('contact'))
+    
+    return render_template('contact.html')
+
 if __name__ == '__main__':
     app.run(debug=True) 
