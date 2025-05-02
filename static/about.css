@@ -59,9 +59,16 @@ body::before {
 .logo {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     cursor: pointer;
     transition: transform 0.3s ease;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 10px;
 }
 
 .logo:hover {
@@ -80,6 +87,7 @@ body::before {
     font-weight: 700;
     color: var(--text-light);
     text-shadow: 1px 2px 4px var(--shadow-dark);
+    line-height: 1;
 }
 
 /* ===== Nav Links ===== */
@@ -149,6 +157,15 @@ body::before {
 .nav-links button:hover {
     background-color: var(--text-light);
     transform: translateY(-2px);
+}
+
+.nav-links li:last-child button {
+    background-color: var(--text-color);
+    color: var(--text-light);
+}
+
+.nav-links li:last-child button:hover {
+    background-color: #5a8b78;
 }
 
 /* ===== Hero Section ===== */
