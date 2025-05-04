@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Lawyers - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lawyer_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+                <span>Legal Aid</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{url_for('index')}}">Home</a></li>
+            <li><a href="/lawyers">Lawyers</a></li>
+            <li><a href="{{url_for('about')}}">About</a></li>
+            <li><a href="{{url_for('contact')}}">Contact</a></li>
+            <li><a href="/signin"><button>Sign In</button></a></li>
+            <li><a href="{{url_for('signup')}}"><button>Sign Up</button></a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lawyer-page">
+        <div class="page-header">
+            <h1>Our Expert Lawyers</h1>
+            <p><strong>Connect with verified and experienced legal professionals</strong></p>
+        </div>
+
+        <div class="search-filter">
+            <div class="search-bar">
+                <input type="text" placeholder="Search lawyers by name or specialization...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filters">
+                <select id="specialization">
+                    <option value="">All Specializations</option>
+                    <option value="Family Law">Family Law</option>
+                    <option value="Criminal Law">Criminal Law</option>
+                    <option value="Corporate Law">Corporate Law</option>
+                    <option value="Real Estate">Real Estate</option>
+                    <option value="Immigration">Immigration</option>
+                </select>
+                <select id="experience">
+                    <option value="">Experience</option>
+                    <option value="1-5">1-5 years</option>
+                    <option value="5-10">5-10 years</option>
+                    <option value="10+">10+ years</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="lawyer-grid">
+            {% for lawyer in lawyers %}
+            <div class="lawyer-card" data-specialization="{{ lawyer.specialization }}" data-experience="{{ lawyer.experience }}">
+                <div class="card-image">
+                    <img src="{{ url_for('static', filename=lawyer.photo) }}" alt="{{ lawyer.name }}">
+                    <div class="experience-badge">{{ lawyer.experience }} years</div>
+                </div>
+                <div class="card-content">
+                    <h3>{{ lawyer.name }}</h3>
+                    <p class="specialization">{{ lawyer.specialization }}</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(4.5)</span>
+                    </div>
+                    <p class="description">{{ lawyer.description }}</p>
+                    <div class="card-footer">
+                        <button class="book-btn" data-lawyer-id="{{ lawyer.id }}">Book Consultation</button>
+                        <a href="#" class="view-profile">View Profile</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Company Info -->
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                    <h3>Legal Aid</h3>
+                </div>
+                <p class="footer-description">Connecting you with trusted legal professionals for a more accessible and
+                    transparent legal system.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+    
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/find-lawyer"><i class="fas fa-search"></i> Find a Lawyer</a></li>
+                    <li><a href="/practice-areas"><i class="fas fa-balance-scale"></i> Practice Areas</a></li>
+                    <li><a href="/pricing"><i class="fas fa-dollar-sign"></i> Pricing</a></li>
+                    <li><a href="/blog"><i class="fas fa-book-reader"></i> Legal Blog</a></li>
+                    <li><a href="/faqs"><i class="fas fa-question-circle"></i> FAQs</a></li>
+                </ul>
+            </div>
+    
+            <!-- Practice Areas -->
+            <div class="footer-section">
+                <h4>Practice Areas</h4>
+                <ul class="footer-links">
+                    <li><a href="/family-law">Family Law</a></li>
+                    <li><a href="/criminal-law">Criminal Defense</a></li>
+                    <li><a href="/corporate-law">Corporate Law</a></li>
+                    <li><a href="/real-estate">Real Estate</a></li>
+                    <li><a href="/immigration">Immigration</a></li>
+                </ul>
+            </div>
+    
+            <!-- Contact Info -->
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <ul class="contact-info">
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>24/7 Helpline: <a href="tel:1800-LEGAL-AID">1800-LEGAL-AID</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>Email: <a href="mailto:support@legal-aid.com">support@legal-aid.com</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Legal Avenue, Courthouse District<br>New York, NY 10001</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    
+        <!-- Newsletter Subscription -->
+        <div class="newsletter-section">
+            <h4>Subscribe to Our Newsletter</h4>
+            <p>Stay updated with legal news and tips</p>
+            <form class="newsletter-form" action="/subscribe" method="POST">
+                <div class="form-group">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Subscribe <i class="fas fa-paper-plane"></i></button>
+                </div>
+            </form>
+        </div>
+    
+        <!-- Bottom Bar -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+                <ul class="bottom-links">
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/sitemap">Sitemap</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.querySelector('.search-bar input');
+            const lawyerCards = document.querySelectorAll('.lawyer-card');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                lawyerCards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    const specialization = card.querySelector('.specialization').textContent.toLowerCase();
+                    if (name.includes(searchTerm) || specialization.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // Filter functionality
+            const specializationFilter = document.getElementById('specialization');
+            const experienceFilter = document.getElementById('experience');
+
+            function applyFilters() {
+                const selectedSpecialization = specializationFilter.value;
+                const selectedExperience = experienceFilter.value;
+
+                lawyerCards.forEach(card => {
+                    const cardSpecialization = card.dataset.specialization;
+                    const cardExperience = card.dataset.experience;
+
+                    const matchesSpecialization = !selectedSpecialization || cardSpecialization === selectedSpecialization;
+                    const matchesExperience = !selectedExperience || 
+                        (selectedExperience === '1-5' && cardExperience <= 5) ||
+                        (selectedExperience === '5-10' && cardExperience > 5 && cardExperience <= 10) ||
+                        (selectedExperience === '10+' && cardExperience > 10);
+
+                    if (matchesSpecialization && matchesExperience) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            specializationFilter.addEventListener('change', applyFilters);
+            experienceFilter.addEventListener('change', applyFilters);
+
+            // Booking functionality
+            const bookButtons = document.querySelectorAll('.book-btn');
+            bookButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lawyerId = this.dataset.lawyerId;
+                    // Add booking logic here
+                    alert('Booking functionality will be implemented soon!');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
