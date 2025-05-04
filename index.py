@@ -526,5 +526,21 @@ def update_message_status():
     flash(f'Message status updated to {new_status}', 'success')
     return redirect(url_for('admin_contact_messages'))
 
+@app.route('/lawyers')
+def lawyer_page():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               ld.Specialization, ld.YearsOfExperience as experience,
+               ld.Photo, ld.LicenseNumber
+        FROM Users u
+        JOIN LawyerDetails ld ON u.id = ld.UserId
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+    """)
+    lawyers = cur.fetchall()
+    cur.close()
+    
+    return render_template('lawyer_page.html', lawyers=lawyers)
+
 if __name__ == '__main__':
     app.run(debug=True) 
