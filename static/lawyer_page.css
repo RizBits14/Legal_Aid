@@ -382,7 +382,7 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -413,8 +413,9 @@ body {
 .footer-description {
     color: var(--light-text);
     opacity: 0.9;
-    max-width: 600px;
+    max-width: 400px;
     margin: 0 auto 2rem;
+    margin-bottom: 1rem;
     line-height: 1.6;
 }
 
@@ -422,7 +423,7 @@ body {
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .social-link {
@@ -438,9 +439,9 @@ body {
 
 .footer-bottom {
     text-align: center;
-    padding: 1.5rem 0;
+    padding: 1rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .footer-bottom p {
