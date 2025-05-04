@@ -8,6 +8,11 @@ import os
 from functools import wraps
 from authlib.integrations.flask_client import OAuth
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
+
+print(os.getenv('MYSQL_HOST'))
 
 app = Flask(__name__)
 app.secret_key = 'Kage0012'
@@ -436,26 +441,7 @@ def contact():
             return redirect(url_for('contact'))
         
         try:
-            # Create a message for the email
-            msg = Message(
-                subject=f"New Contact Form Submission - {subject}",
-                sender=app.config['MAIL_USERNAME'],
-                recipients=[app.config['MAIL_USERNAME']],  # Send to admin email
-                body=f"""
-                Name: {name}
-                Email: {email}
-                Phone: {phone}
-                Subject: {subject}
-                
-                Message:
-                {message}
-                """
-            )
-            
-            # Send the email
-            mail.send(msg)
-            
-            # Store in database if needed
+            # Store in database first
             cur = mysql.connection.cursor()
             cur.execute("""
                 INSERT INTO ContactMessages (name, email, phone, subject, message, created_at)
@@ -464,15 +450,81 @@ def contact():
             mysql.connection.commit()
             cur.close()
             
+            # Try to send email
+            try:
+                msg = Message(
+                    subject=f"New Contact Form Submission - {subject}",
+                    sender=app.config['MAIL_USERNAME'],
+                    recipients=[app.config['MAIL_USERNAME']],  # Send to admin email
+                    body=f"""
+                    Name: {name}
+                    Email: {email}
+                    Phone: {phone}
+                    Subject: {subject}
+                    
+                    Message:
+                    {message}
+                    """
+                )
+                mail.send(msg)
+            except Exception as mail_error:
+                app.logger.error(f"Email sending failed: {str(mail_error)}")
+                # Don't return here, continue to show success message since data was saved
+            
             flash('Thank you for your message! We will get back to you soon.', 'success')
             return redirect(url_for('contact'))
             
-        except Exception as e:
-            flash('An error occurred while sending your message. Please try again later.', 'error')
-            app.logger.error(f"Contact form error: {str(e)}")
+        except Exception as db_error:
+            flash('An error occurred while saving your message. Please try again later.', 'error')
+            app.logger.error(f"Database error: {str(db_error)}")
             return redirect(url_for('contact'))
     
     return render_template('contact.html')
+
+@app.route('/admin/contact-messages')
+@admin_required
+def admin_contact_messages():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT * FROM ContactMessages 
+        ORDER BY 
+            CASE status
+                WHEN 'New' THEN 1
+                WHEN 'Pending' THEN 2
+                WHEN 'Solved' THEN 3
+                WHEN 'Rejected' THEN 4
+            END,
+            created_at DESC
+    """)
+    messages = cur.fetchall()
+    cur.close()
+    return render_template('admin_contact_messages.html', messages=messages)
+
+@app.route('/admin/update-message-status', methods=['POST'])
+@admin_required
+def update_message_status():
+    message_id = request.form.get('message_id')
+    new_status = request.form.get('status')
+    
+    if not message_id or not new_status:
+        flash('Invalid request', 'error')
+        return redirect(url_for('admin_contact_messages'))
+    
+    if new_status not in ['New', 'Pending', 'Solved', 'Rejected']:
+        flash('Invalid status', 'error')
+        return redirect(url_for('admin_contact_messages'))
+    
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE ContactMessages 
+        SET status = %s 
+        WHERE id = %s
+    """, (new_status, message_id))
+    mysql.connection.commit()
+    cur.close()
+    
+    flash(f'Message status updated to {new_status}', 'success')
+    return redirect(url_for('admin_contact_messages'))
 
 if __name__ == '__main__':
     app.run(debug=True) 
