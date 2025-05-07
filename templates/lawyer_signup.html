@@ -54,14 +54,16 @@
             <div class="input-group file-group">
                 <i class="fas fa-file-upload"></i>
                 <label for="license_proof">Upload License Proof</label>
-                <input type="file" id="license_proof" name="license_proof" required accept=".pdf,.png,.jpg,.jpeg">
-                <span class="file-name">No file chosen</span>
+                <input type="file" class="file-input" id="license_proof" name="license_proof" required
+                    accept=".pdf,.png,.jpg,.jpeg">
+                <span class="file-name" id="license-file-name">No file chosen</span>
             </div>
+            
             <div class="input-group file-group">
                 <i class="fas fa-camera"></i>
                 <label for="photo">Upload Profile Photo</label>
-                <input type="file" id="photo" name="photo" required accept=".png,.jpg,.jpeg">
-                <span class="file-name">No file chosen</span>
+                <input type="file" class="file-input" id="photo" name="photo" required accept=".png,.jpg,.jpeg">
+                <span class="file-name" id="photo-file-name">No file chosen</span>
             </div>
             <button type="submit">Sign Up</button>
         </form>
@@ -69,15 +71,16 @@
     </div>
 
     <script>
-        // Display file name when selected
-        document.getElementById('license_proof').addEventListener('change', function() {
+        // Show selected file name for license proof
+        document.getElementById('license_proof').addEventListener('change', function () {
             const fileName = this.files[0]?.name || 'No file chosen';
-            document.querySelector('.file-name').textContent = fileName;
+            document.getElementById('license-file-name').textContent = fileName;
         });
-        
-        document.getElementById('photo').addEventListener('change', function() {
+
+        // Show selected file name for profile photo
+        document.getElementById('photo').addEventListener('change', function () {
             const fileName = this.files[0]?.name || 'No file chosen';
-            this.parentElement.querySelector('.file-name').textContent = fileName;
+            document.getElementById('photo-file-name').textContent = fileName;
         });
     </script>
 </body>
