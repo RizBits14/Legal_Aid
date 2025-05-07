@@ -1,6 +1,6 @@
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from flask_mail import Mail, Message
-from flask import Flask, redirect, render_template, request, session, url_for, flash
+from flask import Flask, redirect, render_template, request, session, url_for, flash, send_file
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -9,6 +9,8 @@ from functools import wraps
 from authlib.integrations.flask_client import OAuth
 import json
 from dotenv import load_dotenv
+import io
+from PIL import Image  # Add Pillow for image processing
 
 load_dotenv()
 
@@ -49,6 +51,9 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'Legal_Aid'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+app.config['MYSQL_CONNECT_TIMEOUT'] = 60
+app.config['MYSQL_READ_DEFAULT_TIMEOUT'] = 60
+app.config['MYSQL_WRITE_TIMEOUT'] = 60
 
 # File Upload Configuration
 UPLOAD_FOLDER = 'static/uploads'
@@ -69,6 +74,30 @@ os.makedirs(PHOTO_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def compress_image(image_data, max_size_kb=500):
+    """Compress an image to reduce its size."""
+    try:
+        img = Image.open(io.BytesIO(image_data))
+        
+        # Calculate target size
+        target_size = max_size_kb * 1024
+        
+        # Start with quality 90
+        quality = 90
+        output = io.BytesIO()
+        img.save(output, format='JPEG', quality=quality)
+        
+        # Reduce quality until we get below target size or reach minimum quality
+        while output.tell() > target_size and quality > 30:
+            output = io.BytesIO()
+            quality -= 10
+            img.save(output, format='JPEG', quality=quality)
+        
+        return output.getvalue()
+    except Exception as e:
+        print(f"Image compression error: {str(e)}")
+        return image_data  # Return original if compression fails
 
 # Login decorators
 def login_required(f):
@@ -97,6 +126,21 @@ def lawyer_required(f):
 
 def create_connection():
     return mysql.connection
+
+def check_connection():
+    try:
+        # Try to ping the connection to see if it's alive
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        return True
+    except:
+        # If connection is lost, attempt to reconnect
+        try:
+            mysql.connection.ping(True)
+            return True
+        except:
+            return False
 
 @app.route('/')
 def index():
@@ -203,46 +247,75 @@ def lawyer_signup():
             flash('Invalid file type. Please upload PNG, JPG, or JPEG files only.', 'error')
             return render_template('lawyer_signup.html')
             
-        cur = mysql.connection.cursor()
-        
-        # Check if email already exists
-        cur.execute("SELECT * FROM Users WHERE email = %s", [email])
-        if cur.fetchone():
-            flash("Email already registered", "error")
+        try:
+            # Ensure MySQL connection is active
+            if not check_connection():
+                flash("Database connection error. Please try again.", "error")
+                return render_template('lawyer_signup.html')
+                
+            # Check if email already exists first
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * FROM Users WHERE email = %s", [email])
+            if cur.fetchone():
+                cur.close()
+                flash("Email already registered", "error")
+                return render_template('lawyer_signup.html')
+            
+            # Check if license number already exists
+            cur.execute("SELECT * FROM LawyerDetails WHERE LicenseNumber = %s", [license_number])
+            if cur.fetchone():
+                cur.close()
+                flash("License number already registered", "error")
+                return render_template('lawyer_signup.html')
+            
+            # Save license file
+            license_filename = secure_filename(license_file.filename)
+            license_path = os.path.join(LICENSE_FOLDER, license_filename)
+            license_file.save(license_path)
+            
+            # Save photo file instead of storing as binary
+            photo_filename = secure_filename(photo_file.filename)
+            photo_path = os.path.join(PHOTO_FOLDER, photo_filename)
+            
+            # Compress and save the photo
+            img = Image.open(photo_file)
+            img.thumbnail((500, 500))  # Resize to max dimensions
+            img.save(photo_path, quality=85, optimize=True)
+            
+            # Ensure connection is still active before the first insert
+            if not check_connection():
+                flash("Database connection error. Please try again.", "error")
+                return render_template('lawyer_signup.html')
+                
+            # Insert lawyer user in a separate transaction
+            cur.execute(
+                "INSERT INTO Users (FirstName, LastName, Email, Password, Phone, UserType) VALUES (%s, %s, %s, %s, %s, 'Lawyer')",
+                (name.split()[0], name.split()[-1], email, generate_password_hash(password), phone)
+            )
+            user_id = cur.lastrowid
+            mysql.connection.commit() 
+            
+            # Ensure connection is still active before the second insert
+            if not check_connection():
+                flash("Database connection error during registration. Your user account was created, but please contact support.", "error")
+                return render_template('lawyer_signup.html')
+                
+            # Start a new transaction for lawyer details - store filename instead of binary data
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Photo, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, license_number, license_filename, photo_filename, specialization, experience)
+            )
+            mysql.connection.commit()
+            cur.close()
+            
+            flash("Registration submitted! We'll review your application and contact you soon.", "success")
+            return redirect(url_for('lawyer_signin'))
+                
+        except Exception as e:
+            mysql.connection.rollback()
+            flash(f"Registration failed. Please try again. Error: {str(e)}", "error")
             return render_template('lawyer_signup.html')
-        
-        # Check if license number already exists
-        cur.execute("SELECT * FROM LawyerDetails WHERE LicenseNumber = %s", [license_number])
-        if cur.fetchone():
-            flash("License number already registered", "error")
-            return render_template('lawyer_signup.html')
-        
-        # Save files
-        license_filename = secure_filename(license_file.filename)
-        license_path = os.path.join(LICENSE_FOLDER, license_filename)
-        license_file.save(license_path)
-        
-        photo_filename = secure_filename(photo_file.filename)
-        photo_path = os.path.join(PHOTO_FOLDER, photo_filename)
-        photo_file.save(photo_path)
-        
-        # Insert lawyer user
-        cur.execute(
-            "INSERT INTO Users (FirstName, LastName, Email, Password, Phone, UserType) VALUES (%s, %s, %s, %s, %s, 'Lawyer')",
-            (name.split()[0], name.split()[-1], email, generate_password_hash(password), phone)
-        )
-        user_id = cur.lastrowid
-        
-        # Insert lawyer details
-        cur.execute(
-            "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Photo, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s, %s)",
-            (user_id, license_number, license_path, photo_path, specialization, experience)
-        )
-        mysql.connection.commit()
-        cur.close()
-        
-        flash("Registration submitted! We'll review your application and contact you soon.", "success")
-        return redirect(url_for('lawyer_signin'))
                 
     return render_template('lawyer_signup.html')
 
@@ -321,7 +394,9 @@ def admin_signin():
 def admin_dashboard():
     cur = mysql.connection.cursor()
     cur.execute("""
-        SELECT u.*, ld.* 
+        SELECT u.id, u.FirstName, u.LastName, u.Email, u.Phone,
+               ld.UserId, ld.LicenseNumber, ld.LicenseProof, ld.Specialization, 
+               ld.YearsOfExperience, ld.VerificationStatus
         FROM Users u 
         JOIN LawyerDetails ld ON u.id = ld.UserId 
         WHERE u.UserType = 'Lawyer'
@@ -541,6 +616,42 @@ def lawyer_page():
     cur.close()
     
     return render_template('lawyer_page.html', lawyers=lawyers)
+
+@app.route('/lawyer-photo/<int:lawyer_id>')
+def lawyer_photo(lawyer_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT Photo FROM LawyerDetails WHERE UserId = %s", [lawyer_id])
+    result = cur.fetchone()
+    cur.close()
+    
+    if result and result['Photo']:
+        photo = result['Photo']
+        # Check if it's a file path or binary data
+        if isinstance(photo, str):
+            # It's a filename
+            photo_path = os.path.join(PHOTO_FOLDER, photo)
+            if os.path.exists(photo_path):
+                return send_file(photo_path)
+        else:
+            # It's binary data
+            photo_data = io.BytesIO(photo)
+            return send_file(photo_data, mimetype='image/jpeg')
+    
+    return '', 404
+
+@app.route('/lawyer-license/<int:lawyer_id>')
+def lawyer_license(lawyer_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT LicenseProof FROM LawyerDetails WHERE UserId = %s", [lawyer_id])
+    result = cur.fetchone()
+    cur.close()
+    
+    if result and result['LicenseProof']:
+        license_path = os.path.join(LICENSE_FOLDER, result['LicenseProof'])
+        if os.path.exists(license_path):
+            return send_file(license_path)
+    
+    return '', 404
 
 if __name__ == '__main__':
     app.run(debug=True) 
