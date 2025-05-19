@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Messages - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_contact_messages.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Contact Messages</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message-card status-{{ message.status.lower() }}">
+                <div class="message-header">
+                    <h3>{{ message.name }}</h3>
+                    <span class="message-date">{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="message-details">
+                    <p><strong>Email:</strong> {{ message.email }}</p>
+                    {% if message.phone %}
+                    <p><strong>Phone:</strong> {{ message.phone }}</p>
+                    {% endif %}
+                    {% if message.subject %}
+                    <p><strong>Subject:</strong> {{ message.subject }}</p>
+                    {% endif %}
+                    <p><strong>Message:</strong></p>
+                    <div class="message-content">{{ message.message }}</div>
+                </div>
+                <div class="message-actions">
+                    <form action="{{ url_for('update_message_status') }}" method="POST" class="status-form">
+                        <input type="hidden" name="message_id" value="{{ message.id }}">
+                        <button type="submit" name="status" value="New" class="status-btn new-btn {% if message.status == 'New' %}active{% endif %}">
+                            <i class="fas fa-circle"></i> New
+                        </button>
+                        <button type="submit" name="status" value="Pending" class="status-btn pending-btn {% if message.status == 'Pending' %}active{% endif %}">
+                            <i class="fas fa-clock"></i> Pending
+                        </button>
+                        <button type="submit" name="status" value="Solved" class="status-btn solved-btn {% if message.status == 'Solved' %}active{% endif %}">
+                            <i class="fas fa-check"></i> Solved
+                        </button>
+                        <button type="submit" name="status" value="Rejected" class="status-btn rejected-btn {% if message.status == 'Rejected' %}active{% endif %}">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not messages %}
+            <div class="no-messages">
+                <p>No contact messages found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 
