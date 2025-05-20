@@ -21,11 +21,10 @@
             <span>Legal Aid</span>
         </div>
         <ul class="nav-links">
-            <li><a href="{{url_for('index')}}">Home</a></li>
-            <li><a href="/lawyers">Lawyers</a></li>
+            <li><a href="{{url_for('lawyer_page')}}">Lawyers</a></li>
             <li><a href="{{url_for('about')}}">About</a></li>
             <li><a href="{{url_for('contact')}}">Contact</a></li>
-            <li><a href="/signin"><button>Sign In</button></a></li>
+            <li><a href="{{url_for('signin')}}"><button>Sign In</button></a></li>
             <li><a href="{{url_for('signup')}}"><button>Sign Up</button></a></li>
         </ul>
     </nav>
