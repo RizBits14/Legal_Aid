@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs | Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='faqs.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+                <span>Legal Aid</span>
+            </a>
+        </div>
+    </nav>
+    <main class="container">
+        <h1 class="animated-title">FAQs</h1>
+        <p class="animated-desc">Frequently Asked Questions</p>
+        <div class="faq-list">
+            <div class="faq-card">Q: How do I find a lawyer?<br>A: Use our search tool to connect with legal professionals.</div>
+            <div class="faq-card">Q: What are your fees?<br>A: See our pricing page for details.</div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+    </footer>
+</body>
+</html> 
