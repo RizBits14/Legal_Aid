@@ -200,161 +200,33 @@
         </div>
     </main>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials-section">
-        <h2 class="section-title">What Our Clients Say</h2>
-        <div class="testimonials-slider">
-            <div class="testimonial">
-                <div class="testimonial-quote">
-                    <i class="fas fa-quote-left"></i>
-                    <p>Legal Aid helped me find an excellent attorney for my case. The process was simple and effective.
-                        I highly recommend their service to anyone in need of legal representation.</p>
-                    <i class="fas fa-quote-right"></i>
-                </div>
-                <div class="testimonial-author">
-                    <p class="author-name">James Wilson</p>
-                    <div class="author-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="faq-section">
-        <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="faq-container">
-            <div class="faq-item">
-                <div class="faq-question">
-                    <h3>How do I choose the right lawyer for my case?</h3>
-                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                </div>
-                <div class="faq-answer">
-                    <p>Consider the lawyer's experience in your specific legal issue, their track record of success,
-                        client reviews, and whether you feel comfortable working with them. Our platform provides
-                        verified ratings and specialties to help you make an informed decision.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <h3>What information should I prepare before contacting a lawyer?</h3>
-                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                </div>
-                <div class="faq-answer">
-                    <p>Prepare a summary of your legal issue, relevant dates, and any documentation related to your
-                        case. Also, list questions you want to ask during your initial consultation. Being prepared
-                        helps the lawyer provide more accurate advice.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <h3>How are the lawyers on your platform vetted?</h3>
-                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                </div>
-                <div class="faq-answer">
-                    <p>All lawyers on our platform are verified for proper licensing and good standing with their
-                        respective bar associations. We also collect and verify client reviews and maintain strict
-                        ethical standards for all legal professionals in our network.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
                 <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
-                <h3>Legal Aid</h3>
-                <p>Connecting clients with trusted legal professionals</p>
+                <span>Legal Aid</span>
             </div>
             <div class="footer-links">
-                <div class="footer-col">
-                    <h4>Legal Aid</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Our Team</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Services</h4>
-                    <ul>
-                        <li><a href="#">Find a Lawyer</a></li>
-                        <li><a href="#">Legal Resources</a></li>
-                        <li><a href="#">Legal Guides</a></li>
-                        <li><a href="#">For Attorneys</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Support</h4>
-                    <ul>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
-                </div>
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="#">Find a Lawyer</a>
+                <a href="#">Legal Resources</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
             </div>
-            <div class="footer-newsletter">
-                <h4>Stay Updated</h4>
-                <p>Subscribe to our newsletter for legal tips and updates</p>
-                <div class="newsletter-form">
-                    <input type="email" placeholder="Your email address">
-                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                </div>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
             </div>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2024 Legal Aid. All rights reserved.</p>
         </div>
     </footer>
-
-    <!-- Modal for Contact Form -->
-    <div class="modal" id="contact-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Contact Lawyer</h2>
-            <form class="contact-form">
-                <div class="form-group">
-                    <label for="contact-name">Your Name</label>
-                    <input type="text" id="contact-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="contact-email">Email</label>
-                    <input type="email" id="contact-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="contact-phone">Phone</label>
-                    <input type="tel" id="contact-phone">
-                </div>
-                <div class="form-group">
-                    <label for="legal-issue">Describe your legal issue</label>
-                    <textarea id="legal-issue" rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn-submit">Send Message</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
