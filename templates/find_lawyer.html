@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,9 @@
     <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
+    <!-- Header Section -->
     <nav class="navbar">
         <div class="logo">
             <a href="{{ url_for('index') }}">
@@ -16,27 +19,423 @@
                 <span>Legal Aid</span>
             </a>
         </div>
-    </nav>
-    <main class="container">
-        <h1 class="animated-title">Find a Lawyer</h1>
-        <p class="animated-desc">Search and connect with trusted legal professionals in your area.</p>
-        <div class="search-box">
-            <input type="text" placeholder="Enter area of law or location...">
-            <button><i class="fas fa-search"></i> Search</button>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-item">Home</a>
+            <a href="#" class="nav-item active">Find a Lawyer</a>
+            <a href="#" class="nav-item">Legal Resources</a>
+            <a href="#" class="nav-item">About Us</a>
+            <a href="#" class="nav-item">Contact</a>
         </div>
-        <div class="placeholder-results">
-            <div class="lawyer-card">Lawyer results will appear here...</div>
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="animated-title">Find the Right Legal Representation</h1>
+            <p class="animated-desc">Connect with trusted legal professionals specialized in your specific needs</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="search-section">
+            <h2 class="section-title">Search for Legal Professionals</h2>
+            <div class="search-filters">
+                <div class="filter-group">
+                    <label for="practice-area">Practice Area</label>
+                    <select id="practice-area" class="filter-select">
+                        <option value="">All Practice Areas</option>
+                        <option value="family">Family Law</option>
+                        <option value="criminal">Criminal Defense</option>
+                        <option value="immigration">Immigration</option>
+                        <option value="estate">Estate Planning</option>
+                        <option value="corporate">Corporate Law</option>
+                        <option value="personal-injury">Personal Injury</option>
+                        <option value="intellectual">Intellectual Property</option>
+                        <option value="tax">Tax Law</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="City or Zip Code" class="filter-input">
+                </div>
+                <div class="filter-group">
+                    <label for="experience">Experience</label>
+                    <select id="experience" class="filter-select">
+                        <option value="">Any Experience</option>
+                        <option value="1-5">1-5 years</option>
+                        <option value="5-10">5-10 years</option>
+                        <option value="10+">10+ years</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="rating">Rating</label>
+                    <select id="rating" class="filter-select">
+                        <option value="">Any Rating</option>
+                        <option value="4+">4+ Stars</option>
+                        <option value="4.5+">4.5+ Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="search-keyword" placeholder="Enter keywords or lawyer name...">
+                <button id="search-btn"><i class="fas fa-search"></i> Search</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <h3>Search Results</h3>
+                <div class="results-sorting">
+                    <label for="sort-by">Sort by:</label>
+                    <select id="sort-by">
+                        <option value="relevance">Relevance</option>
+                        <option value="rating">Rating</option>
+                        <option value="experience">Experience</option>
+                        <option value="name">Name</option>
+                    </select>
+                </div>
+            </div>
+            <div class="lawyers-grid" id="lawyers-results">
+                <!-- Lawyer Card 1 -->
+                <div class="lawyer-card">
+                    <div class="lawyer-header">
+                        <div class="lawyer-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="lawyer-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.5</span>
+                        </div>
+                    </div>
+                    <div class="lawyer-details">
+                        <h3>Sarah J. Thompson</h3>
+                        <p class="lawyer-specialty">Family Law, Divorce</p>
+                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 12 years experience</p>
+                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Chicago, IL</p>
+                    </div>
+                    <div class="lawyer-contact">
+                        <button class="btn-view-profile">View Profile</button>
+                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
+                    </div>
+                </div>
+
+                <!-- Lawyer Card 2 -->
+                <div class="lawyer-card">
+                    <div class="lawyer-header">
+                        <div class="lawyer-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="lawyer-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>5.0</span>
+                        </div>
+                    </div>
+                    <div class="lawyer-details">
+                        <h3>Michael D. Rodriguez</h3>
+                        <p class="lawyer-specialty">Criminal Defense, DUI</p>
+                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 8 years experience</p>
+                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Boston, MA</p>
+                    </div>
+                    <div class="lawyer-contact">
+                        <button class="btn-view-profile">View Profile</button>
+                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
+                    </div>
+                </div>
+
+                <!-- Lawyer Card 3 -->
+                <div class="lawyer-card">
+                    <div class="lawyer-header">
+                        <div class="lawyer-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="lawyer-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <span>4.0</span>
+                        </div>
+                    </div>
+                    <div class="lawyer-details">
+                        <h3>Elizabeth A. Chang</h3>
+                        <p class="lawyer-specialty">Immigration, Asylum</p>
+                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 15 years experience</p>
+                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Seattle, WA</p>
+                    </div>
+                    <div class="lawyer-contact">
+                        <button class="btn-view-profile">View Profile</button>
+                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <button class="btn-pagination active">1</button>
+                <button class="btn-pagination">2</button>
+                <button class="btn-pagination">3</button>
+                <button class="btn-pagination"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="need-help-section">
+            <div class="need-help-content">
+                <h3>Not sure what type of lawyer you need?</h3>
+                <p>Our legal experts can help you determine the right legal representation for your situation.</p>
+                <button class="btn-help">Get Free Consultation</button>
+            </div>
         </div>
     </main>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <h2 class="section-title">What Our Clients Say</h2>
+        <div class="testimonials-slider">
+            <div class="testimonial">
+                <div class="testimonial-quote">
+                    <i class="fas fa-quote-left"></i>
+                    <p>Legal Aid helped me find an excellent attorney for my case. The process was simple and effective.
+                        I highly recommend their service to anyone in need of legal representation.</p>
+                    <i class="fas fa-quote-right"></i>
+                </div>
+                <div class="testimonial-author">
+                    <p class="author-name">James Wilson</p>
+                    <div class="author-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>How do I choose the right lawyer for my case?</h3>
+                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                </div>
+                <div class="faq-answer">
+                    <p>Consider the lawyer's experience in your specific legal issue, their track record of success,
+                        client reviews, and whether you feel comfortable working with them. Our platform provides
+                        verified ratings and specialties to help you make an informed decision.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>What information should I prepare before contacting a lawyer?</h3>
+                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                </div>
+                <div class="faq-answer">
+                    <p>Prepare a summary of your legal issue, relevant dates, and any documentation related to your
+                        case. Also, list questions you want to ask during your initial consultation. Being prepared
+                        helps the lawyer provide more accurate advice.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>How are the lawyers on your platform vetted?</h3>
+                    <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                </div>
+                <div class="faq-answer">
+                    <p>All lawyers on our platform are verified for proper licensing and good standing with their
+                        respective bar associations. We also collect and verify client reviews and maintain strict
+                        ethical standards for all legal professionals in our network.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                <h3>Legal Aid</h3>
+                <p>Connecting clients with trusted legal professionals</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Legal Aid</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Find a Lawyer</a></li>
+                        <li><a href="#">Legal Resources</a></li>
+                        <li><a href="#">Legal Guides</a></li>
+                        <li><a href="#">For Attorneys</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-newsletter">
+                <h4>Stay Updated</h4>
+                <p>Subscribe to our newsletter for legal tips and updates</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Your email address">
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        </div>
     </footer>
+
+    <!-- Modal for Contact Form -->
+    <div class="modal" id="contact-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Contact Lawyer</h2>
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="contact-name">Your Name</label>
+                    <input type="text" id="contact-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-email">Email</label>
+                    <input type="email" id="contact-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-phone">Phone</label>
+                    <input type="tel" id="contact-phone">
+                </div>
+                <div class="form-group">
+                    <label for="legal-issue">Describe your legal issue</label>
+                    <textarea id="legal-issue" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn-submit">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Simple animation for demonstration
-        document.querySelector('.animated-title').style.opacity = 0;
-        setTimeout(() => {
-            document.querySelector('.animated-title').style.opacity = 1;
-        }, 300);
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animation for title
+            const animatedTitle = document.querySelector('.animated-title');
+            const animatedDesc = document.querySelector('.animated-desc');
+            animatedTitle.style.opacity = 0;
+            animatedDesc.style.opacity = 0;
+
+            setTimeout(() => {
+                animatedTitle.style.opacity = 1;
+            }, 300);
+
+            setTimeout(() => {
+                animatedDesc.style.opacity = 1;
+            }, 600);
+
+            // FAQ accordion functionality
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', () => {
+                    // Close other open FAQs
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('active')) {
+                            otherItem.classList.remove('active');
+                            otherItem.querySelector('.faq-toggle i').className = 'fas fa-plus';
+                        }
+                    });
+
+                    // Toggle current FAQ
+                    item.classList.toggle('active');
+                    const icon = question.querySelector('.faq-toggle i');
+                    icon.className = item.classList.contains('active') ? 'fas fa-minus' : 'fas fa-plus';
+                });
+            });
+
+            // Modal functionality
+            const contactButtons = document.querySelectorAll('.btn-contact');
+            const modal = document.getElementById('contact-modal');
+            const closeModal = document.querySelector('.close-modal');
+
+            contactButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    modal.style.display = 'flex';
+                });
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            // Smooth scroll for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
     </script>
 </body>
-</html> 
+
+</html>
