@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
             <a href="{{ url_for('index') }}">
@@ -16,20 +17,185 @@
                 <span>Legal Aid</span>
             </a>
         </div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-item">Home</a>
+            <a href="#" class="nav-item">Find a Lawyer</a>
+            <a href="#" class="nav-item">Legal Resources</a>
+            <a href="#" class="nav-item">About Us</a>
+            <a href="#" class="nav-item">Contact</a>
+        </div>
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
     </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="animated-title">Practice Areas</h1>
+            <p class="animated-desc">Explore the legal fields our lawyers specialize in. Click on a card to learn more about each area.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
     <main class="container">
-        <h1 class="animated-title">Practice Areas</h1>
-        <p class="animated-desc">Explore the legal fields our lawyers specialize in.</p>
-        <div class="areas-list">
-            <div class="area-card">Family Law</div>
-            <div class="area-card">Criminal Defense</div>
-            <div class="area-card">Corporate Law</div>
-            <div class="area-card">Real Estate</div>
-            <div class="area-card">Immigration</div>
+        <div class="areas-section">
+            <h2 class="section-title">Our Expertise</h2>
+            <div class="areas-list">
+                <div class="area-card" data-area="family">
+                    <i class="fas fa-users"></i>
+                    <span>Family Law</span>
+                </div>
+                <div class="area-card" data-area="criminal">
+                    <i class="fas fa-gavel"></i>
+                    <span>Criminal Defense</span>
+                </div>
+                <div class="area-card" data-area="corporate">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Corporate Law</span>
+                </div>
+                <div class="area-card" data-area="realestate">
+                    <i class="fas fa-building"></i>
+                    <span>Real Estate</span>
+                </div>
+                <div class="area-card" data-area="immigration">
+                    <i class="fas fa-passport"></i>
+                    <span>Immigration</span>
+                </div>
+                <div class="area-card" data-area="intellectual">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Intellectual Property</span>
+                </div>
+                <div class="area-card" data-area="employment">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Employment Law</span>
+                </div>
+                <div class="area-card" data-area="tax">
+                    <i class="fas fa-coins"></i>
+                    <span>Tax Law</span>
+                </div>
+                <div class="area-card" data-area="environmental">
+                    <i class="fas fa-leaf"></i>
+                    <span>Environmental Law</span>
+                </div>
+                <div class="area-card" data-area="health">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>Health Law</span>
+                </div>
+            </div>
+            <div class="area-details">
+                <div class="area-detail" id="detail-family">
+                    <h3>Family Law</h3>
+                    <p>Assistance with divorce, child custody, adoption, domestic violence, and more.</p>
+                </div>
+                <div class="area-detail" id="detail-criminal">
+                    <h3>Criminal Defense</h3>
+                    <p>Representation for criminal charges, bail hearings, appeals, and legal advice.</p>
+                </div>
+                <div class="area-detail" id="detail-corporate">
+                    <h3>Corporate Law</h3>
+                    <p>Business formation, contracts, mergers, compliance, and dispute resolution.</p>
+                </div>
+                <div class="area-detail" id="detail-realestate">
+                    <h3>Real Estate</h3>
+                    <p>Property transactions, landlord-tenant disputes, zoning, and title issues.</p>
+                </div>
+                <div class="area-detail" id="detail-immigration">
+                    <h3>Immigration</h3>
+                    <p>Visas, green cards, citizenship, deportation defense, and asylum cases.</p>
+                </div>
+                <div class="area-detail" id="detail-intellectual">
+                    <h3>Intellectual Property</h3>
+                    <p>Patents, trademarks, copyrights, and protection of creative works.</p>
+                </div>
+                <div class="area-detail" id="detail-employment">
+                    <h3>Employment Law</h3>
+                    <p>Workplace rights, wrongful termination, discrimination, and labor disputes.</p>
+                </div>
+                <div class="area-detail" id="detail-tax">
+                    <h3>Tax Law</h3>
+                    <p>Tax planning, audits, disputes with tax authorities, and compliance.</p>
+                </div>
+                <div class="area-detail" id="detail-environmental">
+                    <h3>Environmental Law</h3>
+                    <p>Environmental compliance, litigation, and advocacy for sustainability.</p>
+                </div>
+                <div class="area-detail" id="detail-health">
+                    <h3>Health Law</h3>
+                    <p>Healthcare regulations, patient rights, medical malpractice, and insurance.</p>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                <span>Legal Aid</span>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="#">Find a Lawyer</a>
+                <a href="#">Legal Resources</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animation for title and description
+            const animatedTitle = document.querySelector('.animated-title');
+            const animatedDesc = document.querySelector('.animated-desc');
+            setTimeout(() => { animatedTitle.style.opacity = 1; }, 300);
+            setTimeout(() => { animatedDesc.style.opacity = 1; }, 600);
+
+            // Practice area card click animation and detail display
+            const areaCards = document.querySelectorAll('.area-card');
+            const areaDetails = document.querySelectorAll('.area-detail');
+            areaCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove active from all
+                    areaCards.forEach(c => c.classList.remove('active'));
+                    areaDetails.forEach(d => d.style.display = 'none');
+                    // Add active to clicked
+                    card.classList.add('active');
+                    const area = card.getAttribute('data-area');
+                    const detail = document.getElementById('detail-' + area);
+                    if (detail) {
+                        detail.style.display = 'block';
+                        detail.classList.add('fade-in');
+                        setTimeout(() => detail.classList.remove('fade-in'), 700);
+                    }
+                });
+            });
+            // Show first by default
+            if (areaCards.length && areaDetails.length) {
+                areaCards[0].classList.add('active');
+                areaDetails[0].style.display = 'block';
+            }
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
