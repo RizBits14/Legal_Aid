@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,9 @@
     <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
             <a href="{{ url_for('index') }}">
@@ -16,17 +19,189 @@
                 <span>Legal Aid</span>
             </a>
         </div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-item">Home</a>
+            <a href="#" class="nav-item">Find a Lawyer</a>
+            <a href="#" class="nav-item">Legal Resources</a>
+            <a href="#" class="nav-item">About Us</a>
+            <a href="#" class="nav-item">Contact</a>
+        </div>
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
     </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="animated-title">Frequently Asked Questions</h1>
+            <p class="animated-desc">Find answers to common questions about our legal services</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
     <main class="container">
-        <h1 class="animated-title">FAQs</h1>
-        <p class="animated-desc">Frequently Asked Questions</p>
-        <div class="faq-list">
-            <div class="faq-card">Q: How do I find a lawyer?<br>A: Use our search tool to connect with legal professionals.</div>
-            <div class="faq-card">Q: What are your fees?<br>A: See our pricing page for details.</div>
+        <div class="faq-section">
+            <h2 class="section-title">Common Questions</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I find the right lawyer for my case?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Use our search tool to filter lawyers by practice area, location, experience, and rating. You
+                            can also read reviews and view profiles to make an informed decision. Our matching system
+                            helps connect you with legal professionals who specialize in your specific legal needs.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What are the fees for using Legal Aid?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Legal Aid is free to use for finding and connecting with lawyers. However, individual lawyers
+                            set their own consultation and service fees. Many offer free initial consultations, which
+                            will be clearly indicated on their profiles.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I schedule a consultation with a lawyer?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Simply click the "Contact" button on any lawyer's profile card. Fill out the contact form
+                            with your details and legal issue description. The lawyer will respond directly to schedule
+                            a consultation at their earliest convenience.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Are all lawyers on Legal Aid verified?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, all lawyers on our platform are licensed professionals. We verify their credentials, bar
+                            membership, and standing before they can create a profile. We also regularly monitor reviews
+                            and feedback to maintain quality standards.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What if I'm not satisfied with a lawyer's service?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>While Legal Aid facilitates the initial connection, the professional relationship is directly
+                            between you and the lawyer. However, you can leave feedback and reviews on our platform to
+                            help other users. For serious concerns, contact our support team.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I get legal advice directly through Legal Aid?</span>
+                        <div class="faq-toggle">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Legal Aid is a directory service that connects you with qualified lawyers. We don't provide
+                            direct legal advice. For specific legal guidance, you'll need to consult with one of the
+                            licensed attorneys in our network.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
+                <span>Legal Aid</span>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="#">Find a Lawyer</a>
+                <a href="#">Legal Resources</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+        </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animation for title and description
+            const animatedTitle = document.querySelector('.animated-title');
+            const animatedDesc = document.querySelector('.animated-desc');
+
+            setTimeout(() => {
+                animatedTitle.style.opacity = 1;
+            }, 300);
+
+            setTimeout(() => {
+                animatedDesc.style.opacity = 1;
+            }, 600);
+
+            // FAQ accordion functionality
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', () => {
+                    // Close other open FAQs
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('active')) {
+                            otherItem.classList.remove('active');
+                            otherItem.querySelector('.faq-toggle i').className = 'fas fa-plus';
+                        }
+                    });
+
+                    // Toggle current FAQ
+                    item.classList.toggle('active');
+                    const icon = question.querySelector('.faq-toggle i');
+                    icon.className = item.classList.contains('active') ? 'fas fa-minus' : 'fas fa-plus';
+                });
+            });
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
-</html> 
+
+</html>
