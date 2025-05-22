@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Areas | Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='practice_areas.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+                <span>Legal Aid</span>
+            </a>
+        </div>
+    </nav>
+    <main class="container">
+        <h1 class="animated-title">Practice Areas</h1>
+        <p class="animated-desc">Explore the legal fields our lawyers specialize in.</p>
+        <div class="areas-list">
+            <div class="area-card">Family Law</div>
+            <div class="area-card">Criminal Defense</div>
+            <div class="area-card">Corporate Law</div>
+            <div class="area-card">Real Estate</div>
+            <div class="area-card">Immigration</div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+    </footer>
+</body>
+</html> 
