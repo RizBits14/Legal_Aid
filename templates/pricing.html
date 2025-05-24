@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
             <a href="{{ url_for('index') }}">
@@ -16,18 +17,125 @@
                 <span>Legal Aid</span>
             </a>
         </div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-item">Home</a>
+            <a href="#" class="nav-item">Find a Lawyer</a>
+            <a href="#" class="nav-item">Legal Resources</a>
+            <a href="#" class="nav-item">About Us</a>
+            <a href="#" class="nav-item">Contact</a>
+        </div>
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
     </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="animated-title">Pricing</h1>
+            <p class="animated-desc">Transparent and affordable legal services for everyone. Choose the plan that fits your needs.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
     <main class="container">
-        <h1 class="animated-title">Pricing</h1>
-        <p class="animated-desc">Transparent and affordable legal services for everyone.</p>
-        <div class="pricing-table">
-            <div class="pricing-card">Basic Consultation - Free</div>
-            <div class="pricing-card">Standard Case - $200</div>
-            <div class="pricing-card">Premium Support - $500</div>
+        <div class="pricing-section">
+            <h2 class="section-title">Our Plans</h2>
+            <div class="pricing-list">
+                <div class="pricing-card" data-plan="basic">
+                    <i class="fas fa-handshake"></i>
+                    <span>Basic Consultation</span>
+                </div>
+                <div class="pricing-card" data-plan="standard">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>Standard Case</span>
+                </div>
+                <div class="pricing-card" data-plan="premium">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium Support</span>
+                </div>
+            </div>
+            <div class="pricing-details">
+                <div class="pricing-detail" id="detail-basic">
+                    <h3>Basic Consultation</h3>
+                    <p>Get a free 30-minute consultation with our legal experts. Perfect for initial advice and understanding your options.</p>
+                    <ul>
+                        <li>30-minute session</li>
+                        <li>General legal advice</li>
+                        <li>No obligation</li>
+                        <li><strong>Free</strong></li>
+                    </ul>
+                </div>
+                <div class="pricing-detail" id="detail-standard">
+                    <h3>Standard Case</h3>
+                    <p>Comprehensive support for standard legal cases, including document review and representation.</p>
+                    <ul>
+                        <li>Case assessment</li>
+                        <li>Document review</li>
+                        <li>Representation in standard cases</li>
+                        <li><strong>$200</strong></li>
+                    </ul>
+                </div>
+                <div class="pricing-detail" id="detail-premium">
+                    <h3>Premium Support</h3>
+                    <p>Priority access and dedicated support for complex or urgent legal matters.</p>
+                    <ul>
+                        <li>All Standard Case features</li>
+                        <li>Priority response</li>
+                        <li>Dedicated legal team</li>
+                        <li>Ongoing support</li>
+                        <li><strong>$500</strong></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- Footer (keep as original) -->
     <footer class="footer">
         <p>&copy; 2024 Legal Aid. All rights reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animation for title and description
+            const animatedTitle = document.querySelector('.animated-title');
+            const animatedDesc = document.querySelector('.animated-desc');
+            setTimeout(() => { animatedTitle.style.opacity = 1; }, 300);
+            setTimeout(() => { animatedDesc.style.opacity = 1; }, 600);
+
+            // Pricing card click animation and detail display
+            const pricingCards = document.querySelectorAll('.pricing-card');
+            const pricingDetails = document.querySelectorAll('.pricing-detail');
+            pricingCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    pricingCards.forEach(c => c.classList.remove('active'));
+                    pricingDetails.forEach(d => d.style.display = 'none');
+                    card.classList.add('active');
+                    const plan = card.getAttribute('data-plan');
+                    const detail = document.getElementById('detail-' + plan);
+                    if (detail) {
+                        detail.style.display = 'block';
+                        detail.classList.add('fade-in');
+                        setTimeout(() => detail.classList.remove('fade-in'), 700);
+                    }
+                });
+            });
+            // Show first by default
+            if (pricingCards.length && pricingDetails.length) {
+                pricingCards[0].classList.add('active');
+                pricingDetails[0].style.display = 'block';
+            }
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
