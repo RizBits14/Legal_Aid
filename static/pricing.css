@@ -241,7 +241,66 @@ body {
     color: var(--text-light);
     padding: 30px 40px 15px;
     margin-top: 60px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-logo img {
+    height: 32px;
+}
+
+.footer-logo span {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--text-light);
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--ui-light);
+}
+
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+
+.footer-social a {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    transition: all 0.3s;
+}
+
+.footer-social a:hover {
+    color: var(--ui-light);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
     text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
 }
 @media (max-width: 768px) {
     .navbar {
