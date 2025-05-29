@@ -393,6 +393,8 @@ def admin_signin():
 @admin_required
 def admin_dashboard():
     cur = mysql.connection.cursor()
+    
+    # Get all lawyers
     cur.execute("""
         SELECT u.id, u.FirstName, u.LastName, u.Email, u.Phone,
                ld.UserId, ld.LicenseNumber, ld.LicenseProof, ld.Specialization, 
@@ -408,9 +410,167 @@ def admin_dashboard():
             END
     """)
     pending_lawyers = cur.fetchall()
+    
+    # Get count of pending verifications for notification badge
+    cur.execute("""
+        SELECT COUNT(*) as pending_count
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Pending'
+    """)
+    pending_count = cur.fetchone()['pending_count']
+    
+    # Get count of new contact messages for notification badge
+    cur.execute("SELECT COUNT(*) as new_messages FROM ContactMessages WHERE status = 'New'")
+    new_messages_count = cur.fetchone()['new_messages']
+    
     cur.close()
     
-    return render_template('admin_dashboard.html', pending_lawyers=pending_lawyers)
+    return render_template('admin_dashboard.html', 
+                         pending_lawyers=pending_lawyers,
+                         pending_count=pending_count,
+                         new_messages_count=new_messages_count)
+
+# Add these new routes to your index.py file
+
+@app.route('/admin/manage-users')
+@admin_required
+def admin_manage_users():
+    cur = mysql.connection.cursor()
+    
+    # Get all lawyers
+    cur.execute("""
+        SELECT u.id, u.FirstName, u.LastName, u.Email, u.Phone, u.CreatedAt,
+               ld.LicenseNumber, ld.Specialization, ld.YearsOfExperience, ld.VerificationStatus
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.UserType = 'Lawyer'
+        ORDER BY u.CreatedAt DESC
+    """)
+    lawyers = cur.fetchall()
+    
+    # Get all clients
+    cur.execute("""
+        SELECT u.id, u.FirstName, u.LastName, u.Email, u.Phone, u.CreatedAt,
+               cd.City, cd.State
+        FROM Users u 
+        JOIN ClientDetails cd ON u.id = cd.UserId 
+        WHERE u.UserType = 'Client'
+        ORDER BY u.CreatedAt DESC
+    """)
+    clients = cur.fetchall()
+    
+    # Get notification counts
+    cur.execute("""
+        SELECT COUNT(*) as pending_count
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Pending'
+    """)
+    pending_count = cur.fetchone()['pending_count']
+    
+    cur.execute("SELECT COUNT(*) as new_messages FROM ContactMessages WHERE status = 'New'")
+    new_messages_count = cur.fetchone()['new_messages']
+    
+    cur.close()
+    
+    return render_template('admin_manage_users.html', 
+                         lawyers=lawyers, 
+                         clients=clients,
+                         pending_count=pending_count,
+                         new_messages_count=new_messages_count)
+
+
+
+@app.route('/admin/delete-lawyer', methods=['POST'])
+@admin_required
+def delete_lawyer():
+    lawyer_id = request.form.get('lawyer_id')
+    
+    if not lawyer_id:
+        flash('Invalid lawyer ID', 'error')
+        return redirect(url_for('admin_manage_users'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get lawyer details for cleanup
+        cur.execute("SELECT Photo, LicenseProof FROM LawyerDetails WHERE UserId = %s", [lawyer_id])
+        lawyer_files = cur.fetchone()
+        
+        # Delete from LawyerDetails first (due to foreign key constraint)
+        cur.execute("DELETE FROM LawyerDetails WHERE UserId = %s", [lawyer_id])
+        
+        # Delete from Users table
+        cur.execute("DELETE FROM Users WHERE id = %s AND UserType = 'Lawyer'", [lawyer_id])
+        
+        mysql.connection.commit()
+        
+        # Clean up files if they exist
+        if lawyer_files:
+            try:
+                if lawyer_files['Photo']:
+                    photo_path = os.path.join(PHOTO_FOLDER, lawyer_files['Photo'])
+                    if os.path.exists(photo_path):
+                        os.remove(photo_path)
+                
+                if lawyer_files['LicenseProof']:
+                    license_path = os.path.join(LICENSE_FOLDER, lawyer_files['LicenseProof'])
+                    if os.path.exists(license_path):
+                        os.remove(license_path)
+            except Exception as file_error:
+                app.logger.error(f"Error deleting files: {str(file_error)}")
+        
+        cur.close()
+        flash('Lawyer deleted successfully', 'success')
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error deleting lawyer: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_manage_users'))
+
+@app.route('/admin/delete-client', methods=['POST'])
+@admin_required
+def delete_client():
+    client_id = request.form.get('client_id')
+    
+    if not client_id:
+        flash('Invalid client ID', 'error')
+        return redirect(url_for('admin_manage_users'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get client photo for cleanup
+        cur.execute("SELECT Photo FROM ClientDetails WHERE UserId = %s", [client_id])
+        client_files = cur.fetchone()
+        
+        # Delete from ClientDetails first (due to foreign key constraint)
+        cur.execute("DELETE FROM ClientDetails WHERE UserId = %s", [client_id])
+        
+        # Delete from Users table
+        cur.execute("DELETE FROM Users WHERE id = %s AND UserType = 'Client'", [client_id])
+        
+        mysql.connection.commit()
+        
+        # Clean up photo file if it exists
+        if client_files and client_files['Photo']:
+            try:
+                photo_path = os.path.join(PHOTO_FOLDER, client_files['Photo'])
+                if os.path.exists(photo_path):
+                    os.remove(photo_path)
+            except Exception as file_error:
+                app.logger.error(f"Error deleting photo: {str(file_error)}")
+        
+        cur.close()
+        flash('Client deleted successfully', 'success')
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error deleting client: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_manage_users'))
 
 @app.route('/admin/verify-lawyer', methods=['POST'])
 @admin_required
@@ -572,8 +732,25 @@ def admin_contact_messages():
             created_at DESC
     """)
     messages = cur.fetchall()
+    
+    # Get notification counts
+    cur.execute("""
+        SELECT COUNT(*) as pending_count
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Pending'
+    """)
+    pending_count = cur.fetchone()['pending_count']
+    
+    cur.execute("SELECT COUNT(*) as new_messages FROM ContactMessages WHERE status = 'New'")
+    new_messages_count = cur.fetchone()['new_messages']
+    
     cur.close()
-    return render_template('admin_contact_messages.html', messages=messages)
+    
+    return render_template('admin_contact_messages.html', 
+                         messages=messages,
+                         pending_count=pending_count,
+                         new_messages_count=new_messages_count)
 
 @app.route('/admin/update-message-status', methods=['POST'])
 @admin_required
@@ -652,6 +829,38 @@ def lawyer_license(lawyer_id):
             return send_file(license_path)
     
     return '', 404
+
+@app.route('/find-lawyer')
+def find_lawyer():
+    return render_template('find_lawyer.html')
+
+@app.route('/practice-areas')
+def practice_areas():
+    return render_template('practice_areas.html')
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
+@app.route('/faqs')
+def faqs():
+    return render_template('faqs.html')
+
+@app.route('/family-law')
+def family_law():
+    return render_template('family_law.html')
+
+@app.route('/criminal-law')
+def criminal_law():
+    return render_template('criminal_law.html')
+
+@app.route('/corporate-law')
+def corporate_law():
+    return render_template('corporate_law.html')
 
 if __name__ == '__main__':
     app.run(debug=True) 
