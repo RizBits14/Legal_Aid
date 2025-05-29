@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_manage_users.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+
+    <div class="dashboard-container">
+        <h2>User Management</h2>
+
+        <div class="dashboard-links">
+            <a href="{{ url_for('admin_dashboard') }}" class="dashboard-link">
+                <i class="fas fa-user-shield"></i>
+                <span>Lawyer Verifications</span>
+                {% if pending_count > 0 %}
+                <span class="notification-badge">{{ pending_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('admin_contact_messages') }}" class="dashboard-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Messages</span>
+                {% if new_messages_count > 0 %}
+                <span class="notification-badge">{{ new_messages_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('admin_manage_users') }}" class="dashboard-link active">
+                <i class="fas fa-users-cog"></i>
+                <span>Manage Users</span>
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Lawyers Section -->
+        <div class="users-section">
+            <h3><i class="fas fa-user-tie"></i> Lawyers ({{ lawyers|length }})</h3>
+            <div class="users-grid">
+                {% for lawyer in lawyers %}
+                <div class="user-card lawyer-card">
+                    <div class="user-header">
+                        <div class="user-info">
+                            <h4>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h4>
+                            <span class="status-badge status-{{ lawyer.VerificationStatus.lower() }}">
+                                {{ lawyer.VerificationStatus }}
+                            </span>
+                        </div>
+                        <div class="user-actions">
+                            <button class="action-btn view-btn" onclick="viewUser('lawyer', {{ lawyer|tojson }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn delete-btn"
+                                onclick="confirmDelete('lawyer', {{ lawyer.id }}, '{{ lawyer.FirstName }} {{ lawyer.LastName }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <p><strong>Email:</strong> {{ lawyer.Email }}</p>
+                        <p><strong>License:</strong> {{ lawyer.LicenseNumber }}</p>
+                        <p><strong>Specialization:</strong> {{ lawyer.Specialization }}</p>
+                        <p><strong>Experience:</strong> {{ lawyer.YearsOfExperience }} years</p>
+                        <p><strong>Joined:</strong> {{ lawyer.CreatedAt.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not lawyers %}
+                <div class="no-users">
+                    <p>No lawyers found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Clients Section -->
+        <div class="users-section">
+            <h3><i class="fas fa-user"></i> Clients ({{ clients|length }})</h3>
+            <div class="users-grid">
+                {% for client in clients %}
+                <div class="user-card client-card">
+                    <div class="user-header">
+                        <div class="user-info">
+                            <h4>{{ client.FirstName }} {{ client.LastName }}</h4>
+                            <span class="user-type">Client</span>
+                        </div>
+                        <div class="user-actions">
+                            <button class="action-btn view-btn" onclick="viewUser('client', {{ client|tojson }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn delete-btn"
+                                onclick="confirmDelete('client', {{ client.id }}, '{{ client.FirstName }} {{ client.LastName }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <p><strong>Email:</strong> {{ client.Email }}</p>
+                        <p><strong>Phone:</strong> {{ client.Phone }}</p>
+                        <p><strong>Location:</strong> {{ client.City }}, {{ client.State }}</p>
+                        <p><strong>Joined:</strong> {{ client.CreatedAt.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not clients %}
+                <div class="no-users">
+                    <p>No clients found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3 id="modalTitle">User Details</h3>
+            <div id="modalBody">
+                <!-- User details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content delete-modal">
+            <span class="close-btn">&times;</span>
+            <div class="delete-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirm Deletion</h3>
+                <p id="deleteMessage">Are you sure you want to delete this user?</p>
+                <div class="delete-actions">
+                    <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <button type="submit" class="btn delete-confirm-btn">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const userModal = document.getElementById('userModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeBtns = document.getElementsByClassName('close-btn');
+
+        // Close modal when clicking close button
+        Array.from(closeBtns).forEach(btn => {
+            btn.onclick = function () {
+                userModal.style.display = 'none';
+                deleteModal.style.display = 'none';
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target == userModal) {
+                userModal.style.display = 'none';
+            }
+            if (event.target == deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        }
+
+        function viewUser(type, userData) {
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Details`;
+
+            let detailsHTML = `
+                <div class="user-detail-item">
+                    <strong>Name:</strong> ${userData.FirstName} ${userData.LastName}
+                </div>
+                <div class="user-detail-item">
+                    <strong>Email:</strong> ${userData.Email}
+                </div>
+                <div class="user-detail-item">
+                    <strong>Phone:</strong> ${userData.Phone}
+                </div>
+                <div class="user-detail-item">
+                    <strong>Joined:</strong> ${new Date(userData.CreatedAt).toLocaleDateString()}
+                </div>
+            `;
+
+            if (type === 'lawyer') {
+                detailsHTML += `
+                    <div class="user-detail-item">
+                        <strong>License Number:</strong> ${userData.LicenseNumber}
+                    </div>
+                    <div class="user-detail-item">
+                        <strong>Specialization:</strong> ${userData.Specialization}
+                    </div>
+                    <div class="user-detail-item">
+                        <strong>Experience:</strong> ${userData.YearsOfExperience} years
+                    </div>
+                    <div class="user-detail-item">
+                        <strong>Status:</strong> 
+                        <span class="status-badge status-${userData.VerificationStatus.toLowerCase()}">
+                            ${userData.VerificationStatus}
+                        </span>
+                    </div>
+                `;
+            } else if (type === 'client') {
+                detailsHTML += `
+                    <div class="user-detail-item">
+                        <strong>City:</strong> ${userData.City}
+                    </div>
+                    <div class="user-detail-item">
+                        <strong>State:</strong> ${userData.State}
+                    </div>
+                `;
+            }
+
+            modalBody.innerHTML = detailsHTML;
+            userModal.style.display = 'block';
+        }
+
+        function confirmDelete(type, userId, userName) {
+            const deleteMessage = document.getElementById('deleteMessage');
+            const deleteForm = document.getElementById('deleteForm');
+
+            deleteMessage.textContent = `Are you sure you want to delete ${type} "${userName}"? This action cannot be undone.`;
+
+            if (type === 'lawyer') {
+                deleteForm.action = '{{ url_for("delete_lawyer") }}';
+                deleteForm.innerHTML = `
+                    <input type="hidden" name="lawyer_id" value="${userId}">
+                    <button type="submit" class="btn delete-confirm-btn">
+                        <i class="fas fa-trash"></i> Delete Lawyer
+                    </button>
+                `;
+            } else {
+                deleteForm.action = '{{ url_for("delete_client") }}';
+                deleteForm.innerHTML = `
+                    <input type="hidden" name="client_id" value="${userId}">
+                    <button type="submit" class="btn delete-confirm-btn">
+                        <i class="fas fa-trash"></i> Delete Client
+                    </button>
+                `;
+            }
+
+            deleteModal.style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
