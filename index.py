@@ -808,16 +808,69 @@ def lawyer_page():
     cur = mysql.connection.cursor()
     cur.execute("""
         SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               u.FirstName, u.LastName, u.Email, u.Phone,
                ld.Specialization, ld.YearsOfExperience as experience,
-               ld.Photo, ld.LicenseNumber
+               ld.Photo, ld.LicenseNumber, ld.Bio, ld.Education,
+               ld.OfficeAddress, ld.ConsultationFee, ld.Languages,
+               ld.PracticeAreas, ld.Achievements, ld.AvailableHours,
+               ld.Rating, ld.TotalReviews, ld.BarAssociation
         FROM Users u
         JOIN LawyerDetails ld ON u.id = ld.UserId
         WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+        ORDER BY ld.Rating DESC, ld.YearsOfExperience DESC
     """)
     lawyers = cur.fetchall()
     cur.close()
     
     return render_template('lawyer_page.html', lawyers=lawyers)
+
+@app.route('/lawyer-details/<int:lawyer_id>')
+def lawyer_details(lawyer_id):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               u.FirstName, u.LastName, u.Email, u.Phone,
+               ld.Specialization, ld.YearsOfExperience as experience,
+               ld.Photo, ld.LicenseNumber, ld.Bio, ld.Education,
+               ld.OfficeAddress, ld.ConsultationFee, ld.Languages,
+               ld.PracticeAreas, ld.Achievements, ld.AvailableHours,
+               ld.Rating, ld.TotalReviews, ld.BarAssociation
+        FROM Users u
+        JOIN LawyerDetails ld ON u.id = ld.UserId
+        WHERE u.id = %s AND u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+    """, [lawyer_id])
+    lawyer = cur.fetchone()
+    
+    if not lawyer:
+        return {'error': 'Lawyer not found'}, 404
+    
+    # Get recent reviews for this lawyer
+    cur.execute("""
+        SELECT lr.Rating, lr.ReviewText, lr.CreatedAt,
+               CONCAT(u.FirstName, ' ', SUBSTRING(u.LastName, 1, 1), '.') as reviewer_name
+        FROM LawyerReviews lr
+        JOIN Users u ON lr.ClientId = u.id
+        WHERE lr.LawyerId = %s AND lr.IsVerified = TRUE
+        ORDER BY lr.CreatedAt DESC
+        LIMIT 5
+    """, [lawyer_id])
+    reviews = cur.fetchall()
+    
+    cur.close()
+    
+    # Parse JSON fields
+    import json
+    try:
+        lawyer['PracticeAreas'] = json.loads(lawyer['PracticeAreas']) if lawyer['PracticeAreas'] else []
+        lawyer['Achievements'] = json.loads(lawyer['Achievements']) if lawyer['Achievements'] else []
+    except:
+        lawyer['PracticeAreas'] = []
+        lawyer['Achievements'] = []
+    
+    return {
+        'lawyer': lawyer,
+        'reviews': reviews
+    }
 
 @app.route('/lawyer-photo/<int:lawyer_id>')
 def lawyer_photo(lawyer_id):
