@@ -908,6 +908,123 @@ def lawyer_license(lawyer_id):
     
     return '', 404
 
+@app.route('/book-consultation', methods=['POST'])
+@login_required
+def book_consultation():
+    if session.get('user_type') != 'Client':
+        return {'error': 'Only clients can book consultations'}, 403
+    
+    lawyer_id = request.json.get('lawyer_id')
+    consultation_date = request.json.get('consultation_date')
+    consultation_type = request.json.get('consultation_type', 'Video Call')
+    notes = request.json.get('notes', '')
+    
+    if not lawyer_id or not consultation_date:
+        return {'error': 'Missing required fields'}, 400
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get lawyer details for fee
+        cur.execute("""
+            SELECT ld.ConsultationFee, CONCAT(u.FirstName, ' ', u.LastName) as lawyer_name
+            FROM LawyerDetails ld
+            JOIN Users u ON ld.UserId = u.id
+            WHERE u.id = %s AND ld.VerificationStatus = 'Approved'
+        """, [lawyer_id])
+        lawyer_info = cur.fetchone()
+        
+        if not lawyer_info:
+            return {'error': 'Lawyer not found'}, 404
+        
+        # Insert consultation booking
+        cur.execute("""
+            INSERT INTO Consultations (LawyerId, ClientId, ConsultationDate, 
+                                     ConsultationType, Notes, Fee)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (lawyer_id, session['user_id'], consultation_date, 
+              consultation_type, notes, lawyer_info['ConsultationFee']))
+        
+        consultation_id = cur.lastrowid
+        mysql.connection.commit()
+        cur.close()
+        
+        # Here you could add email notification logic
+        
+        return {
+            'success': True,
+            'consultation_id': consultation_id,
+            'message': f'Consultation booked with {lawyer_info["lawyer_name"]}',
+            'fee': float(lawyer_info['ConsultationFee'])
+        }
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        return {'error': f'Booking failed: {str(e)}'}, 500
+    
+@app.route('/submit-review', methods=['POST'])
+@login_required
+def submit_review():
+    if session.get('user_type') != 'Client':
+        return {'error': 'Only clients can submit reviews'}, 403
+    
+    lawyer_id = request.json.get('lawyer_id')
+    rating = request.json.get('rating')
+    review_text = request.json.get('review_text', '')
+    
+    if not lawyer_id or not rating or rating < 1 or rating > 5:
+        return {'error': 'Invalid review data'}, 400
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Check if client has had a consultation with this lawyer
+        cur.execute("""
+            SELECT COUNT(*) as consultation_count
+            FROM Consultations
+            WHERE LawyerId = %s AND ClientId = %s AND Status = 'Completed'
+        """, (lawyer_id, session['user_id']))
+        
+        consultation_count = cur.fetchone()['consultation_count']
+        
+        if consultation_count == 0:
+            return {'error': 'You can only review lawyers you have consulted with'}, 403
+        
+        # Insert or update review
+        cur.execute("""
+            INSERT INTO LawyerReviews (LawyerId, ClientId, Rating, ReviewText, IsVerified)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            Rating = VALUES(Rating),
+            ReviewText = VALUES(ReviewText),
+            CreatedAt = CURRENT_TIMESTAMP
+        """, (lawyer_id, session['user_id'], rating, review_text, True))
+        
+        # Update lawyer's average rating
+        cur.execute("""
+            UPDATE LawyerDetails ld
+            SET Rating = (
+                SELECT AVG(lr.Rating)
+                FROM LawyerReviews lr
+                WHERE lr.LawyerId = %s AND lr.IsVerified = TRUE
+            ),
+            TotalReviews = (
+                SELECT COUNT(*)
+                FROM LawyerReviews lr
+                WHERE lr.LawyerId = %s AND lr.IsVerified = TRUE
+            )
+            WHERE ld.UserId = %s
+        """, (lawyer_id, lawyer_id, lawyer_id))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        return {'success': True, 'message': 'Review submitted successfully'}
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        return {'error': f'Review submission failed: {str(e)}'}, 500
+
 @app.route('/find-lawyer')
 def find_lawyer():
     return render_template('find_lawyer.html')
