@@ -1,0 +1,138 @@
+.messages-container {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.message-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #ddd;
+}
+
+.message-card.status-new {
+    border-left-color: #3498db;
+}
+
+.message-card.status-pending {
+    border-left-color: #f39c12;
+}
+
+.message-card.status-solved {
+    border-left-color: #2ecc71;
+}
+
+.message-card.status-rejected {
+    border-left-color: #e74c3c;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.message-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.message-details {
+    margin-bottom: 1.5rem;
+}
+
+.message-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+}
+
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.status-btn.active {
+    color: white;
+}
+
+.new-btn {
+    background: #e3f2fd;
+    color: #3498db;
+}
+
+.new-btn.active {
+    background: #3498db;
+}
+
+.pending-btn {
+    background: #fff3e0;
+    color: #f39c12;
+}
+
+.pending-btn.active {
+    background: #f39c12;
+}
+
+.solved-btn {
+    background: #e8f5e9;
+    color: #2ecc71;
+}
+
+.solved-btn.active {
+    background: #2ecc71;
+}
+
+.rejected-btn {
+    background: #ffebee;
+    color: #e74c3c;
+}
+
+.rejected-btn.active {
+    background: #e74c3c;
+}
+
+.no-messages {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 10px;
+    color: #666;
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+}
