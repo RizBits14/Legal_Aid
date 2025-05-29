@@ -7,6 +7,8 @@
     --light-text: #ffffff;
     --card-bg: #ffffff;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --modal-overlay: rgba(0, 0, 0, 0.6);
+    --modal-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Reset and Base Styles */
@@ -245,214 +247,266 @@ body {
     margin-left: 0.5rem;
 }
 
-.description {
+.lawyer-bio {
     margin-bottom: 1.5rem;
     color: var(--text-color);
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 .card-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+.book-btn, .view-profile-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .book-btn {
     background-color: var(--primary-color);
     color: var(--light-text);
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .book-btn:hover {
     background-color: var(--secondary-color);
+    transform: translateY(-2px);
 }
 
-.view-profile {
+.view-profile-btn {
+    background-color: transparent;
     color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
+    border: 2px solid var(--primary-color);
 }
 
-.view-profile:hover {
-    color: var(--secondary-color);
-}
-
-/* Animations */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        padding: 1rem;
-    }
-
-    .nav-links {
-        margin-top: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .search-filter {
-        flex-direction: column;
-    }
-
-    .search-bar {
-        width: 100%;
-    }
-
-    .filters {
-        width: 100%;
-        flex-direction: column;
-    }
-
-    .lawyer-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Scroll Animation */
-.lawyer-card {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.lawyer-card.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Footer Styles */
-.footer {
-    background: linear-gradient(to bottom, var(--primary-color), #0f2e29);
+.view-profile-btn:hover {
+    background-color: var(--primary-color);
     color: var(--light-text);
-    padding: 30px;
-    position: relative;
-    overflow: hidden;
-    height:auto;
+    transform: translateY(-2px);
 }
 
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--light-text), transparent);
-    animation: shimmer 2s infinite;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
 }
 
-.footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+.modal-content {
+    background-color: var(--light-text);
+    margin: 2% auto;
+    padding: 0;
+    width: 90%;
     max-width: 900px;
-    margin: 0 auto;
-    padding: 0 20px;
+    max-height: 90vh;
+    border-radius: 15px;
+    box-shadow: var(--modal-shadow);
+    overflow-y: auto;
+    animation: slideInModal 0.4s ease;
+    position: relative;
 }
 
-.footer-section {
-    margin-bottom: 1rem;
-}
-
-.footer-logo {
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-color);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-bottom: 1rem;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
 
-.footer-logo img {
-    height: 50px;
-    width: auto;
-    margin-bottom: 1rem;
+.close-modal:hover {
+    background-color: #f0f0f0;
+    transform: rotate(90deg);
 }
 
-.footer-logo h3 {
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: var(--light-text);
-    font-size: 1.8rem;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-lawyer-image {
+    flex-shrink: 0;
+}
+
+.modal-lawyer-image img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--light-text);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-lawyer-info h2 {
+    font-size: 2rem;
     margin-bottom: 0.5rem;
 }
 
-.footer-description {
-    color: var(--light-text);
+.modal-specialization {
+    font-size: 1.2rem;
     opacity: 0.9;
-    max-width: 400px;
-    margin: 0 auto 2rem;
     margin-bottom: 1rem;
-    line-height: 1.6;
 }
 
-.social-links {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
+.modal-rating {
+    color: #FFD700;
+    font-size: 1.1rem;
 }
 
-.social-link {
+.modal-rating span {
     color: var(--light-text);
-    font-size: 1.5rem;
-    transition: transform 0.3s ease, color 0.3s ease;
+    margin-left: 0.5rem;
 }
 
-.social-link:hover {
-    transform: translateY(-5px);
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.modal-section h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-section h3 i {
     color: var(--secondary-color);
 }
 
-.footer-bottom {
-    text-align: center;
-    padding: 1rem 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 1rem;
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
 }
 
-.footer-bottom p {
+.info-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.info-item strong {
+    display: block;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.education-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.education-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.education-item strong {
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.practice-areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.practice-tag {
+    background: var(--secondary-color);
     color: var(--light-text);
-    opacity: 0.8;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
-/* Additional Animations */
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+.achievements-list {
+    list-style: none;
+    padding: 0;
 }
 
+.achievements-list li {
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+    position: relative;
+    padding-left: 2.5rem;
+}
 
+.achievements-list li::before {
+    content: '🏆';
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.lawyer-about {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    text-align: justify;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1
