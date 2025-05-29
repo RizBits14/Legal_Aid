@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -15,6 +17,7 @@
             <a href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
                 <span>Legal Aid</span>
+            </a>
         </div>
         <ul class="nav-links">
             <li><a href="{{url_for('index')}}">Home</a></li>
@@ -58,14 +61,15 @@
 
         <div class="lawyer-grid">
             {% for lawyer in lawyers %}
-            <div class="lawyer-card" data-specialization="{{ lawyer.specialization }}" data-experience="{{ lawyer.experience }}">
+            <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}"
+                data-experience="{{ lawyer.experience }}">
                 <div class="card-image">
-                    <img src="{{ url_for('static', filename=lawyer.photo) }}" alt="{{ lawyer.name }}">
+                    <img src="{{ url_for('lawyer_photo', lawyer_id=lawyer.id) }}" alt="{{ lawyer.name }}">
                     <div class="experience-badge">{{ lawyer.experience }} years</div>
                 </div>
                 <div class="card-content">
                     <h3>{{ lawyer.name }}</h3>
-                    <p class="specialization">{{ lawyer.specialization }}</p>
+                    <p class="specialization">{{ lawyer.Specialization }}</p>
                     <div class="rating">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
@@ -74,10 +78,15 @@
                         <i class="fas fa-star-half-alt"></i>
                         <span>(4.5)</span>
                     </div>
-                    <p class="description">{{ lawyer.description }}</p>
+                    <p class="lawyer-bio">Experienced legal professional dedicated to providing excellent service and
+                        achieving the best outcomes for clients.</p>
                     <div class="card-footer">
                         <button class="book-btn" data-lawyer-id="{{ lawyer.id }}">Book Consultation</button>
-                        <a href="#" class="view-profile">View Profile</a>
+                        <button class="view-profile-btn" data-lawyer-id="{{ lawyer.id }}"
+                            data-lawyer-name="{{ lawyer.name }}"
+                            data-lawyer-specialization="{{ lawyer.Specialization }}"
+                            data-lawyer-experience="{{ lawyer.experience }}"
+                            data-lawyer-license="{{ lawyer.LicenseNumber }}">View Profile</button>
                     </div>
                 </div>
             </div>
@@ -85,9 +94,131 @@
         </div>
     </main>
 
+    <!-- Lawyer Profile Modal -->
+    <div id="lawyerProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <div class="modal-lawyer-image">
+                    <img id="modalLawyerPhoto" src="" alt="Lawyer Photo">
+                </div>
+                <div class="modal-lawyer-info">
+                    <h2 id="modalLawyerName"></h2>
+                    <p class="modal-specialization" id="modalLawyerSpecialization"></p>
+                    <div class="modal-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(4.5)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3><i class="fas fa-user-tie"></i> Professional Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Years of Experience:</strong>
+                            <span id="modalLawyerExperience"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>License Number:</strong>
+                            <span id="modalLawyerLicense"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Specialization:</strong>
+                            <span id="modalLawyerSpecializationDetail"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Bar Association:</strong>
+                            <span>State Bar of New York</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-graduation-cap"></i> Education & Qualifications</h3>
+                    <div class="education-list">
+                        <div class="education-item">
+                            <strong>Juris Doctor (J.D.)</strong>
+                            <p>Harvard Law School, 2010</p>
+                        </div>
+                        <div class="education-item">
+                            <strong>Bachelor of Arts in Political Science</strong>
+                            <p>Yale University, 2007</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-briefcase"></i> Practice Areas</h3>
+                    <div class="practice-areas">
+                        <span class="practice-tag">Family Law</span>
+                        <span class="practice-tag">Divorce Proceedings</span>
+                        <span class="practice-tag">Child Custody</span>
+                        <span class="practice-tag">Adoption</span>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-trophy"></i> Achievements</h3>
+                    <ul class="achievements-list">
+                        <li>Super Lawyers Rising Star (2018-2023)</li>
+                        <li>Best Family Law Attorney - City Magazine (2022)</li>
+                        <li>Outstanding Service Award - State Bar Association (2021)</li>
+                        <li>Pro Bono Champion Award (2020)</li>
+                    </ul>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-quote-left"></i> About</h3>
+                    <p class="lawyer-about">
+                        Dedicated to providing compassionate and effective legal representation for families in
+                        transition.
+                        With over a decade of experience in family law, I understand the emotional and financial
+                        challenges
+                        that come with legal disputes. My approach is to listen carefully to my clients' needs and work
+                        tirelessly to achieve the best possible outcomes while minimizing stress and conflict.
+                    </p>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-phone"></i> Contact Information</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>lawyer@legalaid.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>123 Legal Street, Suite 456, New York, NY 10001</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-book-btn" id="modalBookBtn">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Consultation
+                </button>
+                <button class="modal-contact-btn">
+                    <i class="fas fa-envelope"></i>
+                    Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="footer-content">
-            <!-- Company Info -->
             <div class="footer-section">
                 <div class="footer-logo">
                     <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal Aid Logo">
@@ -102,83 +233,19 @@
                     <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
-    
-            <!-- Quick Links -->
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul class="footer-links">
-                    <li><a href="/find-lawyer"><i class="fas fa-search"></i> Find a Lawyer</a></li>
-                    <li><a href="/practice-areas"><i class="fas fa-balance-scale"></i> Practice Areas</a></li>
-                    <li><a href="/pricing"><i class="fas fa-dollar-sign"></i> Pricing</a></li>
-                    <li><a href="/blog"><i class="fas fa-book-reader"></i> Legal Blog</a></li>
-                    <li><a href="/faqs"><i class="fas fa-question-circle"></i> FAQs</a></li>
-                </ul>
-            </div>
-    
-            <!-- Practice Areas -->
-            <div class="footer-section">
-                <h4>Practice Areas</h4>
-                <ul class="footer-links">
-                    <li><a href="/family-law">Family Law</a></li>
-                    <li><a href="/criminal-law">Criminal Defense</a></li>
-                    <li><a href="/corporate-law">Corporate Law</a></li>
-                    <li><a href="/real-estate">Real Estate</a></li>
-                    <li><a href="/immigration">Immigration</a></li>
-                </ul>
-            </div>
-    
-            <!-- Contact Info -->
-            <div class="footer-section">
-                <h4>Contact Us</h4>
-                <ul class="contact-info">
-                    <li>
-                        <i class="fas fa-phone"></i>
-                        <span>24/7 Helpline: <a href="tel:1800-LEGAL-AID">1800-LEGAL-AID</a></span>
-                    </li>
-                    <li>
-                        <i class="fas fa-envelope"></i>
-                        <span>Email: <a href="mailto:support@legal-aid.com">support@legal-aid.com</a></span>
-                    </li>
-                    <li>
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>123 Legal Avenue, Courthouse District<br>New York, NY 10001</span>
-                    </li>
-                </ul>
-            </div>
         </div>
-    
-        <!-- Newsletter Subscription -->
-        <div class="newsletter-section">
-            <h4>Subscribe to Our Newsletter</h4>
-            <p>Stay updated with legal news and tips</p>
-            <form class="newsletter-form" action="/subscribe" method="POST">
-                <div class="form-group">
-                    <input type="email" placeholder="Enter your email" required>
-                    <button type="submit">Subscribe <i class="fas fa-paper-plane"></i></button>
-                </div>
-            </form>
-        </div>
-    
-        <!-- Bottom Bar -->
         <div class="footer-bottom">
-            <div class="footer-bottom-content">
-                <p>&copy; 2024 Legal Aid. All rights reserved.</p>
-                <ul class="bottom-links">
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms of Service</a></li>
-                    <li><a href="/sitemap">Sitemap</a></li>
-                </ul>
-            </div>
+            <p>&copy; 2024 Legal Aid. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Search functionality
             const searchInput = document.querySelector('.search-bar input');
             const lawyerCards = document.querySelectorAll('.lawyer-card');
 
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const searchTerm = this.value.toLowerCase();
                 lawyerCards.forEach(card => {
                     const name = card.querySelector('h3').textContent.toLowerCase();
@@ -201,10 +268,10 @@
 
                 lawyerCards.forEach(card => {
                     const cardSpecialization = card.dataset.specialization;
-                    const cardExperience = card.dataset.experience;
+                    const cardExperience = parseInt(card.dataset.experience);
 
                     const matchesSpecialization = !selectedSpecialization || cardSpecialization === selectedSpecialization;
-                    const matchesExperience = !selectedExperience || 
+                    const matchesExperience = !selectedExperience ||
                         (selectedExperience === '1-5' && cardExperience <= 5) ||
                         (selectedExperience === '5-10' && cardExperience > 5 && cardExperience <= 10) ||
                         (selectedExperience === '10+' && cardExperience > 10);
@@ -223,13 +290,71 @@
             // Booking functionality
             const bookButtons = document.querySelectorAll('.book-btn');
             bookButtons.forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const lawyerId = this.dataset.lawyerId;
-                    // Add booking logic here
                     alert('Booking functionality will be implemented soon!');
                 });
+            });
+
+            // Modal functionality
+            const modal = document.getElementById('lawyerProfileModal');
+            const viewProfileBtns = document.querySelectorAll('.view-profile-btn');
+            const closeModal = document.querySelector('.close-modal');
+
+            // Open modal when View Profile is clicked
+            viewProfileBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const lawyerId = this.dataset.lawyerId;
+                    const lawyerName = this.dataset.lawyerName;
+                    const lawyerSpecialization = this.dataset.lawyerSpecialization;
+                    const lawyerExperience = this.dataset.lawyerExperience;
+                    const lawyerLicense = this.dataset.lawyerLicense;
+
+                    // Populate modal with lawyer data
+                    document.getElementById('modalLawyerName').textContent = lawyerName;
+                    document.getElementById('modalLawyerSpecialization').textContent = lawyerSpecialization;
+                    document.getElementById('modalLawyerSpecializationDetail').textContent = lawyerSpecialization;
+                    document.getElementById('modalLawyerExperience').textContent = lawyerExperience + ' years';
+                    document.getElementById('modalLawyerLicense').textContent = lawyerLicense;
+                    document.getElementById('modalLawyerPhoto').src = `/lawyer-photo/${lawyerId}`;
+
+                    // Set booking button data
+                    document.getElementById('modalBookBtn').dataset.lawyerId = lawyerId;
+
+                    // Show modal
+                    modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+            });
+
+            // Close modal when X is clicked
+            closeModal.addEventListener('click', function () {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // Restore scrolling
+                }
+            });
+
+            // Modal booking functionality
+            document.getElementById('modalBookBtn').addEventListener('click', function () {
+                const lawyerId = this.dataset.lawyerId;
+                alert('Booking consultation for lawyer ID: ' + lawyerId);
+                // Here you can implement actual booking functionality
+            });
+
+            // Modal contact functionality
+            document.querySelector('.modal-contact-btn').addEventListener('click', function () {
+                alert('Contact functionality will be implemented soon!');
+                // Here you can implement contact functionality
             });
         });
     </script>
 </body>
+
 </html>
