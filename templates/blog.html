@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Blog | Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='Legal_Aid Logo.png') }}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='Legal_Aid Logo.png') }}" alt="Legal_Aid Logo">
+                <span>Legal Aid</span>
+            </a>
+        </div>
+    </nav>
+    <main class="container">
+        <h1 class="animated-title">Legal Blog</h1>
+        <p class="animated-desc">Read the latest articles and legal tips from our experts.</p>
+        <div class="blog-list">
+            <div class="blog-card">Blog post previews will appear here...</div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 Legal Aid. All rights reserved.</p>
+    </footer>
+</body>
+</html> 
