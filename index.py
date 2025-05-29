@@ -480,7 +480,32 @@ def admin_manage_users():
                          pending_count=pending_count,
                          new_messages_count=new_messages_count)
 
-
+@app.route('/admin/notification-counts')
+@admin_required
+def get_notification_counts():
+    """API endpoint to get current notification counts"""
+    cur = mysql.connection.cursor()
+    
+    # Get pending lawyer verifications count
+    cur.execute("""
+        SELECT COUNT(*) as pending_count
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Pending'
+    """)
+    pending_count = cur.fetchone()['pending_count']
+    
+    # Get new contact messages count
+    cur.execute("SELECT COUNT(*) as new_messages FROM ContactMessages WHERE status = 'New'")
+    new_messages_count = cur.fetchone()['new_messages']
+    
+    cur.close()
+    
+    return {
+        'pending_count': pending_count,
+        'new_messages_count': new_messages_count,
+        'total_notifications': pending_count + new_messages_count
+    }
 
 @app.route('/admin/delete-lawyer', methods=['POST'])
 @admin_required
