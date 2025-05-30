@@ -16,56 +16,128 @@
         </a>
         <h2>Lawyer Sign Up</h2>
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
         <form action="{{ url_for('lawyer_signup') }}" method="POST" enctype="multipart/form-data">
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" placeholder="Full Name" name="name" required>
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-user"></i> Basic Information</h3>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" placeholder="Full Name" name="name" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" placeholder="Email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" placeholder="Phone Number" name="phone" required pattern="[0-9]{10}"
+                        title="Please enter a valid 10-digit phone number">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" placeholder="Password" name="password" required minlength="6">
+                </div>
             </div>
-            <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" placeholder="Email" name="email" required>
+
+            <!-- Professional Information -->
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-briefcase"></i> Professional Information</h3>
+                <div class="input-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" placeholder="License Number" name="license" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-gavel"></i>
+                    <select name="specialization" required>
+                        <option value="">Select Specialization</option>
+                        <option value="Family Law">Family Law</option>
+                        <option value="Criminal Law">Criminal Defense</option>
+                        <option value="Corporate Law">Corporate Law</option>
+                        <option value="Immigration Law">Immigration Law</option>
+                        <option value="Real Estate Law">Real Estate Law</option>
+                        <option value="Personal Injury">Personal Injury</option>
+                        <option value="Employment Law">Employment Law</option>
+                        <option value="Tax Law">Tax Law</option>
+                        <option value="Environmental Law">Environmental Law</option>
+                        <option value="Intellectual Property">Intellectual Property</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="number" placeholder="Years of Experience" name="experience" required min="0" max="60">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-dollar-sign"></i>
+                    <input type="number" placeholder="Consultation Fee ($)" name="consultation_fee" min="50" max="1000"
+                        step="25">
+                </div>
             </div>
-            <div class="input-group">
-                <i class="fas fa-phone"></i>
-                <input type="tel" placeholder="Phone Number" name="phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+
+            <!-- Office Information -->
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-building"></i> Office Information</h3>
+                <div class="input-group">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <textarea placeholder="Office Address" name="office_address" rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-clock"></i>
+                    <input type="text" placeholder="Available Hours (e.g., Mon-Fri: 9AM-6PM)" name="available_hours">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-language"></i>
+                    <input type="text" placeholder="Languages (e.g., English, Spanish)" name="languages"
+                        value="English">
+                </div>
             </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" placeholder="Password" name="password" required>
+
+            <!-- Professional Background -->
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-graduation-cap"></i> Professional Background</h3>
+                <div class="input-group">
+                    <i class="fas fa-user-tie"></i>
+                    <textarea placeholder="Professional Bio (Brief description of your practice and experience)"
+                        name="bio" rows="4"></textarea>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-university"></i>
+                    <textarea placeholder="Education (Law School, Bar Admissions, etc.)" name="education"
+                        rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-balance-scale"></i>
+                    <input type="text" placeholder="Bar Association" name="bar_association"
+                        value="State Bar Association">
+                </div>
             </div>
-            <div class="input-group">
-                <i class="fas fa-id-card"></i>
-                <input type="text" placeholder="License Number" name="license" required>
+
+            <!-- File Uploads -->
+            <div class="form-section">
+                <h3 class="form-section-title"><i class="fas fa-upload"></i> Required Documents</h3>
+                <div class="input-group file-group">
+                    <i class="fas fa-file-upload"></i>
+                    <label for="license_proof">Upload License Proof *</label>
+                    <input type="file" class="file-input" id="license_proof" name="license_proof" required
+                        accept=".pdf,.png,.jpg,.jpeg">
+                    <span class="file-name" id="license-file-name">No file chosen</span>
+                </div>
+
+                <div class="input-group file-group">
+                    <i class="fas fa-camera"></i>
+                    <label for="photo">Upload Profile Photo *</label>
+                    <input type="file" class="file-input" id="photo" name="photo" required accept=".png,.jpg,.jpeg">
+                    <span class="file-name" id="photo-file-name">No file chosen</span>
+                </div>
             </div>
-            <div class="input-group">
-                <i class="fas fa-gavel"></i>
-                <input type="text" placeholder="Specialization" name="specialization" required>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-briefcase"></i>
-                <input type="number" placeholder="Years of Experience" name="experience" required min="0" max="100">
-            </div>
-            <div class="input-group file-group">
-                <i class="fas fa-file-upload"></i>
-                <label for="license_proof">Upload License Proof</label>
-                <input type="file" class="file-input" id="license_proof" name="license_proof" required
-                    accept=".pdf,.png,.jpg,.jpeg">
-                <span class="file-name" id="license-file-name">No file chosen</span>
-            </div>
-            
-            <div class="input-group file-group">
-                <i class="fas fa-camera"></i>
-                <label for="photo">Upload Profile Photo</label>
-                <input type="file" class="file-input" id="photo" name="photo" required accept=".png,.jpg,.jpeg">
-                <span class="file-name" id="photo-file-name">No file chosen</span>
-            </div>
-            <button type="submit">Sign Up</button>
+
+            <button type="submit">Submit Application</button>
         </form>
         <p>Already have an account? <a href="/signin">Sign in</a></p>
     </div>
@@ -81,6 +153,27 @@
         document.getElementById('photo').addEventListener('change', function () {
             const fileName = this.files[0]?.name || 'No file chosen';
             document.getElementById('photo-file-name').textContent = fileName;
+        });
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const password = document.querySelector('input[name="password"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+
+            // Password validation
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                e.preventDefault();
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                e.preventDefault();
+                return;
+            }
         });
     </script>
 </body>
