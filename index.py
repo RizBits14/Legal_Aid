@@ -211,13 +211,27 @@ def client_signup():
 @app.route('/lawyer-signup', methods=['GET', 'POST'])
 def lawyer_signup():
     if request.method == 'POST':
+        # Basic information
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
         phone = request.form.get('phone')
+        
+        # Professional information
         license_number = request.form.get('license')
         specialization = request.form.get('specialization')
         experience = request.form.get('experience')
+        consultation_fee = request.form.get('consultation_fee', 150)
+        
+        # Office information
+        office_address = request.form.get('office_address', 'Office address to be updated.')
+        available_hours = request.form.get('available_hours', 'Mon-Fri: 9AM-6PM')
+        languages = request.form.get('languages', 'English')
+        
+        # Professional background
+        bio = request.form.get('bio', 'Experienced legal professional dedicated to providing excellent service and achieving the best outcomes for clients.')
+        education = request.form.get('education', 'Legal education details will be updated by the lawyer.')
+        bar_association = request.form.get('bar_association', 'State Bar Association')
         
         # Handle license proof upload
         if 'license_proof' not in request.files:
@@ -300,16 +314,26 @@ def lawyer_signup():
                 flash("Database connection error during registration. Your user account was created, but please contact support.", "error")
                 return render_template('lawyer_signup.html')
                 
-            # Start a new transaction for lawyer details - store filename instead of binary data
+            # Create practice areas JSON from specialization
+            practice_areas = f'["{specialization}"]'
+            
+            # Start a new transaction for lawyer details with enhanced fields
             cur = mysql.connection.cursor()
-            cur.execute(
-                "INSERT INTO LawyerDetails (UserId, LicenseNumber, LicenseProof, Photo, Specialization, YearsOfExperience) VALUES (%s, %s, %s, %s, %s, %s)",
-                (user_id, license_number, license_filename, photo_filename, specialization, experience)
-            )
+            cur.execute("""
+                INSERT INTO LawyerDetails (
+                    UserId, LicenseNumber, LicenseProof, Photo, Specialization, YearsOfExperience,
+                    Bio, Education, BarAssociation, OfficeAddress, ConsultationFee, Languages,
+                    PracticeAreas, AvailableHours
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                user_id, license_number, license_filename, photo_filename, specialization, experience,
+                bio, education, bar_association, office_address, consultation_fee, languages,
+                practice_areas, available_hours
+            ))
             mysql.connection.commit()
             cur.close()
             
-            flash("Registration submitted! We'll review your application and contact you soon.", "success")
+            flash("Registration submitted successfully! We'll review your application and contact you soon.", "success")
             return redirect(url_for('lawyer_signin'))
                 
         except Exception as e:
