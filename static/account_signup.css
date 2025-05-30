@@ -383,31 +383,52 @@ button[type="submit"]:hover {
 
 /* Form Section Dividers */
 .form-section {
-    border-bottom: 1px solid var(--light-gray);
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(106, 156, 137, 0.2);
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
 }
 
 .form-section-title {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+    color: var(--navbar-color);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--text-color);
 }
 
-/* Input Validation Styles */
-.input-group input:invalid,
-.input-group textarea:invalid {
-    border-color: var(--error-color);
+.form-section-title i {
+    color: var(--text-color);
 }
 
-.input-group .validation-message {
-    color: var(--error-color);
-    font-size: 0.8rem;
-    margin-top: 0.3rem;
-    display: none;
+/* Enhanced select styling */
+.input-group select {
+    width: 100%;
+    padding: 12px 40px;
+    border: 2px solid var(--text-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    color: var(--navbar-color);
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s var(--transition-timing);
+    box-sizing: border-box;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236A9C89' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
 }
 
-.input-group input:invalid + .validation-message {
-    display: block;
+.input-group select:focus {
+    outline: none;
+    border-color: var(--navbar-color);
+    box-shadow: 0 0 0 3px rgba(22, 66, 60, 0.1);
+    transform: translateY(-2px);
 }
