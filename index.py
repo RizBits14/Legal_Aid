@@ -1051,7 +1051,194 @@ def submit_review():
 
 @app.route('/find-lawyer')
 def find_lawyer():
-    return render_template('find_lawyer.html')
+    cur = mysql.connection.cursor()
+    
+    # Get all approved lawyers with comprehensive details
+    cur.execute("""
+        SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               u.FirstName, u.LastName, u.Email, u.Phone,
+               ld.Specialization, ld.YearsOfExperience, ld.Photo, 
+               ld.LicenseNumber, ld.Bio, ld.Education, ld.BarAssociation,
+               ld.OfficeAddress, ld.ConsultationFee, ld.Languages,
+               ld.PracticeAreas, ld.Achievements, ld.AvailableHours,
+               ld.Rating, ld.TotalReviews, ld.PreferredContactMethod
+        FROM Users u
+        JOIN LawyerDetails ld ON u.id = ld.UserId
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+        ORDER BY ld.Rating DESC, ld.YearsOfExperience DESC
+    """)
+    lawyers = cur.fetchall()
+    cur.close()
+    
+    return render_template('find_lawyer.html', lawyers=lawyers)
+
+# Enhanced route to get lawyer details for the modal (AJAX endpoint)
+@app.route('/api/lawyer-details/<int:lawyer_id>')
+def api_lawyer_details(lawyer_id):
+    cur = mysql.connection.cursor()
+    
+    # Get comprehensive lawyer details
+    cur.execute("""
+        SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               u.FirstName, u.LastName, u.Email, u.Phone,
+               ld.Specialization, ld.YearsOfExperience, ld.Photo, 
+               ld.LicenseNumber, ld.Bio, ld.Education, ld.BarAssociation,
+               ld.OfficeAddress, ld.ConsultationFee, ld.Languages,
+               ld.PracticeAreas, ld.Achievements, ld.AvailableHours,
+               ld.Rating, ld.TotalReviews, ld.PreferredContactMethod
+        FROM Users u
+        JOIN LawyerDetails ld ON u.id = ld.UserId
+        WHERE u.id = %s AND u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+    """, [lawyer_id])
+    lawyer = cur.fetchone()
+    
+    if not lawyer:
+        return {'error': 'Lawyer not found'}, 404
+    
+    # Get recent reviews for this lawyer
+    cur.execute("""
+        SELECT lr.Rating, lr.ReviewText, lr.CreatedAt,
+               CONCAT(u.FirstName, ' ', SUBSTRING(u.LastName, 1, 1), '.') as reviewer_name
+        FROM LawyerReviews lr
+        JOIN Users u ON lr.ClientId = u.id
+        WHERE lr.LawyerId = %s AND lr.IsVerified = TRUE
+        ORDER BY lr.CreatedAt DESC
+        LIMIT 5
+    """, [lawyer_id])
+    reviews = cur.fetchall()
+    
+    cur.close()
+    
+    # Parse JSON fields safely
+    import json
+    try:
+        if lawyer['PracticeAreas']:
+            lawyer['PracticeAreas'] = json.loads(lawyer['PracticeAreas'])
+        else:
+            lawyer['PracticeAreas'] = [lawyer['Specialization']]
+            
+        if lawyer['Achievements']:
+            lawyer['Achievements'] = json.loads(lawyer['Achievements'])
+        else:
+            lawyer['Achievements'] = []
+    except (json.JSONDecodeError, TypeError):
+        lawyer['PracticeAreas'] = [lawyer['Specialization']]
+        lawyer['Achievements'] = []
+    
+    return {
+        'success': True,
+        'lawyer': lawyer,
+        'reviews': reviews
+    }
+
+# Route for lawyer search with filters (AJAX endpoint)
+@app.route('/api/search-lawyers')
+def api_search_lawyers():
+    # Get search parameters
+    specialization = request.args.get('specialization', '')
+    location = request.args.get('location', '')
+    experience_range = request.args.get('experience', '')
+    rating_min = request.args.get('rating', '')
+    fee_range = request.args.get('fee_range', '')
+    search_term = request.args.get('search', '')
+    sort_by = request.args.get('sort', 'rating')
+    
+    # Build the base query
+    query = """
+        SELECT u.id, CONCAT(u.FirstName, ' ', u.LastName) as name, 
+               u.FirstName, u.LastName, u.Email, u.Phone,
+               ld.Specialization, ld.YearsOfExperience, ld.Photo, 
+               ld.LicenseNumber, ld.Bio, ld.Education, ld.BarAssociation,
+               ld.OfficeAddress, ld.ConsultationFee, ld.Languages,
+               ld.PracticeAreas, ld.Achievements, ld.AvailableHours,
+               ld.Rating, ld.TotalReviews, ld.PreferredContactMethod
+        FROM Users u
+        JOIN LawyerDetails ld ON u.id = ld.UserId
+        WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+    """
+    
+    params = []
+    
+    # Add filters to the query
+    if specialization:
+        query += " AND ld.Specialization = %s"
+        params.append(specialization)
+    
+    if location:
+        query += " AND (ld.OfficeAddress LIKE %s)"
+        params.append(f"%{location}%")
+    
+    if experience_range:
+        if experience_range == '1-5':
+            query += " AND ld.YearsOfExperience BETWEEN 1 AND 5"
+        elif experience_range == '5-10':
+            query += " AND ld.YearsOfExperience BETWEEN 5 AND 10"
+        elif experience_range == '10-15':
+            query += " AND ld.YearsOfExperience BETWEEN 10 AND 15"
+        elif experience_range == '15+':
+            query += " AND ld.YearsOfExperience >= 15"
+    
+    if rating_min:
+        min_rating = float(rating_min.replace('+', ''))
+        query += " AND ld.Rating >= %s"
+        params.append(min_rating)
+    
+    if fee_range:
+        if fee_range == '0-150':
+            query += " AND ld.ConsultationFee <= 150"
+        elif fee_range == '150-250':
+            query += " AND ld.ConsultationFee BETWEEN 150 AND 250"
+        elif fee_range == '250-400':
+            query += " AND ld.ConsultationFee BETWEEN 250 AND 400"
+        elif fee_range == '400+':
+            query += " AND ld.ConsultationFee >= 400"
+    
+    if search_term:
+        query += " AND (CONCAT(u.FirstName, ' ', u.LastName) LIKE %s OR ld.Specialization LIKE %s OR ld.Bio LIKE %s)"
+        search_param = f"%{search_term}%"
+        params.extend([search_param, search_param, search_param])
+    
+    # Add sorting
+    if sort_by == 'rating':
+        query += " ORDER BY ld.Rating DESC, ld.TotalReviews DESC"
+    elif sort_by == 'experience':
+        query += " ORDER BY ld.YearsOfExperience DESC"
+    elif sort_by == 'fee-low':
+        query += " ORDER BY ld.ConsultationFee ASC"
+    elif sort_by == 'fee-high':
+        query += " ORDER BY ld.ConsultationFee DESC"
+    elif sort_by == 'name':
+        query += " ORDER BY u.FirstName ASC, u.LastName ASC"
+    else:
+        query += " ORDER BY ld.Rating DESC"
+    
+    cur = mysql.connection.cursor()
+    cur.execute(query, params)
+    lawyers = cur.fetchall()
+    cur.close()
+    
+    # Parse JSON fields for each lawyer
+    import json
+    for lawyer in lawyers:
+        try:
+            if lawyer['PracticeAreas']:
+                lawyer['PracticeAreas'] = json.loads(lawyer['PracticeAreas'])
+            else:
+                lawyer['PracticeAreas'] = [lawyer['Specialization']]
+                
+            if lawyer['Achievements']:
+                lawyer['Achievements'] = json.loads(lawyer['Achievements'])
+            else:
+                lawyer['Achievements'] = []
+        except (json.JSONDecodeError, TypeError):
+            lawyer['PracticeAreas'] = [lawyer['Specialization']]
+            lawyer['Achievements'] = []
+    
+    return {
+        'success': True,
+        'lawyers': lawyers,
+        'count': len(lawyers)
+    }
 
 @app.route('/practice-areas')
 def practice_areas():
