@@ -21,13 +21,10 @@
         </div>
         <div class="nav-links">
             <a href="{{ url_for('index') }}" class="nav-item">Home</a>
-            <a href="#" class="nav-item active">Find a Lawyer</a>
-            <a href="#" class="nav-item">Legal Resources</a>
-            <a href="#" class="nav-item">About Us</a>
-            <a href="#" class="nav-item">Contact</a>
-        </div>
-        <div class="mobile-menu-btn">
-            <i class="fas fa-bars"></i>
+            <a href="{{ url_for('find_lawyer') }}" class="nav-item active">Find a Lawyer</a>
+            <a href="{{ url_for('lawyer_page') }}" class="nav-item">Our Lawyers</a>
+            <a href="{{ url_for('about') }}" class="nav-item">About Us</a>
+            <a href="{{ url_for('contact') }}" class="nav-item">Contact</a>
         </div>
     </nav>
 
@@ -48,19 +45,21 @@
                     <label for="practice-area">Practice Area</label>
                     <select id="practice-area" class="filter-select">
                         <option value="">All Practice Areas</option>
-                        <option value="family">Family Law</option>
-                        <option value="criminal">Criminal Defense</option>
-                        <option value="immigration">Immigration</option>
-                        <option value="estate">Estate Planning</option>
-                        <option value="corporate">Corporate Law</option>
-                        <option value="personal-injury">Personal Injury</option>
-                        <option value="intellectual">Intellectual Property</option>
-                        <option value="tax">Tax Law</option>
+                        <option value="Family Law">Family Law</option>
+                        <option value="Criminal Law">Criminal Defense</option>
+                        <option value="Corporate Law">Corporate Law</option>
+                        <option value="Immigration Law">Immigration</option>
+                        <option value="Real Estate Law">Real Estate</option>
+                        <option value="Personal Injury">Personal Injury</option>
+                        <option value="Employment Law">Employment Law</option>
+                        <option value="Tax Law">Tax Law</option>
+                        <option value="Environmental Law">Environmental Law</option>
+                        <option value="Intellectual Property">Intellectual Property</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label for="location">Location</label>
-                    <input type="text" id="location" placeholder="City or Zip Code" class="filter-input">
+                    <input type="text" id="location" placeholder="City or State" class="filter-input">
                 </div>
                 <div class="filter-group">
                     <label for="experience">Experience</label>
@@ -68,7 +67,8 @@
                         <option value="">Any Experience</option>
                         <option value="1-5">1-5 years</option>
                         <option value="5-10">5-10 years</option>
-                        <option value="10+">10+ years</option>
+                        <option value="10-15">10-15 years</option>
+                        <option value="15+">15+ years</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -80,6 +80,16 @@
                         <option value="5">5 Stars</option>
                     </select>
                 </div>
+                <div class="filter-group">
+                    <label for="fee-range">Consultation Fee</label>
+                    <select id="fee-range" class="filter-select">
+                        <option value="">Any Fee</option>
+                        <option value="0-150">Under $150</option>
+                        <option value="150-250">$150 - $250</option>
+                        <option value="250-400">$250 - $400</option>
+                        <option value="400+">$400+</option>
+                    </select>
+                </div>
             </div>
             <div class="search-box">
                 <input type="text" id="search-keyword" placeholder="Enter keywords or lawyer name...">
@@ -89,98 +99,94 @@
 
         <div class="results-section">
             <div class="results-header">
-                <h3>Search Results</h3>
+                <h3 id="results-count">Found {{ lawyers|length }} lawyer(s)</h3>
                 <div class="results-sorting">
                     <label for="sort-by">Sort by:</label>
                     <select id="sort-by">
-                        <option value="relevance">Relevance</option>
-                        <option value="rating">Rating</option>
-                        <option value="experience">Experience</option>
-                        <option value="name">Name</option>
+                        <option value="rating">Rating (High to Low)</option>
+                        <option value="experience">Experience (High to Low)</option>
+                        <option value="fee-low">Fee (Low to High)</option>
+                        <option value="fee-high">Fee (High to Low)</option>
+                        <option value="name">Name (A-Z)</option>
                     </select>
                 </div>
             </div>
+            
             <div class="lawyers-grid" id="lawyers-results">
-                <!-- Lawyer Card 1 -->
-                <div class="lawyer-card">
-                    <div class="lawyer-header">
-                        <div class="lawyer-avatar">
-                            <i class="fas fa-user-tie"></i>
+                {% if lawyers %}
+                    {% for lawyer in lawyers %}
+                    <div class="lawyer-card" 
+                         data-specialization="{{ lawyer.Specialization }}" 
+                         data-experience="{{ lawyer.YearsOfExperience }}"
+                         data-rating="{{ lawyer.Rating }}"
+                         data-fee="{{ lawyer.ConsultationFee }}"
+                         data-name="{{ lawyer.name }}"
+                         data-location="{{ lawyer.OfficeAddress or 'Location not specified' }}">
+                        
+                        <div class="lawyer-header">
+                            <div class="lawyer-avatar">
+                                <img src="{{ url_for('lawyer_photo', lawyer_id=lawyer.id) }}" alt="{{ lawyer.name }}" class="lawyer-photo">
+                            </div>
+                            <div class="lawyer-rating">
+                                {% set rating = lawyer.Rating|float %}
+                                {% for i in range(5) %}
+                                    {% if i < rating|int %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif i < rating %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span>{{ "%.1f"|format(lawyer.Rating) }} ({{ lawyer.TotalReviews }})</span>
+                            </div>
                         </div>
-                        <div class="lawyer-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>4.5</span>
+                        
+                        <div class="lawyer-details">
+                            <h3>{{ lawyer.name }}</h3>
+                            <p class="lawyer-specialty">{{ lawyer.Specialization }}</p>
+                            <p class="lawyer-experience">
+                                <i class="fas fa-briefcase"></i> {{ lawyer.YearsOfExperience }} years experience
+                            </p>
+                            <p class="lawyer-location">
+                                <i class="fas fa-map-marker-alt"></i> 
+                                {% if lawyer.OfficeAddress %}
+                                    {{ lawyer.OfficeAddress.split(',')[-2:]|join(', ') if ',' in lawyer.OfficeAddress else 'Location Available' }}
+                                {% else %}
+                                    Location not specified
+                                {% endif %}
+                            </p>
+                            <p class="lawyer-fee">
+                                <i class="fas fa-dollar-sign"></i> ${{ "%.0f"|format(lawyer.ConsultationFee) }} consultation
+                            </p>
+                            <p class="lawyer-languages">
+                                <i class="fas fa-language"></i> {{ lawyer.Languages }}
+                            </p>
+                            {% if lawyer.Bio %}
+                            <p class="lawyer-bio">{{ lawyer.Bio[:120] }}{% if lawyer.Bio|length > 120 %}...{% endif %}</p>
+                            {% endif %}
                         </div>
-                    </div>
-                    <div class="lawyer-details">
-                        <h3>Sarah J. Thompson</h3>
-                        <p class="lawyer-specialty">Family Law, Divorce</p>
-                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 12 years experience</p>
-                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Chicago, IL</p>
-                    </div>
-                    <div class="lawyer-contact">
-                        <button class="btn-view-profile">View Profile</button>
-                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
-                    </div>
-                </div>
-
-                <!-- Lawyer Card 2 -->
-                <div class="lawyer-card">
-                    <div class="lawyer-header">
-                        <div class="lawyer-avatar">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="lawyer-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>5.0</span>
-                        </div>
-                    </div>
-                    <div class="lawyer-details">
-                        <h3>Michael D. Rodriguez</h3>
-                        <p class="lawyer-specialty">Criminal Defense, DUI</p>
-                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 8 years experience</p>
-                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Boston, MA</p>
-                    </div>
-                    <div class="lawyer-contact">
-                        <button class="btn-view-profile">View Profile</button>
-                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
-                    </div>
-                </div>
-
-                <!-- Lawyer Card 3 -->
-                <div class="lawyer-card">
-                    <div class="lawyer-header">
-                        <div class="lawyer-avatar">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="lawyer-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>4.0</span>
+                        
+                        <div class="lawyer-contact">
+                            <button class="btn-view-profile" data-lawyer-id="{{ lawyer.id }}">
+                                <i class="fas fa-eye"></i> View Profile
+                            </button>
+                            <button class="btn-contact" data-lawyer-id="{{ lawyer.id }}">
+                                <i class="fas fa-envelope"></i> Contact
+                            </button>
                         </div>
                     </div>
-                    <div class="lawyer-details">
-                        <h3>Elizabeth A. Chang</h3>
-                        <p class="lawyer-specialty">Immigration, Asylum</p>
-                        <p class="lawyer-experience"><i class="fas fa-briefcase"></i> 15 years experience</p>
-                        <p class="lawyer-location"><i class="fas fa-map-marker-alt"></i> Seattle, WA</p>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-lawyers-found">
+                        <div class="no-lawyers-content">
+                            <i class="fas fa-search"></i>
+                            <h3>No Lawyers Found</h3>
+                            <p>No lawyers match your current search criteria. Try adjusting your filters or search terms.</p>
+                            <button class="btn-clear-filters" onclick="clearAllFilters()">Clear All Filters</button>
+                        </div>
                     </div>
-                    <div class="lawyer-contact">
-                        <button class="btn-view-profile">View Profile</button>
-                        <button class="btn-contact"><i class="fas fa-envelope"></i> Contact</button>
-                    </div>
-                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -188,12 +194,87 @@
             <div class="need-help-content">
                 <h3>Not sure what type of lawyer you need?</h3>
                 <p>Our legal experts can help you determine the right legal representation for your situation.</p>
-                <button class="btn-help">Get Free Consultation</button>
+                <button class="btn-help" onclick="window.location.href='{{ url_for('contact') }}'">
+                    <i class="fas fa-phone"></i> Get Free Consultation
+                </button>
             </div>
         </div>
     </main>
 
-    
+    <!-- Lawyer Profile Modal (same as lawyer_page) -->
+    <div id="lawyerProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <div class="modal-lawyer-image">
+                    <img id="modalLawyerPhoto" src="" alt="Lawyer Photo">
+                </div>
+                <div class="modal-lawyer-info">
+                    <h2 id="modalLawyerName"></h2>
+                    <p class="modal-specialization" id="modalLawyerSpecialization"></p>
+                    <div class="modal-rating" id="modalLawyerRating">
+                        <!-- Rating will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3><i class="fas fa-user-tie"></i> Professional Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Years of Experience:</strong>
+                            <span id="modalLawyerExperience"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>License Number:</strong>
+                            <span id="modalLawyerLicense"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Consultation Fee:</strong>
+                            <span id="modalLawyerFee"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Languages:</strong>
+                            <span id="modalLawyerLanguages"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section" id="modalEducationSection">
+                    <h3><i class="fas fa-graduation-cap"></i> Education & Background</h3>
+                    <div class="education-content" id="modalLawyerEducation">
+                        <!-- Education content will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="modal-section" id="modalAboutSection">
+                    <h3><i class="fas fa-quote-left"></i> About</h3>
+                    <p class="lawyer-about" id="modalLawyerBio">
+                        <!-- Bio content will be populated by JavaScript -->
+                    </p>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Office Location</h3>
+                    <div class="office-info" id="modalOfficeAddress">
+                        <!-- Office address will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-book-btn" id="modalBookBtn">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Consultation
+                </button>
+                <button class="modal-contact-btn" id="modalContactBtn">
+                    <i class="fas fa-envelope"></i>
+                    Send Message
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -204,10 +285,10 @@
             </div>
             <div class="footer-links">
                 <a href="{{ url_for('index') }}">Home</a>
-                <a href="#">Find a Lawyer</a>
-                <a href="#">Legal Resources</a>
-                <a href="#">About Us</a>
-                <a href="#">Contact</a>
+                <a href="{{ url_for('find_lawyer') }}">Find a Lawyer</a>
+                <a href="{{ url_for('lawyer_page') }}">Our Lawyers</a>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
             </div>
             <div class="footer-social">
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -221,7 +302,208 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lawyerCards = document.querySelectorAll('.lawyer-card');
+            const searchInput = document.getElementById('search-keyword');
+            const practiceAreaFilter = document.getElementById('practice-area');
+            const locationFilter = document.getElementById('location');
+            const experienceFilter = document.getElementById('experience');
+            const ratingFilter = document.getElementById('rating');
+            const feeRangeFilter = document.getElementById('fee-range');
+            const sortSelect = document.getElementById('sort-by');
+            const resultsCount = document.getElementById('results-count');
+            const modal = document.getElementById('lawyerProfileModal');
+            const closeModal = document.querySelector('.close-modal');
 
+            // Search and Filter Functions
+            function filterLawyers() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const practiceArea = practiceAreaFilter.value;
+                const location = locationFilter.value.toLowerCase();
+                const experience = experienceFilter.value;
+                const rating = ratingFilter.value;
+                const feeRange = feeRangeFilter.value;
+
+                let visibleCount = 0;
+
+                lawyerCards.forEach(card => {
+                    const name = card.dataset.name.toLowerCase();
+                    const specialty = card.dataset.specialization;
+                    const cardLocation = card.dataset.location.toLowerCase();
+                    const cardExperience = parseInt(card.dataset.experience);
+                    const cardRating = parseFloat(card.dataset.rating);
+                    const cardFee = parseFloat(card.dataset.fee);
+
+                    let show = true;
+
+                    // Search term filter
+                    if (searchTerm && !name.includes(searchTerm) && !specialty.toLowerCase().includes(searchTerm)) {
+                        show = false;
+                    }
+
+                    // Practice area filter
+                    if (practiceArea && specialty !== practiceArea) {
+                        show = false;
+                    }
+
+                    // Location filter
+                    if (location && !cardLocation.includes(location)) {
+                        show = false;
+                    }
+
+                    // Experience filter
+                    if (experience) {
+                        const [min, max] = experience.split('-').map(n => n.replace('+', ''));
+                        if (experience.includes('+')) {
+                            if (cardExperience < parseInt(min)) show = false;
+                        } else {
+                            if (cardExperience < parseInt(min) || cardExperience > parseInt(max)) show = false;
+                        }
+                    }
+
+                    // Rating filter
+                    if (rating) {
+                        const minRating = parseFloat(rating.replace('+', ''));
+                        if (cardRating < minRating) show = false;
+                    }
+
+                    // Fee range filter
+                    if (feeRange) {
+                        if (feeRange.includes('+')) {
+                            const minFee = parseInt(feeRange.replace('+', ''));
+                            if (cardFee < minFee) show = false;
+                        } else {
+                            const [minFee, maxFee] = feeRange.split('-').map(f => parseInt(f));
+                            if (cardFee < minFee || cardFee > maxFee) show = false;
+                        }
+                    }
+
+                    if (show) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                resultsCount.textContent = `Found ${visibleCount} lawyer(s)`;
+            }
+
+            // Sort function
+            function sortLawyers() {
+                const sortBy = sortSelect.value;
+                const lawyersGrid = document.getElementById('lawyers-results');
+                const sortedCards = Array.from(lawyerCards).sort((a, b) => {
+                    switch (sortBy) {
+                        case 'rating':
+                            return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                        case 'experience':
+                            return parseInt(b.dataset.experience) - parseInt(a.dataset.experience);
+                        case 'fee-low':
+                            return parseFloat(a.dataset.fee) - parseFloat(b.dataset.fee);
+                        case 'fee-high':
+                            return parseFloat(b.dataset.fee) - parseFloat(a.dataset.fee);
+                        case 'name':
+                            return a.dataset.name.localeCompare(b.dataset.name);
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Re-append sorted cards
+                sortedCards.forEach(card => lawyersGrid.appendChild(card));
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterLawyers);
+            practiceAreaFilter.addEventListener('change', filterLawyers);
+            locationFilter.addEventListener('input', filterLawyers);
+            experienceFilter.addEventListener('change', filterLawyers);
+            ratingFilter.addEventListener('change', filterLawyers);
+            feeRangeFilter.addEventListener('change', filterLawyers);
+            sortSelect.addEventListener('change', sortLawyers);
+
+            // Clear filters function
+            window.clearAllFilters = function() {
+                searchInput.value = '';
+                practiceAreaFilter.value = '';
+                locationFilter.value = '';
+                experienceFilter.value = '';
+                ratingFilter.value = '';
+                feeRangeFilter.value = '';
+                filterLawyers();
+            };
+
+            // Modal functionality
+            document.querySelectorAll('.btn-view-profile').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lawyerId = this.dataset.lawyerId;
+                    openLawyerModal(lawyerId);
+                });
+            });
+
+            function openLawyerModal(lawyerId) {
+                // Find the lawyer card
+                const lawyerCard = document.querySelector(`[data-lawyer-id="${lawyerId}"]`).closest('.lawyer-card');
+                
+                // Get lawyer data from the card
+                const name = lawyerCard.dataset.name;
+                const specialization = lawyerCard.dataset.specialization;
+                const experience = lawyerCard.dataset.experience;
+                const rating = lawyerCard.dataset.rating;
+                const fee = lawyerCard.dataset.fee;
+                
+                // Populate modal (you can enhance this with AJAX call for full details)
+                document.getElementById('modalLawyerName').textContent = name;
+                document.getElementById('modalLawyerSpecialization').textContent = specialization;
+                document.getElementById('modalLawyerExperience').textContent = experience + ' years';
+                document.getElementById('modalLawyerFee').textContent = '$' + fee;
+                document.getElementById('modalLawyerPhoto').src = `/lawyer-photo/${lawyerId}`;
+                
+                // Set rating stars
+                const modalRating = document.getElementById('modalLawyerRating');
+                modalRating.innerHTML = '';
+                const ratingValue = parseFloat(rating);
+                for (let i = 0; i < 5; i++) {
+                    const star = document.createElement('i');
+                    if (i < Math.floor(ratingValue)) {
+                        star.className = 'fas fa-star';
+                    } else if (i < ratingValue) {
+                        star.className = 'fas fa-star-half-alt';
+                    } else {
+                        star.className = 'far fa-star';
+                    }
+                    modalRating.appendChild(star);
+                }
+                modalRating.innerHTML += ` <span>(${ratingValue})</span>`;
+
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Contact buttons
+            document.querySelectorAll('.btn-contact').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lawyerId = this.dataset.lawyerId;
+                    alert('Contact functionality will be implemented soon for lawyer ID: ' + lawyerId);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
