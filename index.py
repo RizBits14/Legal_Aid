@@ -1240,6 +1240,7 @@ def api_search_lawyers():
         'count': len(lawyers)
     }
 
+
 @app.route('/practice-areas')
 def practice_areas():
     return render_template('practice_areas.html')
