@@ -60,38 +60,37 @@
         </div>
 
         <div class="lawyer-grid">
-            {% for lawyer in lawyers %}
-            <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}"
-                data-experience="{{ lawyer.experience }}">
-                <div class="card-image">
-                    <img src="{{ url_for('lawyer_photo', lawyer_id=lawyer.id) }}" alt="{{ lawyer.name }}">
-                    <div class="experience-badge">{{ lawyer.experience }} years</div>
-                </div>
-                <div class="card-content">
-                    <h3>{{ lawyer.name }}</h3>
-                    <p class="specialization">{{ lawyer.Specialization }}</p>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                        <span>(4.5)</span>
-                    </div>
-                    <p class="lawyer-bio">Experienced legal professional dedicated to providing excellent service and
-                        achieving the best outcomes for clients.</p>
-                    <div class="card-footer">
-                        <button class="book-btn" data-lawyer-id="{{ lawyer.id }}">Book Consultation</button>
-                        <button class="view-profile-btn" data-lawyer-id="{{ lawyer.id }}"
-                            data-lawyer-name="{{ lawyer.name }}"
-                            data-lawyer-specialization="{{ lawyer.Specialization }}"
-                            data-lawyer-experience="{{ lawyer.experience }}"
-                            data-lawyer-license="{{ lawyer.LicenseNumber }}">View Profile</button>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+    {% for lawyer in lawyers %}
+    <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}" data-experience="{{ lawyer.experience }}">
+        <div class="card-image">
+            <img src="{{ url_for('lawyer_photo', lawyer_id=lawyer.id) }}" 
+                 alt="{{ lawyer.name }}"
+                 class="professional face-crop loaded"
+                 loading="lazy"
+                 onerror="this.style.display='none'; this.parentElement.classList.add('no-image');"
+                 onload="this.classList.add('loaded');">
+            <div class="experience-badge">{{ lawyer.experience }} years</div>
         </div>
+        <div class="card-content">
+            <h3>{{ lawyer.name }}</h3>
+            <p class="specialization">{{ lawyer.Specialization }}</p>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+                <span>(4.5)</span>
+            </div>
+            <p class="description">Experienced {{ lawyer.Specialization }} attorney with {{ lawyer.experience }} years of practice.</p>
+            <div class="card-footer">
+                <button class="book-btn" data-lawyer-id="{{ lawyer.id }}">Book Consultation</button>
+                <a href="#" class="view-profile">View Profile</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
     </main>
 
     <!-- Lawyer Profile Modal -->
