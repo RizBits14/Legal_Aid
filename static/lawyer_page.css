@@ -194,10 +194,16 @@ body {
     box-shadow: 0 15px 30px var(--shadow-color);
 }
 
+/* Perfect Lawyer Card Images - Resolution Independent */
+/* Replace the existing .card-image and .card-image img rules in lawyer_page.css with this */
+
 .card-image {
     position: relative;
+    width: 100%;
     height: 250px;
     overflow: hidden;
+    border-radius: 10px 10px 0 0; /* Matches card border radius */
+    background-color: #f8f9fa; /* Fallback background */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -206,9 +212,135 @@ body {
 .card-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center;
+    object-fit: cover; /* Maintains aspect ratio while filling container */
+    object-position: center 20%; /* Centers horizontally, focuses on upper portion (good for portraits) */
     transition: transform 0.5s ease;
+    display: block;
+    border: none;
+    outline: none;
+}
+
+/* Hover effect that works perfectly with any resolution */
+.lawyer-card:hover .card-image img {
+    transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Alternative styling for different image orientations */
+.card-image img.landscape {
+    object-position: center center; /* For landscape images */
+}
+
+.card-image img.portrait {
+    object-position: center 15%; /* For portrait images - focuses on face area */
+}
+
+.card-image img.square {
+    object-position: center center; /* For square images */
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 1200px) {
+    .card-image {
+        height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-image {
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-image {
+        height: 180px;
+    }
+}
+
+/* Loading state styling */
+.card-image img {
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.card-image img.loaded {
+    opacity: 1;
+}
+
+/* Fallback for broken images */
+.card-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--ui-light) 0%, var(--background-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: -1;
+}
+
+.card-image::after {
+    content: '👤';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: var(--text-color);
+    opacity: 0.3;
+    z-index: -1;
+}
+
+/* Enhanced styling for professional look */
+.card-image {
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-image img {
+    filter: brightness(1.02) contrast(1.05) saturate(1.1);
+}
+
+.lawyer-card:hover .card-image img {
+    filter: brightness(1.05) contrast(1.1) saturate(1.2);
+}
+
+/* Perfect centering for any image type */
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.card-image-wrapper img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    transition: all 0.5s ease;
+}
+
+/* Smart cropping for face detection area */
+.card-image img.face-crop {
+    object-position: center 25%; /* Focuses on face area for headshots */
+}
+
+.card-image img.full-body {
+    object-position: center 15%; /* For full body shots */
+}
+
+.card-image img.professional {
+    object-position: center 30%; /* For professional headshots */
 }
 
 .lawyer-card:hover .card-image img {
