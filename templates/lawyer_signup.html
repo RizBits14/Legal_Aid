@@ -36,8 +36,8 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-phone"></i>
-                    <input type="tel" placeholder="Phone Number" name="phone" required pattern="[0-11]{11}"
-                        title="Please enter a valid 11-digit phone number">
+                    <input type="tel" placeholder="Phone Number" name="phone" required pattern="\d{10}" 
+                        title="Please enter a valid 10-digit phone number">
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
@@ -75,8 +75,7 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-dollar-sign"></i>
-                    <input type="number" placeholder="Consultation Fee ($)" name="consultation_fee" min="50" max="1000"
-                        step="25">
+                    <input type="number" placeholder="Consultation Fee ($)" name="consultation_fee" min="30" max="1000">
                 </div>
             </div>
 
