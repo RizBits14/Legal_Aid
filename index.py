@@ -11,6 +11,8 @@ import json
 from dotenv import load_dotenv
 import io
 from PIL import Image  # Add Pillow for image processing
+from flask import jsonify
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -1241,9 +1243,617 @@ def api_search_lawyers():
     }
 
 
+# Add these routes to your existing index.py file
+
+
 @app.route('/practice-areas')
 def practice_areas():
-    return render_template('practice_areas.html')
+    """Render the practice areas page with lawyer statistics"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get lawyer counts by practice area
+        practice_area_counts = {}
+        practice_areas_list = [
+            'family', 'criminal', 'corporate', 'realestate', 'immigration',
+            'intellectual', 'employment', 'tax', 'environmental', 'health'
+        ]
+        
+        for area in practice_areas_list:
+            # Count lawyers who specialize in each area
+            cur.execute("""
+                SELECT COUNT(DISTINCT ld.UserId) as count
+                FROM LawyerDetails ld
+                JOIN Users u ON ld.UserId = u.id
+                WHERE u.UserType = 'Lawyer' 
+                AND ld.VerificationStatus = 'Approved'
+                AND (ld.Specialization LIKE %s 
+                     OR ld.PracticeAreas LIKE %s 
+                     OR LOWER(ld.Specialization) LIKE %s)
+            """, [f'%{area}%', f'%{area}%', f'%{area.lower()}%'])
+            
+            result = cur.fetchone()
+            practice_area_counts[f'{area}_lawyers_count'] = result['count'] if result else 0
+        
+        cur.close()
+        
+        return render_template('practice_areas.html', **practice_area_counts)
+        
+    except Exception as e:
+        print(f"Error in practice_areas route: {str(e)}")
+        # Return page with zero counts if database error
+        zero_counts = {f'{area}_lawyers_count': 0 for area in practice_areas_list}
+        return render_template('practice_areas.html', **zero_counts)
+
+@app.route('/api/practice-areas/stats')
+def practice_areas_stats():
+    """API endpoint to get practice areas statistics"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get comprehensive statistics for each practice area
+        stats = {}
+        
+        practice_areas_mapping = {
+            'family': {
+                'name': 'Family Law',
+                'keywords': ['family', 'divorce', 'custody', 'adoption', 'matrimonial']
+            },
+            'criminal': {
+                'name': 'Criminal Defense',
+                'keywords': ['criminal', 'defense', 'dui', 'felony', 'misdemeanor']
+            },
+            'corporate': {
+                'name': 'Corporate Law',
+                'keywords': ['corporate', 'business', 'commercial', 'company', 'merger']
+            },
+            'realestate': {
+                'name': 'Real Estate',
+                'keywords': ['real estate', 'property', 'real-estate', 'realestate', 'housing']
+            },
+            'immigration': {
+                'name': 'Immigration Law',
+                'keywords': ['immigration', 'visa', 'citizenship', 'deportation', 'asylum']
+            },
+            'intellectual': {
+                'name': 'Intellectual Property',
+                'keywords': ['intellectual property', 'patent', 'trademark', 'copyright', 'ip']
+            },
+            'employment': {
+                'name': 'Employment Law',
+                'keywords': ['employment', 'labor', 'workplace', 'discrimination', 'wrongful termination']
+            },
+            'tax': {
+                'name': 'Tax Law',
+                'keywords': ['tax', 'taxation', 'irs', 'audit', 'tax planning']
+            },
+            'environmental': {
+                'name': 'Environmental Law',
+                'keywords': ['environmental', 'pollution', 'epa', 'climate', 'sustainability']
+            },
+            'health': {
+                'name': 'Health Law',
+                'keywords': ['health', 'medical', 'healthcare', 'malpractice', 'hipaa']
+            }
+        }
+        
+        for area_key, area_info in practice_areas_mapping.items():
+            # Build dynamic query for flexible keyword matching
+            keyword_conditions = []
+            params = []
+            
+            for keyword in area_info['keywords']:
+                keyword_conditions.extend([
+                    "LOWER(ld.Specialization) LIKE %s",
+                    "LOWER(ld.PracticeAreas) LIKE %s",
+                    "LOWER(ld.Bio) LIKE %s"
+                ])
+                keyword_pattern = f'%{keyword.lower()}%'
+                params.extend([keyword_pattern, keyword_pattern, keyword_pattern])
+            
+            where_clause = " OR ".join(keyword_conditions)
+            
+            # Get lawyer count
+            cur.execute(f"""
+                SELECT COUNT(DISTINCT ld.UserId) as lawyer_count
+                FROM LawyerDetails ld
+                JOIN Users u ON ld.UserId = u.id
+                WHERE u.UserType = 'Lawyer' 
+                AND ld.VerificationStatus = 'Approved'
+                AND ({where_clause})
+            """, params)
+            
+            result = cur.fetchone()
+            lawyer_count = result['lawyer_count'] if result else 0
+            
+            # Get average rating for this practice area
+            cur.execute(f"""
+                SELECT AVG(ld.Rating) as avg_rating
+                FROM LawyerDetails ld
+                JOIN Users u ON ld.UserId = u.id
+                WHERE u.UserType = 'Lawyer' 
+                AND ld.VerificationStatus = 'Approved'
+                AND ld.Rating > 0
+                AND ({where_clause})
+            """, params)
+            
+            rating_result = cur.fetchone()
+            avg_rating = round(rating_result['avg_rating'], 1) if rating_result and rating_result['avg_rating'] else 4.5
+            
+            # Get average consultation fee
+            cur.execute(f"""
+                SELECT AVG(ld.ConsultationFee) as avg_fee
+                FROM LawyerDetails ld
+                JOIN Users u ON ld.UserId = u.id
+                WHERE u.UserType = 'Lawyer' 
+                AND ld.VerificationStatus = 'Approved'
+                AND ld.ConsultationFee > 0
+                AND ({where_clause})
+            """, params)
+            
+            fee_result = cur.fetchone()
+            avg_fee = round(fee_result['avg_fee'], 0) if fee_result and fee_result['avg_fee'] else 150
+            
+            stats[area_key] = {
+                'name': area_info['name'],
+                'lawyer_count': lawyer_count,
+                'avg_rating': avg_rating,
+                'avg_fee': avg_fee,
+                'keywords': area_info['keywords']
+            }
+        
+        cur.close()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+        
+    except Exception as e:
+        print(f"Error getting practice area stats: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to retrieve statistics'
+        }), 500
+
+@app.route('/api/practice-areas/<area_name>/lawyers')
+def get_lawyers_by_practice_area(area_name):
+    """API endpoint to get lawyers by practice area"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Mapping of area names to search keywords
+        area_keywords = {
+            'family': ['family', 'divorce', 'custody', 'adoption', 'matrimonial'],
+            'criminal': ['criminal', 'defense', 'dui', 'felony', 'misdemeanor'],
+            'corporate': ['corporate', 'business', 'commercial', 'company', 'merger'],
+            'realestate': ['real estate', 'property', 'real-estate', 'realestate', 'housing'],
+            'immigration': ['immigration', 'visa', 'citizenship', 'deportation', 'asylum'],
+            'intellectual': ['intellectual property', 'patent', 'trademark', 'copyright', 'ip'],
+            'employment': ['employment', 'labor', 'workplace', 'discrimination', 'wrongful termination'],
+            'tax': ['tax', 'taxation', 'irs', 'audit', 'tax planning'],
+            'environmental': ['environmental', 'pollution', 'epa', 'climate', 'sustainability'],
+            'health': ['health', 'medical', 'healthcare', 'malpractice', 'hipaa']
+        }
+        
+        keywords = area_keywords.get(area_name.lower(), [area_name])
+        
+        # Build dynamic query
+        keyword_conditions = []
+        params = []
+        
+        for keyword in keywords:
+            keyword_conditions.extend([
+                "LOWER(ld.Specialization) LIKE %s",
+                "LOWER(ld.PracticeAreas) LIKE %s"
+            ])
+            keyword_pattern = f'%{keyword.lower()}%'
+            params.extend([keyword_pattern, keyword_pattern])
+        
+        where_clause = " OR ".join(keyword_conditions)
+        
+        # Get lawyers matching the practice area
+        cur.execute(f"""
+            SELECT DISTINCT
+                u.id, u.FirstName, u.LastName, u.Email,
+                ld.Specialization, ld.YearsOfExperience, ld.Rating, 
+                ld.ConsultationFee, ld.Bio, ld.Education, ld.PracticeAreas,
+                ld.OfficeAddress, ld.Languages, ld.AvailableHours
+            FROM LawyerDetails ld
+            JOIN Users u ON ld.UserId = u.id
+            WHERE u.UserType = 'Lawyer' 
+            AND ld.VerificationStatus = 'Approved'
+            AND ({where_clause})
+            ORDER BY ld.Rating DESC, ld.YearsOfExperience DESC
+            LIMIT 20
+        """, params)
+        
+        lawyers = cur.fetchall()
+        cur.close()
+        
+        # Parse JSON fields
+        import json
+        for lawyer in lawyers:
+            try:
+                if lawyer['PracticeAreas']:
+                    lawyer['PracticeAreas'] = json.loads(lawyer['PracticeAreas'])
+                else:
+                    lawyer['PracticeAreas'] = [lawyer['Specialization']]
+            except (json.JSONDecodeError, TypeError):
+                lawyer['PracticeAreas'] = [lawyer['Specialization']]
+        
+        return jsonify({
+            'success': True,
+            'lawyers': lawyers,
+            'count': len(lawyers),
+            'area': area_name.title()
+        })
+        
+    except Exception as e:
+        print(f"Error getting lawyers for {area_name}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to retrieve lawyers'
+        }), 500
+
+@app.route('/practice-areas/<area_name>')
+def practice_area_detail(area_name):
+    """Detailed page for specific practice area"""
+    try:
+        # Area information mapping
+        area_info = {
+            'family': {
+                'title': 'Family Law',
+                'description': 'Comprehensive legal services for family matters including divorce, child custody, adoption, and domestic relations.',
+                'icon': 'fas fa-users',
+                'color': '#e74c3c'
+            },
+            'criminal': {
+                'title': 'Criminal Defense',
+                'description': 'Expert defense representation for criminal charges, protecting your rights and freedom.',
+                'icon': 'fas fa-gavel',
+                'color': '#8e44ad'
+            },
+            'corporate': {
+                'title': 'Corporate Law',
+                'description': 'Business legal services including formation, contracts, mergers, and corporate compliance.',
+                'icon': 'fas fa-briefcase',
+                'color': '#2980b9'
+            },
+            'realestate': {
+                'title': 'Real Estate Law',
+                'description': 'Property law services including transactions, disputes, zoning, and real estate litigation.',
+                'icon': 'fas fa-building',
+                'color': '#27ae60'
+            },
+            'immigration': {
+                'title': 'Immigration Law',
+                'description': 'Immigration services including visas, green cards, citizenship, and deportation defense.',
+                'icon': 'fas fa-passport',
+                'color': '#f39c12'
+            },
+            'intellectual': {
+                'title': 'Intellectual Property Law',
+                'description': 'Protection of intellectual property including patents, trademarks, copyrights, and trade secrets.',
+                'icon': 'fas fa-lightbulb',
+                'color': '#9b59b6'
+            },
+            'employment': {
+                'title': 'Employment Law',
+                'description': 'Workplace legal services including discrimination, wrongful termination, and labor disputes.',
+                'icon': 'fas fa-user-tie',
+                'color': '#34495e'
+            },
+            'tax': {
+                'title': 'Tax Law',
+                'description': 'Tax planning, IRS representation, audits, and tax dispute resolution services.',
+                'icon': 'fas fa-coins',
+                'color': '#16a085'
+            },
+            'environmental': {
+                'title': 'Environmental Law',
+                'description': 'Environmental compliance, litigation, and policy advocacy for sustainability.',
+                'icon': 'fas fa-leaf',
+                'color': '#2ecc71'
+            },
+            'health': {
+                'title': 'Health Law',
+                'description': 'Healthcare legal services including medical malpractice, HIPAA compliance, and patient rights.',
+                'icon': 'fas fa-heartbeat',
+                'color': '#e67e22'
+            }
+        }
+        
+        current_area = area_info.get(area_name.lower())
+        if not current_area:
+            flash('Practice area not found', 'error')
+            return redirect(url_for('practice_areas'))
+        
+        # Get lawyers for this practice area
+        cur = mysql.connection.cursor()
+        
+        # Keywords for this practice area
+        area_keywords = {
+            'family': ['family', 'divorce', 'custody', 'adoption', 'matrimonial'],
+            'criminal': ['criminal', 'defense', 'dui', 'felony', 'misdemeanor'],
+            'corporate': ['corporate', 'business', 'commercial', 'company', 'merger'],
+            'realestate': ['real estate', 'property', 'real-estate', 'realestate', 'housing'],
+            'immigration': ['immigration', 'visa', 'citizenship', 'deportation', 'asylum'],
+            'intellectual': ['intellectual property', 'patent', 'trademark', 'copyright', 'ip'],
+            'employment': ['employment', 'labor', 'workplace', 'discrimination'],
+            'tax': ['tax', 'taxation', 'irs', 'audit'],
+            'environmental': ['environmental', 'pollution', 'epa', 'climate'],
+            'health': ['health', 'medical', 'healthcare', 'malpractice']
+        }
+        
+        keywords = area_keywords.get(area_name.lower(), [area_name])
+        
+        # Build query for lawyers
+        keyword_conditions = []
+        params = []
+        
+        for keyword in keywords:
+            keyword_conditions.extend([
+                "LOWER(ld.Specialization) LIKE %s",
+                "LOWER(ld.PracticeAreas) LIKE %s"
+            ])
+            keyword_pattern = f'%{keyword.lower()}%'
+            params.extend([keyword_pattern, keyword_pattern])
+        
+        where_clause = " OR ".join(keyword_conditions)
+        
+        cur.execute(f"""
+            SELECT DISTINCT
+                u.id, u.FirstName, u.LastName,
+                ld.Specialization, ld.YearsOfExperience, ld.Rating, 
+                ld.ConsultationFee, ld.Bio, ld.OfficeAddress
+            FROM LawyerDetails ld
+            JOIN Users u ON ld.UserId = u.id
+            WHERE u.UserType = 'Lawyer' 
+            AND ld.VerificationStatus = 'Approved'
+            AND ({where_clause})
+            ORDER BY ld.Rating DESC, ld.YearsOfExperience DESC
+            LIMIT 12
+        """, params)
+        
+        lawyers = cur.fetchall()
+        
+        # Get statistics
+        cur.execute(f"""
+            SELECT 
+                COUNT(DISTINCT ld.UserId) as total_lawyers,
+                AVG(ld.Rating) as avg_rating,
+                AVG(ld.ConsultationFee) as avg_fee,
+                AVG(ld.YearsOfExperience) as avg_experience
+            FROM LawyerDetails ld
+            JOIN Users u ON ld.UserId = u.id
+            WHERE u.UserType = 'Lawyer' 
+            AND ld.VerificationStatus = 'Approved'
+            AND ({where_clause})
+        """, params)
+        
+        stats = cur.fetchone()
+        cur.close()
+        
+        return render_template('practice_area_detail.html', 
+                             area=current_area,
+                             area_name=area_name,
+                             lawyers=lawyers,
+                             stats=stats)
+        
+    except Exception as e:
+        print(f"Error in practice area detail: {str(e)}")
+        flash('Error loading practice area details', 'error')
+        return redirect(url_for('practice_areas'))
+
+@app.route('/api/search-lawyers')
+def search_lawyers_api():
+    """Enhanced API endpoint for searching lawyers with practice area filtering"""
+    try:
+        # Get search parameters
+        practice_area = request.args.get('practice_area', '').strip()
+        location = request.args.get('location', '').strip()
+        experience = request.args.get('experience', '').strip()
+        fee_range = request.args.get('fee_range', '').strip()
+        rating = request.args.get('rating', '').strip()
+        sort_by = request.args.get('sort_by', 'rating').strip()
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 12))
+        
+        # Build base query
+        query = """
+            SELECT DISTINCT
+                u.id, u.FirstName, u.LastName, u.Email, u.Phone,
+                ld.Specialization, ld.YearsOfExperience, ld.Rating, 
+                ld.ConsultationFee, ld.Bio, ld.Education, ld.PracticeAreas,
+                ld.OfficeAddress, ld.Languages, ld.AvailableHours, ld.Achievements
+            FROM LawyerDetails ld
+            JOIN Users u ON ld.UserId = u.id
+            WHERE u.UserType = 'Lawyer' 
+            AND ld.VerificationStatus = 'Approved'
+        """
+        
+        params = []
+        
+        # Add practice area filter
+        if practice_area:
+            area_keywords = {
+                'family': ['family', 'divorce', 'custody', 'adoption', 'matrimonial'],
+                'criminal': ['criminal', 'defense', 'dui', 'felony', 'misdemeanor'],
+                'corporate': ['corporate', 'business', 'commercial', 'company', 'merger'],
+                'realestate': ['real estate', 'property', 'real-estate', 'realestate', 'housing'],
+                'immigration': ['immigration', 'visa', 'citizenship', 'deportation', 'asylum'],
+                'intellectual': ['intellectual property', 'patent', 'trademark', 'copyright', 'ip'],
+                'employment': ['employment', 'labor', 'workplace', 'discrimination'],
+                'tax': ['tax', 'taxation', 'irs', 'audit'],
+                'environmental': ['environmental', 'pollution', 'epa', 'climate'],
+                'health': ['health', 'medical', 'healthcare', 'malpractice']
+            }
+            
+            keywords = area_keywords.get(practice_area.lower(), [practice_area])
+            keyword_conditions = []
+            
+            for keyword in keywords:
+                keyword_conditions.extend([
+                    "LOWER(ld.Specialization) LIKE %s",
+                    "LOWER(ld.PracticeAreas) LIKE %s"
+                ])
+                keyword_pattern = f'%{keyword.lower()}%'
+                params.extend([keyword_pattern, keyword_pattern])
+            
+            query += f" AND ({' OR '.join(keyword_conditions)})"
+        
+        # Add location filter
+        if location:
+            query += " AND LOWER(ld.OfficeAddress) LIKE %s"
+            params.append(f'%{location.lower()}%')
+        
+        # Add experience filter
+        if experience:
+            if experience == '0-2':
+                query += " AND ld.YearsOfExperience BETWEEN 0 AND 2"
+            elif experience == '3-5':
+                query += " AND ld.YearsOfExperience BETWEEN 3 AND 5"
+            elif experience == '6-10':
+                query += " AND ld.YearsOfExperience BETWEEN 6 AND 10"
+            elif experience == '10+':
+                query += " AND ld.YearsOfExperience > 10"
+        
+        # Add fee range filter
+        if fee_range:
+            if fee_range == '0-100':
+                query += " AND ld.ConsultationFee BETWEEN 0 AND 100"
+            elif fee_range == '101-200':
+                query += " AND ld.ConsultationFee BETWEEN 101 AND 200"
+            elif fee_range == '201-300':
+                query += " AND ld.ConsultationFee BETWEEN 201 AND 300"
+            elif fee_range == '300+':
+                query += " AND ld.ConsultationFee > 300"
+        
+        # Add rating filter
+        if rating:
+            query += " AND ld.Rating >= %s"
+            params.append(float(rating))
+        
+        # Add sorting
+        if sort_by == 'experience':
+            query += " ORDER BY ld.YearsOfExperience DESC"
+        elif sort_by == 'fee-low':
+            query += " ORDER BY ld.ConsultationFee ASC"
+        elif sort_by == 'fee-high':
+            query += " ORDER BY ld.ConsultationFee DESC"
+        elif sort_by == 'name':
+            query += " ORDER BY u.FirstName ASC, u.LastName ASC"
+        else:
+            query += " ORDER BY ld.Rating DESC, ld.YearsOfExperience DESC"
+        
+        # Add pagination
+        offset = (page - 1) * per_page
+        query += f" LIMIT {per_page} OFFSET {offset}"
+        
+        cur = mysql.connection.cursor()
+        cur.execute(query, params)
+        lawyers = cur.fetchall()
+        
+        # Get total count for pagination
+        count_query = query.split(" LIMIT")[0].replace("SELECT DISTINCT u.id, u.FirstName, u.LastName, u.Email, u.Phone, ld.Specialization, ld.YearsOfExperience, ld.Rating, ld.ConsultationFee, ld.Bio, ld.Education, ld.PracticeAreas, ld.OfficeAddress, ld.Languages, ld.AvailableHours, ld.Achievements", "SELECT COUNT(DISTINCT ld.UserId)")
+        cur.execute(count_query, params[:-2] if params else [])  # Remove pagination params
+        total_count = cur.fetchone()['COUNT(DISTINCT ld.UserId)']
+        
+        cur.close()
+        
+        # Parse JSON fields
+        import json
+        for lawyer in lawyers:
+            try:
+                if lawyer['PracticeAreas']:
+                    lawyer['PracticeAreas'] = json.loads(lawyer['PracticeAreas'])
+                else:
+                    lawyer['PracticeAreas'] = [lawyer['Specialization']]
+                    
+                if lawyer['Achievements']:
+                    lawyer['Achievements'] = json.loads(lawyer['Achievements'])
+                else:
+                    lawyer['Achievements'] = []
+            except (json.JSONDecodeError, TypeError):
+                lawyer['PracticeAreas'] = [lawyer['Specialization']]
+                lawyer['Achievements'] = []
+        
+        return jsonify({
+            'success': True,
+            'lawyers': lawyers,
+            'total_count': total_count,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': (total_count + per_page - 1) // per_page
+        })
+        
+    except Exception as e:
+        print(f"Error in search lawyers API: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Search failed'
+        }), 500
+
+# Add consultation booking route specific to practice areas
+@app.route('/api/book-consultation', methods=['POST'])
+@login_required
+def book_consultation_api():
+    """Enhanced consultation booking with practice area context"""
+    try:
+        if session.get('user_type') != 'Client':
+            return jsonify({'error': 'Only clients can book consultations'}), 403
+        
+        data = request.get_json()
+        lawyer_id = data.get('lawyer_id')
+        consultation_date = data.get('date')
+        consultation_time = data.get('time')
+        message = data.get('message', '')
+        practice_area = data.get('practice_area', '')
+        consultation_type = data.get('type', 'video')  # video, phone, in-person
+        
+        if not all([lawyer_id, consultation_date, consultation_time]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Check if lawyer exists and is verified
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT u.FirstName, u.LastName, ld.ConsultationFee
+            FROM Users u
+            JOIN LawyerDetails ld ON u.id = ld.UserId
+            WHERE u.id = %s AND u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+        """, [lawyer_id])
+        
+        lawyer = cur.fetchone()
+        if not lawyer:
+            return jsonify({'error': 'Lawyer not found or not verified'}), 404
+        
+        # Insert consultation booking
+        cur.execute("""
+            INSERT INTO Consultations (
+                ClientId, LawyerId, ConsultationDate, ConsultationTime,
+                Message, PracticeArea, ConsultationType, Fee, Status, CreatedAt
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending', NOW())
+        """, [
+            session['user_id'], lawyer_id, consultation_date, consultation_time,
+            message, practice_area, consultation_type, lawyer['ConsultationFee']
+        ])
+        
+        mysql.connection.commit()
+        consultation_id = cur.lastrowid
+        cur.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Consultation booked successfully',
+            'consultation_id': consultation_id,
+            'lawyer_name': f"{lawyer['FirstName']} {lawyer['LastName']}",
+            'fee': lawyer['ConsultationFee']
+        })
+        
+    except Exception as e:
+        print(f"Error booking consultation: {str(e)}")
+        return jsonify({'error': 'Booking failed'}), 500
 
 @app.route('/pricing')
 def pricing():
