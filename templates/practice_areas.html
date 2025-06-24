@@ -19,10 +19,10 @@
         </div>
         <div class="nav-links">
             <a href="{{ url_for('index') }}" class="nav-item">Home</a>
-            <a href="#" class="nav-item">Find a Lawyer</a>
-            <a href="#" class="nav-item">Legal Resources</a>
-            <a href="#" class="nav-item">About Us</a>
-            <a href="#" class="nav-item">Contact</a>
+            <a href="{{ url_for('find_lawyer') }}" class="nav-item">Find a Lawyer</a>
+            <a href="{{ url_for('practice_areas') }}" class="nav-item active">Practice Areas</a>
+            <a href="{{ url_for('about') }}" class="nav-item">About Us</a>
+            <a href="{{ url_for('contact') }}" class="nav-item">Contact</a>
         </div>
         <div class="mobile-menu-btn">
             <i class="fas fa-bars"></i>
@@ -33,7 +33,7 @@
     <div class="hero-section">
         <div class="hero-content">
             <h1 class="animated-title">Practice Areas</h1>
-            <p class="animated-desc">Explore the legal fields our lawyers specialize in. Click on a card to learn more about each area.</p>
+            <p class="animated-desc">Explore the legal fields our expert lawyers specialize in. Click on a card to learn more about each area and find qualified attorneys.</p>
         </div>
     </div>
 
@@ -45,88 +45,290 @@
                 <div class="area-card" data-area="family">
                     <i class="fas fa-users"></i>
                     <span>Family Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Divorce • Custody • Adoption</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="criminal">
                     <i class="fas fa-gavel"></i>
                     <span>Criminal Defense</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Defense • Appeals • Bail</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="corporate">
                     <i class="fas fa-briefcase"></i>
                     <span>Corporate Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Business • Contracts • M&A</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="realestate">
                     <i class="fas fa-building"></i>
                     <span>Real Estate</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Property • Transactions • Zoning</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="immigration">
                     <i class="fas fa-passport"></i>
                     <span>Immigration</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Visas • Citizenship • Asylum</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="intellectual">
                     <i class="fas fa-lightbulb"></i>
                     <span>Intellectual Property</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Patents • Trademarks • Copyright</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="employment">
                     <i class="fas fa-user-tie"></i>
                     <span>Employment Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Workplace • Discrimination • Rights</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="tax">
                     <i class="fas fa-coins"></i>
                     <span>Tax Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Planning • Audits • Compliance</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="environmental">
                     <i class="fas fa-leaf"></i>
                     <span>Environmental Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Compliance • Litigation • Policy</span>
+                    </div>
                 </div>
                 <div class="area-card" data-area="health">
                     <i class="fas fa-heartbeat"></i>
                     <span>Health Law</span>
+                    <div class="card-overlay">
+                        <span class="card-subtitle">Healthcare • Malpractice • HIPAA</span>
+                    </div>
                 </div>
             </div>
+            
             <div class="area-details">
                 <div class="area-detail" id="detail-family">
-                    <h3>Family Law</h3>
-                    <p>Assistance with divorce, child custody, adoption, domestic violence, and more.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-users detail-icon"></i>
+                        <h3>Family Law</h3>
+                    </div>
+                    <p>Comprehensive assistance with divorce proceedings, child custody and support, adoption processes, domestic violence protection, prenuptial agreements, and family mediation services.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=family" class="action-btn primary">Find Family Lawyers</a>
+                        <a href="{{ url_for('family_law') }}" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ family_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>95%</strong> Success Rate
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-criminal">
-                    <h3>Criminal Defense</h3>
-                    <p>Representation for criminal charges, bail hearings, appeals, and legal advice.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-gavel detail-icon"></i>
+                        <h3>Criminal Defense</h3>
+                    </div>
+                    <p>Expert representation for criminal charges, DUI/DWI defense, bail hearings, plea negotiations, appeals, expungement services, and comprehensive legal advice for all criminal matters.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=criminal" class="action-btn primary">Find Criminal Lawyers</a>
+                        <a href="{{ url_for('criminal_law') }}" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ criminal_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>24/7</strong> Emergency Service
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-corporate">
-                    <h3>Corporate Law</h3>
-                    <p>Business formation, contracts, mergers, compliance, and dispute resolution.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-briefcase detail-icon"></i>
+                        <h3>Corporate Law</h3>
+                    </div>
+                    <p>Business formation and structuring, contract drafting and negotiation, mergers and acquisitions, corporate compliance, securities law, partnership agreements, and commercial dispute resolution.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=corporate" class="action-btn primary">Find Corporate Lawyers</a>
+                        <a href="{{ url_for('corporate_law') }}" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ corporate_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>$2.5B+</strong> Deals Handled
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-realestate">
-                    <h3>Real Estate</h3>
-                    <p>Property transactions, landlord-tenant disputes, zoning, and title issues.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-building detail-icon"></i>
+                        <h3>Real Estate Law</h3>
+                    </div>
+                    <p>Property transactions and closings, landlord-tenant disputes, zoning and land use issues, title examination, real estate litigation, commercial leasing, and property development law.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=realestate" class="action-btn primary">Find Real Estate Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ realestate_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>98%</strong> Closing Rate
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-immigration">
-                    <h3>Immigration</h3>
-                    <p>Visas, green cards, citizenship, deportation defense, and asylum cases.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-passport detail-icon"></i>
+                        <h3>Immigration Law</h3>
+                    </div>
+                    <p>Visa applications and renewals, green card processing, citizenship and naturalization, deportation defense, asylum and refugee cases, family reunification, and employment-based immigration.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=immigration" class="action-btn primary">Find Immigration Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ immigration_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>92%</strong> Approval Rate
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-intellectual">
-                    <h3>Intellectual Property</h3>
-                    <p>Patents, trademarks, copyrights, and protection of creative works.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-lightbulb detail-icon"></i>
+                        <h3>Intellectual Property Law</h3>
+                    </div>
+                    <p>Patent applications and prosecution, trademark registration and protection, copyright law, trade secrets, IP litigation, licensing agreements, and protection of creative and innovative works.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=intellectual" class="action-btn primary">Find IP Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ intellectual_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>500+</strong> Patents Filed
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-employment">
-                    <h3>Employment Law</h3>
-                    <p>Workplace rights, wrongful termination, discrimination, and labor disputes.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-user-tie detail-icon"></i>
+                        <h3>Employment Law</h3>
+                    </div>
+                    <p>Workplace rights and discrimination cases, wrongful termination, sexual harassment claims, wage and hour disputes, employment contracts, workplace safety, and labor union matters.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=employment" class="action-btn primary">Find Employment Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ employment_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>89%</strong> Case Success
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-tax">
-                    <h3>Tax Law</h3>
-                    <p>Tax planning, audits, disputes with tax authorities, and compliance.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-coins detail-icon"></i>
+                        <h3>Tax Law</h3>
+                    </div>
+                    <p>Tax planning and strategy, IRS audit representation, tax disputes and litigation, business tax compliance, estate and gift tax planning, international tax matters, and tax debt resolution.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=tax" class="action-btn primary">Find Tax Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ tax_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>$50M+</strong> Tax Savings
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-environmental">
-                    <h3>Environmental Law</h3>
-                    <p>Environmental compliance, litigation, and advocacy for sustainability.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-leaf detail-icon"></i>
+                        <h3>Environmental Law</h3>
+                    </div>
+                    <p>Environmental compliance and regulatory matters, pollution control, environmental impact assessments, clean energy projects, climate change litigation, and sustainability advocacy.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=environmental" class="action-btn primary">Find Environmental Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ environmental_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>75+</strong> EPA Cases
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="area-detail" id="detail-health">
-                    <h3>Health Law</h3>
-                    <p>Healthcare regulations, patient rights, medical malpractice, and insurance.</p>
+                    <div class="detail-header">
+                        <i class="fas fa-heartbeat detail-icon"></i>
+                        <h3>Health Law</h3>
+                    </div>
+                    <p>Healthcare regulations and compliance, medical malpractice defense and plaintiff representation, HIPAA privacy issues, healthcare fraud defense, and patient rights advocacy.</p>
+                    <div class="detail-actions">
+                        <a href="{{ url_for('find_lawyer') }}?practice_area=health" class="action-btn primary">Find Health Lawyers</a>
+                        <a href="#" class="action-btn secondary">Learn More</a>
+                    </div>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <strong>{{ health_lawyers_count or 0 }}</strong> Specialists
+                        </span>
+                        <span class="stat-item">
+                            <strong>94%</strong> Client Satisfaction
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Need Legal Help?</h2>
+            <p>Connect with qualified attorneys in your area today</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('find_lawyer') }}" class="cta-btn primary">Find a Lawyer</a>
+                <a href="{{ url_for('contact') }}" class="cta-btn secondary">Get Consultation</a>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -137,16 +339,16 @@
             </div>
             <div class="footer-links">
                 <a href="{{ url_for('index') }}">Home</a>
-                <a href="#">Find a Lawyer</a>
-                <a href="#">Legal Resources</a>
-                <a href="#">About Us</a>
-                <a href="#">Contact</a>
+                <a href="{{ url_for('find_lawyer') }}">Find a Lawyer</a>
+                <a href="{{ url_for('practice_areas') }}">Practice Areas</a>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
             </div>
             <div class="footer-social">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -159,43 +361,116 @@
             // Animation for title and description
             const animatedTitle = document.querySelector('.animated-title');
             const animatedDesc = document.querySelector('.animated-desc');
-            setTimeout(() => { animatedTitle.style.opacity = 1; }, 300);
-            setTimeout(() => { animatedDesc.style.opacity = 1; }, 600);
+            
+            setTimeout(() => { 
+                animatedTitle.style.opacity = '1'; 
+                animatedTitle.style.transform = 'translateY(0)';
+            }, 300);
+            
+            setTimeout(() => { 
+                animatedDesc.style.opacity = '1'; 
+                animatedDesc.style.transform = 'translateY(0)';
+            }, 600);
 
-            // Practice area card click animation and detail display
+            // Practice area cards
             const areaCards = document.querySelectorAll('.area-card');
             const areaDetails = document.querySelectorAll('.area-detail');
+            
+            // Staggered animation for cards
+            areaCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 900 + (index * 100));
+            });
+
+            // Card click functionality
             areaCards.forEach(card => {
-                card.addEventListener('click', () => {
+                card.addEventListener('click', function() {
                     // Remove active from all
                     areaCards.forEach(c => c.classList.remove('active'));
-                    areaDetails.forEach(d => d.style.display = 'none');
+                    areaDetails.forEach(d => {
+                        d.style.display = 'none';
+                        d.classList.remove('fade-in');
+                    });
+                    
                     // Add active to clicked
-                    card.classList.add('active');
-                    const area = card.getAttribute('data-area');
+                    this.classList.add('active');
+                    const area = this.getAttribute('data-area');
                     const detail = document.getElementById('detail-' + area);
+                    
                     if (detail) {
                         detail.style.display = 'block';
-                        detail.classList.add('fade-in');
-                        setTimeout(() => detail.classList.remove('fade-in'), 700);
+                        setTimeout(() => {
+                            detail.classList.add('fade-in');
+                        }, 10);
                     }
+
+                    // Smooth scroll to details
+                    setTimeout(() => {
+                        detail.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'nearest' 
+                        });
+                    }, 300);
                 });
             });
-            // Show first by default
+
+            // Show first card as active by default
             if (areaCards.length && areaDetails.length) {
-                areaCards[0].classList.add('active');
-                areaDetails[0].style.display = 'block';
+                setTimeout(() => {
+                    areaCards[0].classList.add('active');
+                    areaDetails[0].style.display = 'block';
+                    areaDetails[0].classList.add('fade-in');
+                }, 1500);
             }
 
             // Mobile menu toggle
             const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
             const navLinks = document.querySelector('.nav-links');
+            
             if (mobileMenuBtn && navLinks) {
                 mobileMenuBtn.addEventListener('click', () => {
                     navLinks.classList.toggle('active');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
                 });
             }
+
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for scroll animations
+            document.querySelectorAll('.area-detail, .cta-section').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Smooth scrolling for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>
-</html> 
+</html>
