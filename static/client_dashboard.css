@@ -1,0 +1,901 @@
+/* ===== Client Dashboard CSS ===== */
+
+/* ===== Color Variables (maintaining existing color scheme) ===== */
+:root {
+    --navbar-color: #16423C;
+    --background-color: #C4DAD2;
+    --text-color: #6A9C89;
+    --ui-light: #E9EFEC;
+    --text-light: #ffffff;
+    --shadow-dark: rgba(0, 0, 0, 0.15);
+    --primary-blue: #3498db;
+    --primary-blue-dark: #2980b9;
+    --success-green: #28a745;
+    --success-green-dark: #218838;
+    --danger-red: #dc3545;
+    --danger-red-dark: #c82333;
+    --warning-yellow: #f39c12;
+    --warning-yellow-dark: #e67e22;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --dark-gray: #2c3e50;
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+/* ===== Dashboard Header ===== */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+    color: var(--navbar-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* ===== Alert Styles ===== */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-green);
+    border-color: var(--success-green);
+}
+
+.alert-error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-red);
+    border-color: var(--danger-red);
+}
+
+.alert-info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+/* ===== Stats Grid ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: var(--transition);
+    border-left: 4px solid var(--text-color);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--text-color), var(--navbar-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-content h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--navbar-color);
+    margin: 0;
+}
+
+.stat-content p {
+    color: var(--text-color);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ===== Dashboard Navigation ===== */
+.dashboard-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.nav-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: var(--dark-gray);
+    transition: var(--transition);
+    text-align: center;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-card:hover::before {
+    left: 100%;
+}
+
+.nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--text-color);
+}
+
+.nav-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--text-color), var(--navbar-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    transition: var(--transition);
+}
+
+.nav-card:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+.nav-card h3 {
+    color: var(--navbar-color);
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.nav-card p {
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ===== Content Sections ===== */
+.content-sections {
+    margin-top: 2rem;
+}
+
+.content-section {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--ui-light);
+}
+
+.section-header h3 {
+    color: var(--navbar-color);
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0;
+}
+
+.section-header h3 i {
+    color: var(--text-color);
+}
+
+/* ===== Button Styles ===== */
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: var(--text-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--navbar-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    border: 1px solid var(--medium-gray);
+}
+
+.btn-secondary:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-danger {
+    background: var(--danger-red);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: var(--danger-red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* ===== Cases Section ===== */
+.cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.case-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: var(--transition);
+    border-left: 4px solid var(--text-color);
+}
+
+.case-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.case-header h4 {
+    color: var(--navbar-color);
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.case-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success-green);
+}
+
+.status-pending {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-yellow);
+}
+
+.status-completed {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--primary-blue);
+}
+
+.status-closed {
+    background: rgba(108, 117, 125, 0.1);
+    color: var(--medium-gray);
+}
+
+.case-details {
+    margin-bottom: 1.5rem;
+}
+
+.case-details p {
+    margin: 0.5rem 0;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.case-details i {
+    width: 16px;
+    color: var(--navbar-color);
+}
+
+.case-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+/* ===== Lawyers Section ===== */
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-controls select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--text-color);
+    border-radius: var(--border-radius);
+    background: white;
+    color: var(--navbar-color);
+    font-weight: 500;
+}
+
+.lawyers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.lawyer-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: var(--transition);
+    text-align: center;
+}
+
+.lawyer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.lawyer-photo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--ui-light);
+}
+
+.lawyer-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+}
+
+.lawyer-info h4 {
+    color: var(--navbar-color);
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.specialization {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.experience {
+    color: var(--medium-gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.lawyer-details {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.lawyer-details p {
+    margin: 0.5rem 0;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.lawyer-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+/* ===== Appointments Section ===== */
+.appointments-timeline {
+    max-width: 800px;
+}
+
+.appointment-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.appointment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-time {
+    text-align: center;
+    min-width: 80px;
+}
+
+.appointment-time .date {
+    display: block;
+    font-weight: 600;
+    color: var(--navbar-color);
+    font-size: 1.1rem;
+}
+
+.appointment-time .time {
+    display: block;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.appointment-details {
+    flex: 1;
+}
+
+.appointment-details h4 {
+    color: var(--navbar-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.appointment-details p {
+    margin: 0.3rem 0;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.appointment-status {
+    margin-top: 0.5rem;
+}
+
+.appointment-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+/* ===== Documents Section ===== */
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.document-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: var(--transition);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.document-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--text-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-info h4 {
+    color: var(--navbar-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.document-info p {
+    color: var(--text-color);
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+}
+
+.document-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.document-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--medium-gray);
+}
+
+.document-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ===== Profile Section ===== */
+.profile-form {
+    max-width: 800px;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--navbar-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--ui-light);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--text-color);
+    box-shadow: 0 0 0 3px rgba(106, 156, 137, 0.1);
+}
+
+.form-actions {
+    text-align: center;
+}
+
+/* ===== Legal Aid Section ===== */
+.legal-aid-content {
+    max-width: 800px;
+}
+
+.aid-info {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--success-green);
+}
+
+.aid-info h4 {
+    color: var(--navbar-color);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.aid-info p {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.aid-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--medium-gray);
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    color: var(--navbar-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+/* ===== Modal Styles ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--ui-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h4 {
+    color: var(--navbar-color);
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.close {
+    color: var(--medium-gray);
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close:hover {
+    color: var(--danger-red);
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--ui-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .dashboard-header h2 {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .dashboard-nav {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .cases-grid,
+    .lawyers-grid,
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .appointment-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .appointment-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+    
+    .lawyer-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .nav-card {
+        padding: 1.5rem;
+    }
+    
+    .nav-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .case-actions,
+    .lawyer-actions,
+    .document-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
