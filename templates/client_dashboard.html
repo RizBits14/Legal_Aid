@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Dashboard - Legal Aid</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='client_dashboard.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -13,15 +14,542 @@
     </a>
 
     <div class="dashboard-container">
-        <h2>Welcome to Your Dashboard</h2>
+        <div class="dashboard-header">
+            <h2>Welcome, {{ user.FirstName }} {{ user.LastName }}</h2>
+            <p class="dashboard-subtitle">Your Legal Aid Dashboard</p>
+        </div>
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <!-- Add your dashboard content here -->
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ active_cases|length }}</h3>
+                    <p>Active Cases</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ upcoming_appointments|length }}</h3>
+                    <p>Upcoming Appointments</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ documents|length }}</h3>
+                    <p>Documents</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ available_lawyers|length }}</h3>
+                    <p>Available Lawyers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Navigation -->
+        <div class="dashboard-nav">
+            <a href="#cases" class="nav-card" onclick="showSection('cases')">
+                <div class="nav-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3>My Cases</h3>
+                <p>View and manage your legal cases</p>
+            </a>
+            <a href="#lawyers" class="nav-card" onclick="showSection('lawyers')">
+                <div class="nav-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Find Lawyers</h3>
+                <p>Browse and connect with verified lawyers</p>
+            </a>
+            <a href="#appointments" class="nav-card" onclick="showSection('appointments')">
+                <div class="nav-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3>Appointments</h3>
+                <p>Schedule and manage appointments</p>
+            </a>
+            <a href="#documents" class="nav-card" onclick="showSection('documents')">
+                <div class="nav-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Documents</h3>
+                <p>Upload and manage case documents</p>
+            </a>
+            <a href="#profile" class="nav-card" onclick="showSection('profile')">
+                <div class="nav-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h3>Profile</h3>
+                <p>Update your personal information</p>
+            </a>
+            <a href="#legal-aid" class="nav-card" onclick="showSection('legal-aid')">
+                <div class="nav-icon">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h3>Legal Aid</h3>
+                <p>Request free legal assistance</p>
+            </a>
+        </div>
+
+        <!-- Content Sections -->
+        <div class="content-sections">
+            <!-- Cases Section -->
+            <div id="cases-section" class="content-section active">
+                <div class="section-header">
+                    <h3><i class="fas fa-briefcase"></i> My Cases</h3>
+                    <button class="btn btn-primary" onclick="openModal('newCaseModal')">
+                        <i class="fas fa-plus"></i> New Case
+                    </button>
+                </div>
+                <div class="cases-grid">
+                    {% for case in active_cases %}
+                    <div class="case-card">
+                        <div class="case-header">
+                            <h4>{{ case.title }}</h4>
+                            <span class="case-status status-{{ case.status.lower() }}">{{ case.status }}</span>
+                        </div>
+                        <div class="case-details">
+                            <p><i class="fas fa-calendar"></i> Created: {{ case.created_date.strftime('%b %d, %Y') }}</p>
+                            <p><i class="fas fa-user-tie"></i> Lawyer: {{ case.lawyer_name or 'Not assigned' }}</p>
+                            <p><i class="fas fa-tag"></i> Category: {{ case.category }}</p>
+                        </div>
+                        <div class="case-actions">
+                            <button class="btn btn-secondary" onclick="viewCase({{ case.id }})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-primary" onclick="editCase({{ case.id }})">
+                                <i class="fas fa-edit"></i> Update
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not active_cases %}
+                    <div class="empty-state">
+                        <i class="fas fa-briefcase"></i>
+                        <h4>No Active Cases</h4>
+                        <p>You don't have any active cases yet. Create a new case to get started.</p>
+                        <button class="btn btn-primary" onclick="openModal('newCaseModal')">
+                            <i class="fas fa-plus"></i> Create Your First Case
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lawyers Section -->
+            <div id="lawyers-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-user-tie"></i> Available Lawyers</h3>
+                    <div class="filter-controls">
+                        <select id="specializationFilter" onchange="filterLawyers()">
+                            <option value="">All Specializations</option>
+                            <option value="Criminal Law">Criminal Law</option>
+                            <option value="Family Law">Family Law</option>
+                            <option value="Corporate Law">Corporate Law</option>
+                            <option value="Personal Injury">Personal Injury</option>
+                            <option value="Real Estate">Real Estate</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="lawyers-grid">
+                    {% for lawyer in available_lawyers %}
+                    <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}">
+                        <div class="lawyer-photo">
+                            {% if lawyer.Photo %}
+                            <img src="{{ url_for('static', filename='uploads/photos/' + lawyer.Photo) }}" alt="{{ lawyer.FirstName }} {{ lawyer.LastName }}">
+                            {% else %}
+                            <div class="photo-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="lawyer-info">
+                            <h4>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h4>
+                            <p class="specialization">{{ lawyer.Specialization }}</p>
+                            <p class="experience">{{ lawyer.YearsOfExperience }} years experience</p>
+                            <div class="lawyer-details">
+                                <p><i class="fas fa-dollar-sign"></i> ${{ lawyer.ConsultationFee }}/hour</p>
+                                <p><i class="fas fa-map-marker-alt"></i> {{ lawyer.OfficeAddress }}</p>
+                                {% if lawyer.Languages %}
+                                <p><i class="fas fa-language"></i> {{ lawyer.Languages }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="lawyer-actions">
+                                <button class="btn btn-primary" onclick="bookConsultation({{ lawyer.UserId }})">
+                                    <i class="fas fa-calendar-plus"></i> Book Consultation
+                                </button>
+                                <button class="btn btn-secondary" onclick="viewLawyerProfile({{ lawyer.UserId }})">
+                                    <i class="fas fa-eye"></i> View Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Appointments Section -->
+            <div id="appointments-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Appointments</h3>
+                    <button class="btn btn-primary" onclick="openModal('newAppointmentModal')">
+                        <i class="fas fa-plus"></i> Schedule Appointment
+                    </button>
+                </div>
+                <div class="appointments-timeline">
+                    {% for appointment in upcoming_appointments %}
+                    <div class="appointment-item">
+                        <div class="appointment-time">
+                            <span class="date">{{ appointment.date.strftime('%b %d') }}</span>
+                            <span class="time">{{ appointment.time.strftime('%I:%M %p') }}</span>
+                        </div>
+                        <div class="appointment-details">
+                            <h4>{{ appointment.title }}</h4>
+                            <p><i class="fas fa-user-tie"></i> {{ appointment.lawyer_name }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ appointment.location }}</p>
+                            <span class="appointment-status status-{{ appointment.status.lower() }}">{{ appointment.status }}</span>
+                        </div>
+                        <div class="appointment-actions">
+                            <button class="btn btn-secondary" onclick="rescheduleAppointment({{ appointment.id }})">
+                                <i class="fas fa-calendar-edit"></i> Reschedule
+                            </button>
+                            <button class="btn btn-danger" onclick="cancelAppointment({{ appointment.id }})">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not upcoming_appointments %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>No Upcoming Appointments</h4>
+                        <p>You don't have any scheduled appointments.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div id="documents-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-alt"></i> Documents</h3>
+                    <button class="btn btn-primary" onclick="openModal('uploadDocumentModal')">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                </div>
+                <div class="documents-grid">
+                    {% for document in documents %}
+                    <div class="document-card">
+                        <div class="document-icon">
+                            <i class="fas fa-file-{% if document.file_type == 'pdf' %}pdf{% elif document.file_type in ['jpg', 'jpeg', 'png'] %}image{% else %}alt{% endif %}"></i>
+                        </div>
+                        <div class="document-info">
+                            <h4>{{ document.name }}</h4>
+                            <p>{{ document.description }}</p>
+                            <p class="document-meta">
+                                <span><i class="fas fa-calendar"></i> {{ document.uploaded_date.strftime('%b %d, %Y') }}</span>
+                                <span><i class="fas fa-file"></i> {{ document.file_size }}</span>
+                            </p>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-secondary" onclick="downloadDocument({{ document.id }})">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteDocument({{ document.id }})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not documents %}
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h4>No Documents</h4>
+                        <p>You haven't uploaded any documents yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-user-circle"></i> Profile Settings</h3>
+                </div>
+                <div class="profile-form">
+                    <form method="POST" action="{{ url_for('update_client_profile') }}" enctype="multipart/form-data">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName"><i class="fas fa-user"></i> First Name</label>
+                                <input type="text" id="firstName" name="firstName" value="{{ user.FirstName }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName"><i class="fas fa-user"></i> Last Name</label>
+                                <input type="text" id="lastName" name="lastName" value="{{ user.LastName }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                                <input type="email" id="email" name="email" value="{{ user.Email }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone"><i class="fas fa-phone"></i> Phone</label>
+                                <input type="tel" id="phone" name="phone" value="{{ user.Phone or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="city"><i class="fas fa-city"></i> City</label>
+                                <input type="text" id="city" name="city" value="{{ client_details.City or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="state"><i class="fas fa-map"></i> State</label>
+                                <input type="text" id="state" name="state" value="{{ client_details.State or '' }}">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Legal Aid Section -->
+            <div id="legal-aid-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-hands-helping"></i> Legal Aid Request</h3>
+                </div>
+                <div class="legal-aid-content">
+                    <div class="aid-info">
+                        <h4>Free Legal Assistance</h4>
+                        <p>If you cannot afford legal representation, you may be eligible for free legal aid services. Complete the form below to submit your request.</p>
+                    </div>
+                    <form method="POST" action="{{ url_for('submit_legal_aid_request') }}" class="aid-form">
+                        <div class="form-group">
+                            <label for="caseType"><i class="fas fa-gavel"></i> Case Type</label>
+                            <select id="caseType" name="caseType" required>
+                                <option value="">Select case type</option>
+                                <option value="Family Law">Family Law</option>
+                                <option value="Housing">Housing Issues</option>
+                                <option value="Consumer Rights">Consumer Rights</option>
+                                <option value="Employment">Employment Issues</option>
+                                <option value="Immigration">Immigration</option>
+                                <option value="Criminal Defense">Criminal Defense</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="urgency"><i class="fas fa-exclamation-triangle"></i> Urgency Level</label>
+                            <select id="urgency" name="urgency" required>
+                                <option value="">Select urgency</option>
+                                <option value="Low">Low - Can wait a few weeks</option>
+                                <option value="Medium">Medium - Need help within a week</option>
+                                <option value="High">High - Urgent, need immediate assistance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="income"><i class="fas fa-dollar-sign"></i> Monthly Household Income</label>
+                            <select id="income" name="income" required>
+                                <option value="">Select income range</option>
+                                <option value="Under $1,000">Under $1,000</option>
+                                <option value="$1,000 - $2,000">$1,000 - $2,000</option>
+                                <option value="$2,000 - $3,000">$2,000 - $3,000</option>
+                                <option value="$3,000 - $4,000">$3,000 - $4,000</option>
+                                <option value="Over $4,000">Over $4,000</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description"><i class="fas fa-file-text"></i> Case Description</label>
+                            <textarea id="description" name="description" rows="5" placeholder="Please describe your legal issue in detail..." required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Modals -->
+    <div id="newCaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-plus"></i> Create New Case</h4>
+                <span class="close" onclick="closeModal('newCaseModal')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('create_case') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="caseTitle"><i class="fas fa-heading"></i> Case Title</label>
+                        <input type="text" id="caseTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="caseCategory"><i class="fas fa-tag"></i> Category</label>
+                        <select id="caseCategory" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Family Law">Family Law</option>
+                            <option value="Criminal Law">Criminal Law</option>
+                            <option value="Civil Law">Civil Law</option>
+                            <option value="Corporate Law">Corporate Law</option>
+                            <option value="Personal Injury">Personal Injury</option>
+                            <option value="Real Estate">Real Estate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="caseDescription"><i class="fas fa-file-text"></i> Description</label>
+                        <textarea id="caseDescription" name="description" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newCaseModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Case</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Dashboard functionality
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Update URL hash
+            window.location.hash = sectionName;
+        }
+
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Filter lawyers by specialization
+        function filterLawyers() {
+            const filter = document.getElementById('specializationFilter').value;
+            const lawyers = document.querySelectorAll('.lawyer-card');
+            
+            lawyers.forEach(lawyer => {
+                const specialization = lawyer.getAttribute('data-specialization');
+                if (filter === '' || specialization === filter) {
+                    lawyer.style.display = 'block';
+                } else {
+                    lawyer.style.display = 'none';
+                }
+            });
+        }
+
+        // Case functions
+        function viewCase(caseId) {
+            window.location.href = `/client/case/${caseId}`;
+        }
+
+        function editCase(caseId) {
+            window.location.href = `/client/case/${caseId}/edit`;
+        }
+
+        // Lawyer functions
+        function bookConsultation(lawyerId) {
+            window.location.href = `/client/book-consultation/${lawyerId}`;
+        }
+
+        function viewLawyerProfile(lawyerId) {
+            window.location.href = `/lawyer/profile/${lawyerId}`;
+        }
+
+        // Appointment functions
+        function rescheduleAppointment(appointmentId) {
+            // Implementation for rescheduling
+            window.location.href = `/client/appointment/${appointmentId}/reschedule`;
+        }
+
+        function cancelAppointment(appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                fetch(`/client/appointment/${appointmentId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        // Document functions
+        function downloadDocument(documentId) {
+            window.location.href = `/client/document/${documentId}/download`;
+        }
+
+        function deleteDocument(documentId) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                fetch(`/client/document/${documentId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show section based on URL hash
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showSection(hash);
+            } else {
+                showSection('cases');
+            }
+
+            // Close modals when clicking outside
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            }
+        });
+    </script>
 </body>
-</html> 
+</html>
