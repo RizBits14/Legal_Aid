@@ -657,7 +657,622 @@ def logout():
 @app.route('/client/dashboard')
 @login_required
 def client_dashboard():
-    return render_template('client_dashboard.html')
+    """Enhanced client dashboard with comprehensive data"""
+    user_id = session['user_id']
+    cur = mysql.connection.cursor()
+    
+    try:
+        # Get user information
+        cur.execute("""
+            SELECT u.*, cd.City, cd.State, cd.Photo
+            FROM Users u 
+            LEFT JOIN ClientDetails cd ON u.id = cd.UserId 
+            WHERE u.id = %s
+        """, [user_id])
+        user = cur.fetchone()
+        
+        # Get client details separately for easy access
+        cur.execute("SELECT * FROM ClientDetails WHERE UserId = %s", [user_id])
+        client_details = cur.fetchone() or {}
+        
+        # Get active cases
+        cur.execute("""
+            SELECT c.*, CONCAT(u.FirstName, ' ', u.LastName) as lawyer_name
+            FROM Cases c
+            LEFT JOIN Users u ON c.LawyerId = u.id
+            WHERE c.ClientId = %s AND c.Status IN ('Active', 'Pending', 'In Progress')
+            ORDER BY c.CreatedAt DESC
+        """, [user_id])
+        active_cases = cur.fetchall()
+        
+        # Get upcoming appointments
+        cur.execute("""
+            SELECT a.*, CONCAT(u.FirstName, ' ', u.LastName) as lawyer_name
+            FROM Appointments a
+            LEFT JOIN Users u ON a.LawyerId = u.id
+            WHERE a.ClientId = %s AND a.AppointmentDate >= CURDATE()
+            ORDER BY a.AppointmentDate ASC, a.AppointmentTime ASC
+            LIMIT 5
+        """, [user_id])
+        upcoming_appointments = cur.fetchall()
+        
+        # Get user documents
+        cur.execute("""
+            SELECT * FROM Documents 
+            WHERE ClientId = %s 
+            ORDER BY UploadedAt DESC
+        """, [user_id])
+        documents = cur.fetchall()
+        
+        # Get available verified lawyers
+        cur.execute("""
+            SELECT u.*, ld.*
+            FROM Users u 
+            JOIN LawyerDetails ld ON u.id = ld.UserId 
+            WHERE u.UserType = 'Lawyer' AND ld.VerificationStatus = 'Approved'
+            ORDER BY ld.YearsOfExperience DESC
+        """, [])
+        available_lawyers = cur.fetchall()
+        
+        cur.close()
+        
+        return render_template('client_dashboard.html',
+                             user=user,
+                             client_details=client_details,
+                             active_cases=active_cases,
+                             upcoming_appointments=upcoming_appointments,
+                             documents=documents,
+                             available_lawyers=available_lawyers)
+                             
+    except Exception as e:
+        cur.close()
+        flash(f'Error loading dashboard: {str(e)}', 'error')
+        return render_template('client_dashboard.html',
+                             user={}, client_details={}, active_cases=[], 
+                             upcoming_appointments=[], documents=[], available_lawyers=[])
+
+# Case management routes
+@app.route('/client/create-case', methods=['POST'])
+@login_required
+def create_case():
+    """Create a new case"""
+    try:
+        title = request.form['title']
+        category = request.form['category']
+        description = request.form['description']
+        client_id = session['user_id']
+        
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO Cases (ClientId, Title, Category, Description, Status, CreatedAt)
+            VALUES (%s, %s, %s, %s, 'Pending', NOW())
+        """, [client_id, title, category, description])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Case created successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error creating case: {str(e)}', 'error')
+        
+    return redirect(url_for('client_dashboard') + '#cases')
+
+@app.route('/client/appointment/<int:appointment_id>/reschedule')
+@login_required
+def reschedule_appointment_form(appointment_id):
+    """Reschedule appointment form"""
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT a.*, CONCAT(u.FirstName, ' ', u.LastName) as lawyer_name
+        FROM Appointments a
+        LEFT JOIN Users u ON a.LawyerId = u.id
+        WHERE a.id = %s AND a.ClientId = %s
+    """, [appointment_id, session['user_id']])
+    appointment = cur.fetchone()
+    
+    cur.close()
+    
+    if not appointment:
+        flash('Appointment not found', 'error')
+        return redirect(url_for('client_dashboard'))
+    
+    return render_template('reschedule_appointment.html', appointment=appointment)
+
+@app.route('/client/appointment/<int:appointment_id>/update', methods=['POST'])
+@login_required
+def update_appointment(appointment_id):
+    """Update appointment details"""
+    try:
+        appointment_date = request.form['appointment_date']
+        appointment_time = request.form['appointment_time']
+        
+        cur = mysql.connection.cursor()
+        
+        # Verify ownership
+        cur.execute("SELECT id FROM Appointments WHERE id = %s AND ClientId = %s", [appointment_id, session['user_id']])
+        if not cur.fetchone():
+            flash('Appointment not found', 'error')
+            cur.close()
+            return redirect(url_for('client_dashboard'))
+        
+        # Update appointment
+        cur.execute("""
+            UPDATE Appointments 
+            SET AppointmentDate = %s, AppointmentTime = %s, Status = 'Rescheduled', UpdatedAt = NOW()
+            WHERE id = %s AND ClientId = %s
+        """, [appointment_date, appointment_time, appointment_id, session['user_id']])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Appointment rescheduled successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error rescheduling appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#appointments')
+
+@app.route('/client/appointment/<int:appointment_id>/cancel', methods=['POST'])
+@login_required
+def cancel_appointment(appointment_id):
+    """Cancel an appointment"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verify ownership and update status
+        cur.execute("""
+            UPDATE Appointments 
+            SET Status = 'Cancelled', UpdatedAt = NOW()
+            WHERE id = %s AND ClientId = %s
+        """, [appointment_id, session['user_id']])
+        
+        if cur.rowcount > 0:
+            mysql.connection.commit()
+            flash('Appointment cancelled successfully', 'success')
+        else:
+            flash('Appointment not found', 'error')
+        
+        cur.close()
+        
+    except Exception as e:
+        flash(f'Error cancelling appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#appointments')
+
+# Document management routes
+DOCUMENT_FOLDER = 'static/uploads/documents'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/client/upload-document', methods=['POST'])
+@login_required
+def upload_document():
+    """Upload a document"""
+    try:
+        if 'document' not in request.files:
+            flash('No file selected', 'error')
+            return redirect(url_for('client_dashboard') + '#documents')
+        
+        file = request.files['document']
+        document_name = request.form['document_name']
+        description = request.form.get('description', '')
+        
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(url_for('client_dashboard') + '#documents')
+        
+        if file and allowed_file(file.filename):
+            # Create uploads directory if it doesn't exist
+            os.makedirs(DOCUMENT_FOLDER, exist_ok=True)
+            
+            # Secure filename and save
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(DOCUMENT_FOLDER, filename)
+            file.save(file_path)
+            
+            # Get file size
+            file_size = os.path.getsize(file_path)
+            file_size_str = f"{file_size / 1024:.1f} KB" if file_size < 1024*1024 else f"{file_size / (1024*1024):.1f} MB"
+            
+            # Get file extension
+            file_type = filename.rsplit('.', 1)[1].lower()
+            
+            # Save to database
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                INSERT INTO Documents 
+                (ClientId, Name, Description, FileName, FilePath, FileSize, FileType, UploadedAt)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+            """, [session['user_id'], document_name, description, filename, file_path, file_size_str, file_type])
+            mysql.connection.commit()
+            cur.close()
+            
+            flash('Document uploaded successfully!', 'success')
+        else:
+            flash('Invalid file type. Allowed types: txt, pdf, png, jpg, jpeg, gif, doc, docx', 'error')
+            
+    except Exception as e:
+        flash(f'Error uploading document: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#documents')
+
+@app.route('/client/document/<int:document_id>/download')
+@login_required
+def download_document(document_id):
+    """Download a document"""
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT * FROM Documents 
+        WHERE id = %s AND ClientId = %s
+    """, [document_id, session['user_id']])
+    document = cur.fetchone()
+    
+    cur.close()
+    
+    if not document:
+        flash('Document not found', 'error')
+        return redirect(url_for('client_dashboard'))
+    
+    try:
+        return send_file(document['FilePath'], as_attachment=True, download_name=document['FileName'])
+    except Exception as e:
+        flash(f'Error downloading document: {str(e)}', 'error')
+        return redirect(url_for('client_dashboard') + '#documents')
+
+@app.route('/client/document/<int:document_id>/delete', methods=['POST'])
+@login_required
+def delete_document(document_id):
+    """Delete a document"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Get document details
+        cur.execute("""
+            SELECT * FROM Documents 
+            WHERE id = %s AND ClientId = %s
+        """, [document_id, session['user_id']])
+        document = cur.fetchone()
+        
+        if not document:
+            flash('Document not found', 'error')
+            cur.close()
+            return redirect(url_for('client_dashboard'))
+        
+        # Delete from database
+        cur.execute("DELETE FROM Documents WHERE id = %s AND ClientId = %s", [document_id, session['user_id']])
+        mysql.connection.commit()
+        cur.close()
+        
+        # Delete file from filesystem
+        try:
+            if os.path.exists(document['FilePath']):
+                os.remove(document['FilePath'])
+        except Exception as file_error:
+            app.logger.error(f"Error deleting file: {str(file_error)}")
+        
+        flash('Document deleted successfully', 'success')
+        
+    except Exception as e:
+        flash(f'Error deleting document: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#documents')
+
+# Profile management
+@app.route('/client/update-profile', methods=['POST'])
+@login_required
+def update_client_profile():
+    """Update client profile"""
+    try:
+        first_name = request.form['firstName']
+        last_name = request.form['lastName']
+        email = request.form['email']
+        phone = request.form.get('phone', '')
+        city = request.form.get('city', '')
+        state = request.form.get('state', '')
+        
+        cur = mysql.connection.cursor()
+        
+        # Update Users table
+        cur.execute("""
+            UPDATE Users 
+            SET FirstName = %s, LastName = %s, Email = %s, Phone = %s, UpdatedAt = NOW()
+            WHERE id = %s
+        """, [first_name, last_name, email, phone, session['user_id']])
+        
+        # Update or insert ClientDetails
+        cur.execute("SELECT UserId FROM ClientDetails WHERE UserId = %s", [session['user_id']])
+        if cur.fetchone():
+            cur.execute("""
+                UPDATE ClientDetails 
+                SET City = %s, State = %s
+                WHERE UserId = %s
+            """, [city, state, session['user_id']])
+        else:
+            cur.execute("""
+                INSERT INTO ClientDetails (UserId, City, State)
+                VALUES (%s, %s, %s)
+            """, [session['user_id'], city, state])
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Profile updated successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error updating profile: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#profile')
+
+# Legal Aid Request
+@app.route('/client/submit-legal-aid-request', methods=['POST'])
+@login_required
+def submit_legal_aid_request():
+    """Submit legal aid request"""
+    try:
+        case_type = request.form['caseType']
+        urgency = request.form['urgency']
+        income = request.form['income']
+        description = request.form['description']
+        
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO LegalAidRequests 
+            (ClientId, CaseType, Urgency, Income, Description, Status, SubmittedAt)
+            VALUES (%s, %s, %s, %s, %s, 'Pending', NOW())
+        """, [session['user_id'], case_type, urgency, income, description])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Legal aid request submitted successfully! We will review your application and contact you soon.', 'success')
+        
+    except Exception as e:
+        flash(f'Error submitting legal aid request: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard') + '#legal-aid')
+
+# Lawyer profile view
+@app.route('/lawyer/profile/<int:lawyer_id>')
+@login_required
+def view_lawyer_profile(lawyer_id):
+    """View lawyer profile"""
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT u.*, ld.*
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.id = %s AND ld.VerificationStatus = 'Approved'
+    """, [lawyer_id])
+    lawyer = cur.fetchone()
+    
+    if not lawyer:
+        flash('Lawyer not found', 'error')
+        cur.close()
+        return redirect(url_for('client_dashboard'))
+    
+    # Get lawyer's recent cases (anonymized)
+    cur.execute("""
+        SELECT COUNT(*) as total_cases,
+               SUM(CASE WHEN Status = 'Completed' THEN 1 ELSE 0 END) as completed_cases
+        FROM Cases 
+        WHERE LawyerId = %s
+    """, [lawyer_id])
+    case_stats = cur.fetchone()
+    
+    cur.close()
+    
+    return render_template('lawyer_profile.html', lawyer=lawyer, case_stats=case_stats)
+
+# Additional utility routes
+@app.route('/client/notifications')
+@login_required
+def get_notifications():
+    """Get user notifications"""
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT * FROM Notifications 
+        WHERE UserId = %s AND IsRead = 0
+        ORDER BY CreatedAt DESC
+        LIMIT 10
+    """, [session['user_id']])
+    notifications = cur.fetchall()
+    
+    cur.close()
+    
+    return jsonify([dict(notification) for notification in notifications])
+
+@app.route('/client/mark-notification-read/<int:notification_id>', methods=['POST'])
+@login_required
+def mark_notification_read(notification_id):
+    """Mark notification as read"""
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE Notifications 
+            SET IsRead = 1 
+            WHERE id = %s AND UserId = %s
+        """, [notification_id, session['user_id']])
+        mysql.connection.commit()
+        cur.close()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+# Database table creation (add these to your database schema)
+# Add case update route
+@app.route('/client/case/<int:case_id>/add-update', methods=['POST'])
+@login_required
+def add_case_update(case_id):
+    """Add update to a case"""
+    try:
+        update_type = request.form['updateType']
+        update_text = request.form['updateText']
+        
+        cur = mysql.connection.cursor()
+        
+        # Verify case ownership
+        cur.execute("SELECT id FROM Cases WHERE id = %s AND ClientId = %s", [case_id, session['user_id']])
+        if not cur.fetchone():
+            flash('Case not found', 'error')
+            cur.close()
+            return redirect(url_for('client_dashboard'))
+        
+        # Add update
+        cur.execute("""
+            INSERT INTO CaseUpdates (CaseId, UpdatedBy, UpdateType, UpdateText, CreatedAt)
+            VALUES (%s, %s, %s, %s, NOW())
+        """, [case_id, session['user_id'], update_type, update_text])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Case update added successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error adding update: {str(e)}', 'error')
+    
+    return redirect(url_for('view_case', case_id=case_id))
+
+@app.route('/client/case/<int:case_id>')
+@login_required
+def view_case(case_id):
+    """View case details"""
+    cur = mysql.connection.cursor()
+    
+    # Verify case belongs to current user
+    cur.execute("""
+        SELECT c.*, CONCAT(u.FirstName, ' ', u.LastName) as lawyer_name
+        FROM Cases c
+        LEFT JOIN Users u ON c.LawyerId = u.id
+        WHERE c.id = %s AND c.ClientId = %s
+    """, [case_id, session['user_id']])
+    case = cur.fetchone()
+    
+    if not case:
+        flash('Case not found', 'error')
+        cur.close()
+        return redirect(url_for('client_dashboard'))
+    
+    # Get case updates/notes
+    cur.execute("""
+        SELECT * FROM CaseUpdates 
+        WHERE CaseId = %s 
+        ORDER BY CreatedAt DESC
+    """, [case_id])
+    case_updates = cur.fetchall()
+    
+    cur.close()
+    return render_template('case_details.html', case=case, case_updates=case_updates)
+
+@app.route('/client/case/<int:case_id>/edit')
+@login_required
+def edit_case(case_id):
+    """Edit case form"""
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT * FROM Cases 
+        WHERE id = %s AND ClientId = %s
+    """, [case_id, session['user_id']])
+    case = cur.fetchone()
+    
+    cur.close()
+    
+    if not case:
+        flash('Case not found', 'error')
+        return redirect(url_for('client_dashboard'))
+    
+    return render_template('edit_case.html', case=case)
+
+@app.route('/client/case/<int:case_id>/update', methods=['POST'])
+@login_required
+def update_case(case_id):
+    """Update case"""
+    try:
+        title = request.form['title']
+        description = request.form['description']
+        
+        cur = mysql.connection.cursor()
+        
+        # Verify ownership
+        cur.execute("SELECT id FROM Cases WHERE id = %s AND ClientId = %s", [case_id, session['user_id']])
+        if not cur.fetchone():
+            flash('Case not found', 'error')
+            cur.close()
+            return redirect(url_for('client_dashboard'))
+        
+        # Update case
+        cur.execute("""
+            UPDATE Cases 
+            SET Title = %s, Description = %s, UpdatedAt = NOW()
+            WHERE id = %s AND ClientId = %s
+        """, [title, description, case_id, session['user_id']])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Case updated successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error updating case: {str(e)}', 'error')
+    
+    return redirect(url_for('view_case', case_id=case_id))
+
+# Appointment management routes
+@app.route('/client/book-consultation/<int:lawyer_id>')
+@login_required
+def book_consultation(lawyer_id):
+    """Book consultation form"""
+    cur = mysql.connection.cursor()
+    
+    # Get lawyer details
+    cur.execute("""
+        SELECT u.*, ld.*
+        FROM Users u 
+        JOIN LawyerDetails ld ON u.id = ld.UserId 
+        WHERE u.id = %s AND ld.VerificationStatus = 'Approved'
+    """, [lawyer_id])
+    lawyer = cur.fetchone()
+    
+    cur.close()
+    
+    if not lawyer:
+        flash('Lawyer not found', 'error')
+        return redirect(url_for('client_dashboard'))
+    
+    return render_template('book_consultation.html', lawyer=lawyer)
+
+@app.route('/client/schedule-appointment', methods=['POST'])
+@login_required
+def schedule_appointment():
+    """Schedule a new appointment"""
+    try:
+        lawyer_id = request.form['lawyer_id']
+        appointment_date = request.form['appointment_date']
+        appointment_time = request.form['appointment_time']
+        meeting_type = request.form['meeting_type']
+        description = request.form.get('description', '')
+        
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO Appointments 
+            (ClientId, LawyerId, AppointmentDate, AppointmentTime, MeetingType, Description, Status, CreatedAt)
+            VALUES (%s, %s, %s, %s, %s, %s, 'Scheduled', NOW())
+        """, [session['user_id'], lawyer_id, appointment_date, appointment_time, meeting_type, description])
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Appointment scheduled successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error scheduling appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('client_dashboard'))
 
 @app.route('/lawyer/dashboard')
 @lawyer_required
@@ -934,9 +1549,9 @@ def lawyer_license(lawyer_id):
     
     return '', 404
 
-@app.route('/book-consultation', methods=['POST'])
+@app.route('/api/book-consultation-json', methods=['POST'])
 @login_required
-def book_consultation():
+def book_consultation_json():
     if session.get('user_type') != 'Client':
         return {'error': 'Only clients can book consultations'}, 403
     
