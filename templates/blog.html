@@ -151,15 +151,300 @@
     </footer>
 
     <script>
+        // Blog data for all pages
+        const blogData = {
+            page1: [
+                {
+                    date: "June 25, 2025",
+                    category: "Legal Updates",
+                    title: "Understanding the New Data Privacy Regulations: What Businesses Need to Know",
+                    excerpt: "Recent amendments to data protection laws have introduced significant changes that affect how businesses collect, process, and store personal information. Our comprehensive analysis breaks down the key provisions and compliance requirements.",
+                    author: "Sarah Mitchell, Senior Partner",
+                    readTime: "8 min read",
+                    featured: true
+                },
+                {
+                    date: "June 22, 2025",
+                    category: "Client Resources",
+                    title: "Essential Steps for Small Business Legal Compliance",
+                    excerpt: "A practical guide for entrepreneurs and small business owners on maintaining legal compliance, from business registration to employment law requirements.",
+                    author: "Michael Chen, Corporate Law Specialist",
+                    readTime: "6 min read"
+                },
+                {
+                    date: "June 18, 2025",
+                    category: "Case Studies",
+                    title: "Landmark Employment Discrimination Case: Lessons Learned",
+                    excerpt: "An in-depth analysis of a recent employment discrimination case and its implications for workplace policies and employee rights protection.",
+                    author: "Dr. Emily Rodriguez, Employment Law Expert",
+                    readTime: "10 min read"
+                },
+                {
+                    date: "June 15, 2025",
+                    category: "Legal Tips",
+                    title: "Contract Negotiation: 5 Key Strategies for Success",
+                    excerpt: "Master the art of contract negotiation with these proven strategies that can help you secure favorable terms while maintaining professional relationships.",
+                    author: "Robert Thompson, Contract Law Attorney",
+                    readTime: "7 min read"
+                },
+                {
+                    date: "June 12, 2025",
+                    category: "Legal Updates",
+                    title: "Intellectual Property Law Changes: Impact on Technology Companies",
+                    excerpt: "Recent developments in intellectual property legislation and their significance for technology companies, startups, and innovation-driven businesses.",
+                    author: "Lisa Park, IP Law Specialist",
+                    readTime: "9 min read"
+                },
+                {
+                    date: "June 8, 2025",
+                    category: "Client Resources",
+                    title: "Estate Planning Essentials: Protecting Your Family's Future",
+                    excerpt: "A comprehensive guide to estate planning fundamentals, including wills, trusts, and succession planning strategies for individuals and families.",
+                    author: "Margaret Williams, Estate Planning Attorney",
+                    readTime: "12 min read"
+                }
+            ],
+            page2: [
+                {
+                    date: "June 5, 2025",
+                    category: "Legal Updates",
+                    title: "Corporate Governance Reforms: New Standards for Board Accountability",
+                    excerpt: "Analysis of recent corporate governance reforms and their impact on board responsibilities, executive compensation, and shareholder rights in modern corporations.",
+                    author: "David Harrison, Corporate Governance Expert",
+                    readTime: "11 min read",
+                    featured: true
+                },
+                {
+                    date: "June 2, 2025",
+                    category: "Case Studies",
+                    title: "International Trade Dispute Resolution: A Multi-Jurisdictional Analysis",
+                    excerpt: "Examining a complex international trade dispute and the legal mechanisms used across different jurisdictions to reach an equitable resolution.",
+                    author: "Prof. Maria Santos, International Trade Law",
+                    readTime: "14 min read"
+                },
+                {
+                    date: "May 29, 2025",
+                    category: "Client Resources",
+                    title: "Navigating Immigration Law: A Guide for Employers",
+                    excerpt: "Essential information for employers on immigration compliance, work authorization verification, and best practices for hiring international talent.",
+                    author: "James Wilson, Immigration Law Specialist",
+                    readTime: "9 min read"
+                },
+                {
+                    date: "May 26, 2025",
+                    category: "Legal Tips",
+                    title: "Effective Deposition Strategies: Maximizing Information Gathering",
+                    excerpt: "Professional techniques for conducting effective depositions, including preparation strategies, questioning methods, and managing difficult witnesses.",
+                    author: "Catherine Lee, Litigation Attorney",
+                    readTime: "8 min read"
+                },
+                {
+                    date: "May 23, 2025",
+                    category: "Legal Updates",
+                    title: "Environmental Law Updates: Climate Change Litigation Trends",
+                    excerpt: "Recent developments in environmental law, focusing on climate change litigation trends and their implications for businesses and government entities.",
+                    author: "Dr. Thomas Green, Environmental Law Expert",
+                    readTime: "13 min read"
+                },
+                {
+                    date: "May 20, 2025",
+                    category: "Client Resources",
+                    title: "Real Estate Transactions: Due Diligence Best Practices",
+                    excerpt: "Comprehensive guide to due diligence in real estate transactions, covering property investigations, title searches, and risk assessment procedures.",
+                    author: "Patricia Davis, Real Estate Attorney",
+                    readTime: "10 min read"
+                }
+            ],
+            page3: [
+                {
+                    date: "May 17, 2025",
+                    category: "Case Studies",
+                    title: "Healthcare Privacy Breach: Regulatory Response and Industry Impact",
+                    excerpt: "Detailed analysis of a major healthcare data breach, examining regulatory responses, penalties imposed, and industry-wide policy changes implemented.",
+                    author: "Dr. Richard Adams, Healthcare Law Specialist",
+                    readTime: "15 min read",
+                    featured: true
+                },
+                {
+                    date: "May 14, 2025",
+                    category: "Legal Tips",
+                    title: "Alternative Dispute Resolution: When to Choose Mediation vs. Arbitration",
+                    excerpt: "Strategic guidance on selecting the most appropriate alternative dispute resolution method based on case characteristics, costs, and desired outcomes.",
+                    author: "Jennifer Martinez, ADR Specialist",
+                    readTime: "7 min read"
+                },
+                {
+                    date: "May 11, 2025",
+                    category: "Legal Updates",
+                    title: "Cryptocurrency Regulation: Recent Enforcement Actions and Compliance Requirements",
+                    excerpt: "Overview of recent cryptocurrency regulatory developments, enforcement actions by federal agencies, and compliance obligations for digital asset businesses.",
+                    author: "Kevin Brown, Financial Regulatory Attorney",
+                    readTime: "12 min read"
+                },
+                {
+                    date: "May 8, 2025",
+                    category: "Client Resources",
+                    title: "Family Law Mediation: A Collaborative Approach to Divorce",
+                    excerpt: "Understanding family law mediation as an alternative to traditional litigation, including benefits, process overview, and preparation strategies.",
+                    author: "Susan Taylor, Family Law Mediator",
+                    readTime: "8 min read"
+                },
+                {
+                    date: "May 5, 2025",
+                    category: "Legal Updates",
+                    title: "Antitrust Enforcement Trends: Big Tech Under Scrutiny",
+                    excerpt: "Analysis of current antitrust enforcement trends, particularly focusing on technology companies and the evolving regulatory landscape.",
+                    author: "Mark Johnson, Antitrust Attorney",
+                    readTime: "11 min read"
+                },
+                {
+                    date: "May 2, 2025",
+                    category: "Case Studies",
+                    title: "Securities Fraud Investigation: Lessons from Recent Enforcement",
+                    excerpt: "Examination of a significant securities fraud case, analyzing investigation methods, regulatory cooperation, and preventive measures for compliance officers.",
+                    author: "Rachel White, Securities Law Expert",
+                    readTime: "13 min read"
+                }
+            ]
+        };
+
+        let currentPage = 1;
+        const totalPages = 3;
+
+        function renderBlogPage(page) {
+            const blogList = document.querySelector('.blog-list');
+            const articles = blogData[`page${page}`];
+            
+            blogList.innerHTML = '';
+            
+            articles.forEach(article => {
+                const articleElement = document.createElement('article');
+                articleElement.className = `blog-card ${article.featured ? 'featured' : ''}`;
+                
+                articleElement.innerHTML = `
+                    <div class="blog-meta">
+                        <span class="blog-date"><i class="fas fa-calendar-alt"></i> ${article.date}</span>
+                        <span class="blog-category">${article.category}</span>
+                    </div>
+                    <h${article.featured ? '2' : '3'} class="blog-title">${article.title}</h${article.featured ? '2' : '3'}>
+                    <p class="blog-excerpt">${article.excerpt}</p>
+                    <div class="blog-author">
+                        <span><i class="fas fa-user"></i> ${article.author}</span>
+                        <span class="read-time"><i class="fas fa-clock"></i> ${article.readTime}</span>
+                    </div>
+                    <a href="#" class="read-more-btn">Read ${article.featured ? 'Full Article' : 'Article'} <i class="fas fa-arrow-right"></i></a>
+                `;
+                
+                blogList.appendChild(articleElement);
+            });
+            
+            // Update pagination
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const pagination = document.querySelector('.pagination');
+            pagination.innerHTML = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                const prevLink = document.createElement('a');
+                prevLink.href = '#';
+                prevLink.className = 'page-link';
+                prevLink.innerHTML = '<i class="fas fa-chevron-left"></i> Previous';
+                prevLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage--;
+                    renderBlogPage(currentPage);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+                pagination.appendChild(prevLink);
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = '#';
+                pageLink.className = `page-link ${i === currentPage ? 'active' : ''}`;
+                pageLink.textContent = i;
+                pageLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderBlogPage(currentPage);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+                pagination.appendChild(pageLink);
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                const nextLink = document.createElement('a');
+                nextLink.href = '#';
+                nextLink.className = 'page-link';
+                nextLink.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+                nextLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage++;
+                    renderBlogPage(currentPage);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+                pagination.appendChild(nextLink);
+            }
+        }
+
         // Category filter functionality
         document.querySelectorAll('.category-tag').forEach(tag => {
             tag.addEventListener('click', function() {
                 document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Here you would implement actual filtering logic
-                console.log('Filter by:', this.textContent);
+                const category = this.textContent;
+                if (category === 'All Articles') {
+                    renderBlogPage(currentPage);
+                } else {
+                    filterByCategory(category);
+                }
             });
+        });
+
+        function filterByCategory(category) {
+            const blogList = document.querySelector('.blog-list');
+            const allArticles = [...blogData.page1, ...blogData.page2, ...blogData.page3];
+            const filteredArticles = allArticles.filter(article => article.category === category);
+            
+            blogList.innerHTML = '';
+            
+            filteredArticles.forEach(article => {
+                const articleElement = document.createElement('article');
+                articleElement.className = `blog-card ${article.featured ? 'featured' : ''}`;
+                
+                articleElement.innerHTML = `
+                    <div class="blog-meta">
+                        <span class="blog-date"><i class="fas fa-calendar-alt"></i> ${article.date}</span>
+                        <span class="blog-category">${article.category}</span>
+                    </div>
+                    <h${article.featured ? '2' : '3'} class="blog-title">${article.title}</h${article.featured ? '2' : '3'}>
+                    <p class="blog-excerpt">${article.excerpt}</p>
+                    <div class="blog-author">
+                        <span><i class="fas fa-user"></i> ${article.author}</span>
+                        <span class="read-time"><i class="fas fa-clock"></i> ${article.readTime}</span>
+                    </div>
+                    <a href="#" class="read-more-btn">Read ${article.featured ? 'Full Article' : 'Article'} <i class="fas fa-arrow-right"></i></a>
+                `;
+                
+                blogList.appendChild(articleElement);
+            });
+            
+            // Hide pagination during filtering
+            document.querySelector('.pagination').style.display = 'none';
+        }
+
+        // Reset to show all articles
+        document.querySelector('.category-tag').addEventListener('click', function() {
+            if (this.textContent === 'All Articles') {
+                document.querySelector('.pagination').style.display = 'flex';
+                renderBlogPage(currentPage);
+            }
         });
 
         // Newsletter form submission
@@ -171,12 +456,18 @@
         });
 
         // Smooth scroll for read more buttons
-        document.querySelectorAll('.read-more-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.read-more-btn')) {
                 e.preventDefault();
+                const title = e.target.closest('.blog-card').querySelector('.blog-title').textContent;
+                console.log('Navigate to article:', title);
                 // Here you would navigate to the full article
-                console.log('Navigate to article:', this.closest('.blog-card').querySelector('.blog-title').textContent);
-            });
+            }
+        });
+
+        // Initialize the blog with page 1
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBlogPage(1);
         });
     </script>
 </body>
