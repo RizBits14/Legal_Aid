@@ -300,13 +300,7 @@
                 description: "{{ case.Description if case else '' }}",
                 createdAt: "{{ case.CreatedAt.strftime('%Y-%m-%d') if case and case.CreatedAt else '' }}",
                 lawyer: "{{ case.lawyer_name if case else '' }}",
-                updates: [
-                    {% if case_updates %}
-                        {% for update in case_updates %}
-                        {"type": "{{ update.UpdateType or '' }}", "text": "{{ update.UpdateText or '' }}", "date": "{{ update.CreatedAt.strftime('%Y-%m-%d %H:%M') if update.CreatedAt else '' }}"}{% if not loop.last %},{% endif %}
-                        {% endfor %}
-                    {% endif %}
-                ]
+                updates: {{ case_updates|tojson }}
             };
 
             const dataStr = JSON.stringify(caseData, null, 2);
