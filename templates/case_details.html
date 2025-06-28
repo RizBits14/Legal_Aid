@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='client_dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="dashboard-navbar">
+        <div class="navbar-left">
+            <a href="{{ url_for('client_dashboard') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        <div class="navbar-center">
+            <h1>Case Details</h1>
+        </div>
+        <div class="navbar-right">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="case-details-header">
+            <div class="case-title-section">
+                <h2>{{ case.Title if case else 'Case Details' }}</h2>
+                {% if case %}
+                <span class="case-status status-{{ case.Status.lower() if case.Status else 'pending' }}">
+                    {{ case.Status or 'Pending' }}
+                </span>
+                {% endif %}
+            </div>
+            <div class="case-actions-header">
+                <button class="btn btn-primary" onclick="openModal('addUpdateModal')">
+                    <i class="fas fa-plus"></i> Add Update
+                </button>
+                <button class="btn btn-secondary" onclick="printCase()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if case %}
+        <div class="case-content">
+            <div class="case-info-card">
+                <h3><i class="fas fa-info-circle"></i> Case Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Case ID:</label>
+                        <span>#{{ case.id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Category:</label>
+                        <span>{{ case.Category }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span class="case-status status-{{ case.Status.lower() if case.Status else 'pending' }}">
+                            {{ case.Status or 'Pending' }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Created Date:</label>
+                        <span>{{ case.CreatedAt.strftime('%B %d, %Y') if case.CreatedAt else 'Unknown' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Last Updated:</label>
+                        <span>{{ case.UpdatedAt.strftime('%B %d, %Y') if case.UpdatedAt else 'Not updated' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Assigned Lawyer:</label>
+                        <span>{{ case.lawyer_name or 'Not assigned yet' }}</span>
+                    </div>
+                </div>
+                
+                <div class="case-description">
+                    <h4>Description</h4>
+                    <p>{{ case.Description or 'No description available' }}</p>
+                </div>
+            </div>
+
+            <div class="case-updates-card">
+                <div class="updates-header">
+                    <h3><i class="fas fa-timeline"></i> Case Updates & Timeline</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('addUpdateModal')">
+                        <i class="fas fa-plus"></i> Add Update
+                    </button>
+                </div>
+                
+                <div class="updates-timeline">
+                    {% if case_updates %}
+                        {% for update in case_updates %}
+                        <div class="update-item">
+                            <div class="update-date">
+                                <span class="date">{{ update.CreatedAt.strftime('%b %d') if update.CreatedAt else 'Unknown' }}</span>
+                                <span class="time">{{ update.CreatedAt.strftime('%I:%M %p') if update.CreatedAt else '' }}</span>
+                            </div>
+                            <div class="update-content">
+                                <div class="update-type">{{ update.UpdateType or 'Note' }}</div>
+                                <p>{{ update.UpdateText or 'No details available' }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-timeline"></i>
+                        <h4>No Updates Yet</h4>
+                        <p>No updates have been added to this case.</p>
+                        <button class="btn btn-primary" onclick="openModal('addUpdateModal')">
+                            <i class="fas fa-plus"></i> Add First Update
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="case-actions-card">
+                <h3><i class="fas fa-tools"></i> Quick Actions</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" type="button" onclick="window.location.href='{{ url_for('edit_case', case_id=case.id) if case else '#' }}'">
+                        <i class="fas fa-edit"></i>
+                        <span>Edit Case</span>
+                    </button>
+                    <button class="action-btn" onclick="openModal('uploadDocumentModal')">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Document</span>
+                    </button>
+                    {% if case.lawyer_name %}
+                    <button class="action-btn" onclick="scheduleAppointment()">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Schedule Meeting</span>
+                    </button>
+                    {% endif %}
+                    <button class="action-btn" onclick="printCase()">
+                        <i class="fas fa-print"></i>
+                        <span>Print Case</span>
+                    </button>
+                    <button class="action-btn" onclick="shareCase()">
+                        <i class="fas fa-share"></i>
+                        <span>Share Case</span>
+                    </button>
+                    <button class="action-btn" onclick="exportCase()">
+                        <i class="fas fa-download"></i>
+                        <span>Export Details</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Case Not Found</h3>
+            <p>The requested case could not be found or you don't have permission to view it.</p>
+            <a href="{{ url_for('client_dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Add Update Modal -->
+    <div id="addUpdateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-plus"></i> Add Case Update</h4>
+                <span class="close" onclick="closeModal('addUpdateModal')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('add_case_update', case_id=case.id) if case else '#' }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="updateType"><i class="fas fa-tag"></i> Update Type</label>
+                        <select id="updateType" name="updateType" required>
+                            <option value="Note">General Note</option>
+                            <option value="Status Change">Status Change</option>
+                            <option value="Document Added">Document Added</option>
+                            <option value="Appointment Scheduled">Appointment Scheduled</option>
+                            <option value="Payment Received">Payment Received</option>
+                            <option value="Court Date Set">Court Date Set</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateText"><i class="fas fa-file-text"></i> Update Details</label>
+                        <textarea id="updateText" name="updateText" rows="4" required placeholder="Enter update details..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addUpdateModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadDocumentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-upload"></i> Upload Document for Case</h4>
+                <span class="close" onclick="closeModal('uploadDocumentModal')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('upload_document') }}" enctype="multipart/form-data">
+                <input type="hidden" name="case_id" value="{{ case.id if case else '' }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="documentName"><i class="fas fa-heading"></i> Document Name</label>
+                        <input type="text" id="documentName" name="document_name" required placeholder="Enter document name">
+                    </div>
+                    <div class="form-group">
+                        <label for="documentFile"><i class="fas fa-file"></i> Select File</label>
+                        <input type="file" id="documentFile" name="document" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                        <small>Allowed formats: PDF, DOC, DOCX, JPG, PNG, TXT (Max 16MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentDescription"><i class="fas fa-file-text"></i> Description</label>
+                        <textarea id="documentDescription" name="description" rows="3" placeholder="Optional description..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('uploadDocumentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Print case functionality
+        function printCase() {
+            window.print();
+        }
+
+        // Schedule appointment
+        function scheduleAppointment() {
+            const lawyerId = "{{ case.LawyerId if case and case.LawyerId else '' }}";
+            if (lawyerId) {
+                window.location.href = `/client/book-consultation/${lawyerId}`;
+            } else {
+                alert('No lawyer assigned to this case yet.');
+            }
+        }
+
+        // Share case
+        function shareCase() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ case.Title if case else "Case Details" }}',
+                    text: 'Case details from Legal Aid platform',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Case URL copied to clipboard!');
+                });
+            }
+        }
+
+        // Export case details
+        function exportCase() {
+            const caseData = {
+                id: "{{ case.id if case else '' }}",
+                title: "{{ case.Title if case else '' }}",
+                category: "{{ case.Category if case else '' }}",
+                status: "{{ case.Status if case else '' }}",
+                description: "{{ case.Description if case else '' }}",
+                createdAt: "{{ case.CreatedAt.strftime('%Y-%m-%d') if case and case.CreatedAt else '' }}",
+                lawyer: "{{ case.lawyer_name if case else '' }}",
+                updates: [
+                    {% if case_updates %}
+                        {% for update in case_updates %}
+                        {"type": "{{ update.UpdateType or '' }}", "text": "{{ update.UpdateText or '' }}", "date": "{{ update.CreatedAt.strftime('%Y-%m-%d %H:%M') if update.CreatedAt else '' }}"}{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                ]
+            };
+
+            const dataStr = JSON.stringify(caseData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `case-${caseData.id}-details.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts
+            document.querySelectorAll('.alert').forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+
+            // Close modals when clicking outside
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+            });
+
+            // File upload preview
+            const fileInput = document.getElementById('documentFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const fileName = file.name;
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                        
+                        // Auto-fill document name if empty
+                        const nameInput = document.getElementById('documentName');
+                        if (nameInput && !nameInput.value) {
+                            nameInput.value = fileName.split('.')[0];
+                        }
+                        
+                        // Show file info
+                        let fileInfo = document.querySelector('.file-info');
+                        if (!fileInfo) {
+                            fileInfo = document.createElement('div');
+                            fileInfo.className = 'file-info';
+                            fileInput.parentNode.appendChild(fileInfo);
+                        }
+                        fileInfo.innerHTML = `<small><i class="fas fa-info-circle"></i> Selected: ${fileName} (${fileSize} MB)</small>`;
+                        
+                        // Check file size
+                        if (file.size > 16 * 1024 * 1024) {
+                            fileInfo.innerHTML = `<small style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> File too large! Maximum size is 16MB.</small>`;
+                            fileInput.value = '';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .dashboard-navbar {
+            background: var(--navbar-color);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-center h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .back-btn, .logout-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        .case-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--ui-light);
+        }
+
+        .case-title-section h2 {
+            color: var(--navbar-color);
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+
+        .case-actions-header {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .case-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .case-info-card, .case-updates-card, .case-actions-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .case-info-card h3, .case-updates-card h3, .case-actions-card h3 {
+            color: var(--navbar-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .info-item span {
+            color: var(--navbar-color);
+            font-weight: 500;
+        }
+
+        .case-description {
+            border-top: 1px solid var(--ui-light);
+            padding-top: 1.5rem;
+        }
+
+        .case-description h4 {
+            color: var(--navbar-color);
+            margin-bottom: 1rem;
+        }
+
+        .case-description p {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .updates-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .updates-timeline {
+            position: relative;
+        }
+
+        .update-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--ui-light);
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .update-date {
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .update-date .date {
+            display: block;
+            font-weight: 600;
+            color: var(--navbar-color);
+            font-size: 1.1rem;
+        }
+
+        .update-date .time {
+            display: block;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .update-content {
+            flex: 1;
+        }
+
+        .update-type {
+            color: var(--navbar-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .update-content p {
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.5rem;
+            background: var(--ui-light);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--navbar-color);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--text-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+
+        .action-btn span {
+            font-weight: 600;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--medium-gray);
+        }
+
+        .error-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--danger-red);
+        }
+
+        .error-state h3 {
+            color: var(--navbar-color);
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+        }
+
+        .file-info small {
+            color: var(--text-color);
+            font-style: italic;
+        }
+
+        /* Print styles */
+        @media print {
+            .dashboard-navbar,
+            .case-actions-header,
+            .modal,
+            .btn,
+            .action-btn {
+                display: none !important;
+            }
+
+            .case-details-header {
+                border-bottom: 2px solid #000;
+                margin-bottom: 1rem;
+            }
+
+            .case-info-card,
+            .case-updates-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .dashboard-navbar {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+            }
+
+            .navbar-center {
+                order: 3;
+                width: 100%;
+                text-align: center;
+                margin-top: 0.5rem;
+            }
+
+            .case-details-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .case-actions-header {
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .update-item {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>
