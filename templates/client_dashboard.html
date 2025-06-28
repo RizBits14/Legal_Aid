@@ -9,13 +9,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <a href="{{ url_for('logout') }}" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
+    <!-- Navigation Bar -->
+    <div class="dashboard-navbar">
+        <div class="navbar-left">
+            <a href="{{ url_for('index') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+        <div class="navbar-center">
+            <h1>Legal Aid Client Portal</h1>
+        </div>
+        <div class="navbar-right">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
 
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h2>Welcome, {{ user.FirstName }} {{ user.LastName }}</h2>
+            <h2>Welcome, {{ user.FirstName if user else 'Client' }} {{ user.LastName if user else '' }}</h2>
             <p class="dashboard-subtitle">Your Legal Aid Dashboard</p>
         </div>
 
@@ -25,6 +38,7 @@
                     <div class="alert alert-{{ category }}">
                         <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
                         {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -37,7 +51,7 @@
                     <i class="fas fa-briefcase"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ active_cases|length }}</h3>
+                    <h3>{{ active_cases|length if active_cases else 0 }}</h3>
                     <p>Active Cases</p>
                 </div>
             </div>
@@ -46,7 +60,7 @@
                     <i class="fas fa-calendar-check"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ upcoming_appointments|length }}</h3>
+                    <h3>{{ upcoming_appointments|length if upcoming_appointments else 0 }}</h3>
                     <p>Upcoming Appointments</p>
                 </div>
             </div>
@@ -55,7 +69,7 @@
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ documents|length }}</h3>
+                    <h3>{{ documents|length if documents else 0 }}</h3>
                     <p>Documents</p>
                 </div>
             </div>
@@ -64,7 +78,7 @@
                     <i class="fas fa-gavel"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ available_lawyers|length }}</h3>
+                    <h3>{{ available_lawyers|length if available_lawyers else 0 }}</h3>
                     <p>Available Lawyers</p>
                 </div>
             </div>
@@ -127,28 +141,31 @@
                     </button>
                 </div>
                 <div class="cases-grid">
-                    {% for case in active_cases %}
-                    <div class="case-card">
-                        <div class="case-header">
-                            <h4>{{ case.title }}</h4>
-                            <span class="case-status status-{{ case.status.lower() }}">{{ case.status }}</span>
+                    {% if active_cases %}
+                        {% for case in active_cases %}
+                        <div class="case-card">
+                            <div class="case-header">
+                                <h4>{{ case.Title }}</h4>
+                                <span class="case-status status-{{ case.Status.lower() if case.Status else 'pending' }}">
+                                    {{ case.Status or 'Pending' }}
+                                </span>
+                            </div>
+                            <div class="case-details">
+                                <p><i class="fas fa-calendar"></i> Created: {{ case.CreatedAt.strftime('%b %d, %Y') if case.CreatedAt else 'Unknown' }}</p>
+                                <p><i class="fas fa-user-tie"></i> Lawyer: {{ case.lawyer_name or 'Not assigned' }}</p>
+                                <p><i class="fas fa-tag"></i> Category: {{ case.Category }}</p>
+                            </div>
+                            <div class="case-actions">
+                                <button class="btn btn-secondary" onclick="viewCase({{ case.id }})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-primary" onclick="editCase({{ case.id }})">
+                                    <i class="fas fa-edit"></i> Update
+                                </button>
+                            </div>
                         </div>
-                        <div class="case-details">
-                            <p><i class="fas fa-calendar"></i> Created: {{ case.created_date.strftime('%b %d, %Y') }}</p>
-                            <p><i class="fas fa-user-tie"></i> Lawyer: {{ case.lawyer_name or 'Not assigned' }}</p>
-                            <p><i class="fas fa-tag"></i> Category: {{ case.category }}</p>
-                        </div>
-                        <div class="case-actions">
-                            <button class="btn btn-secondary" onclick="viewCase({{ case.id }})">
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                            <button class="btn btn-primary" onclick="editCase({{ case.id }})">
-                                <i class="fas fa-edit"></i> Update
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if not active_cases %}
+                        {% endfor %}
+                    {% else %}
                     <div class="empty-state">
                         <i class="fas fa-briefcase"></i>
                         <h4>No Active Cases</h4>
@@ -173,43 +190,52 @@
                             <option value="Corporate Law">Corporate Law</option>
                             <option value="Personal Injury">Personal Injury</option>
                             <option value="Real Estate">Real Estate</option>
+                            <option value="Immigration">Immigration</option>
                         </select>
                     </div>
                 </div>
                 <div class="lawyers-grid">
-                    {% for lawyer in available_lawyers %}
-                    <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}">
-                        <div class="lawyer-photo">
-                            {% if lawyer.Photo %}
-                            <img src="{{ url_for('static', filename='uploads/photos/' + lawyer.Photo) }}" alt="{{ lawyer.FirstName }} {{ lawyer.LastName }}">
-                            {% else %}
-                            <div class="photo-placeholder">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="lawyer-info">
-                            <h4>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h4>
-                            <p class="specialization">{{ lawyer.Specialization }}</p>
-                            <p class="experience">{{ lawyer.YearsOfExperience }} years experience</p>
-                            <div class="lawyer-details">
-                                <p><i class="fas fa-dollar-sign"></i> ${{ lawyer.ConsultationFee }}/hour</p>
-                                <p><i class="fas fa-map-marker-alt"></i> {{ lawyer.OfficeAddress }}</p>
-                                {% if lawyer.Languages %}
-                                <p><i class="fas fa-language"></i> {{ lawyer.Languages }}</p>
+                    {% if available_lawyers %}
+                        {% for lawyer in available_lawyers %}
+                        <div class="lawyer-card" data-specialization="{{ lawyer.Specialization }}">
+                            <div class="lawyer-photo">
+                                {% if lawyer.Photo %}
+                                <img src="{{ url_for('static', filename='uploads/photos/' + lawyer.Photo) }}" alt="{{ lawyer.FirstName }} {{ lawyer.LastName }}">
+                                {% else %}
+                                <div class="photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
                                 {% endif %}
                             </div>
-                            <div class="lawyer-actions">
-                                <button class="btn btn-primary" onclick="bookConsultation({{ lawyer.UserId }})">
-                                    <i class="fas fa-calendar-plus"></i> Book Consultation
-                                </button>
-                                <button class="btn btn-secondary" onclick="viewLawyerProfile({{ lawyer.UserId }})">
-                                    <i class="fas fa-eye"></i> View Profile
-                                </button>
+                            <div class="lawyer-info">
+                                <h4>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h4>
+                                <p class="specialization">{{ lawyer.Specialization }}</p>
+                                <p class="experience">{{ lawyer.YearsOfExperience }} years experience</p>
+                                <div class="lawyer-details">
+                                    <p><i class="fas fa-dollar-sign"></i> ${{ lawyer.ConsultationFee or 150 }}/hour</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ lawyer.OfficeAddress or 'Office address not provided' }}</p>
+                                    {% if lawyer.Languages %}
+                                    <p><i class="fas fa-language"></i> {{ lawyer.Languages }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="lawyer-actions">
+                                    <button class="btn btn-primary" onclick="bookConsultation({{ lawyer.UserId }})">
+                                        <i class="fas fa-calendar-plus"></i> Book Consultation
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="viewLawyerProfile({{ lawyer.UserId }})">
+                                        <i class="fas fa-eye"></i> View Profile
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-user-tie"></i>
+                        <h4>No Lawyers Available</h4>
+                        <p>No verified lawyers are currently available. Please check back later.</p>
                     </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
 
@@ -222,33 +248,39 @@
                     </button>
                 </div>
                 <div class="appointments-timeline">
-                    {% for appointment in upcoming_appointments %}
-                    <div class="appointment-item">
-                        <div class="appointment-time">
-                            <span class="date">{{ appointment.date.strftime('%b %d') }}</span>
-                            <span class="time">{{ appointment.time.strftime('%I:%M %p') }}</span>
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="appointment-item">
+                            <div class="appointment-time">
+                                <span class="date">{{ appointment.AppointmentDate.strftime('%b %d') if appointment.AppointmentDate else 'TBD' }}</span>
+                                <span class="time">{{ appointment.AppointmentTime.strftime('%I:%M %p') if appointment.AppointmentTime else 'TBD' }}</span>
+                            </div>
+                            <div class="appointment-details">
+                                <h4>{{ appointment.Title or 'Legal Consultation' }}</h4>
+                                <p><i class="fas fa-user-tie"></i> {{ appointment.lawyer_name or 'Lawyer TBD' }}</p>
+                                <p><i class="fas fa-video"></i> {{ appointment.MeetingType or 'In-Person' }}</p>
+                                <span class="appointment-status status-{{ appointment.Status.lower() if appointment.Status else 'scheduled' }}">
+                                    {{ appointment.Status or 'Scheduled' }}
+                                </span>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn btn-secondary" onclick="rescheduleAppointment({{ appointment.id }})">
+                                    <i class="fas fa-calendar-edit"></i> Reschedule
+                                </button>
+                                <button class="btn btn-danger" onclick="cancelAppointment({{ appointment.id }})">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
                         </div>
-                        <div class="appointment-details">
-                            <h4>{{ appointment.title }}</h4>
-                            <p><i class="fas fa-user-tie"></i> {{ appointment.lawyer_name }}</p>
-                            <p><i class="fas fa-map-marker-alt"></i> {{ appointment.location }}</p>
-                            <span class="appointment-status status-{{ appointment.status.lower() }}">{{ appointment.status }}</span>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn btn-secondary" onclick="rescheduleAppointment({{ appointment.id }})">
-                                <i class="fas fa-calendar-edit"></i> Reschedule
-                            </button>
-                            <button class="btn btn-danger" onclick="cancelAppointment({{ appointment.id }})">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if not upcoming_appointments %}
+                        {% endfor %}
+                    {% else %}
                     <div class="empty-state">
                         <i class="fas fa-calendar-alt"></i>
                         <h4>No Upcoming Appointments</h4>
                         <p>You don't have any scheduled appointments.</p>
+                        <button class="btn btn-primary" onclick="openModal('newAppointmentModal')">
+                            <i class="fas fa-plus"></i> Schedule Your First Appointment
+                        </button>
                     </div>
                     {% endif %}
                 </div>
@@ -263,34 +295,38 @@
                     </button>
                 </div>
                 <div class="documents-grid">
-                    {% for document in documents %}
-                    <div class="document-card">
-                        <div class="document-icon">
-                            <i class="fas fa-file-{% if document.file_type == 'pdf' %}pdf{% elif document.file_type in ['jpg', 'jpeg', 'png'] %}image{% else %}alt{% endif %}"></i>
+                    {% if documents %}
+                        {% for document in documents %}
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-file-{% if document.FileType == 'pdf' %}pdf{% elif document.FileType in ['jpg', 'jpeg', 'png'] %}image{% else %}alt{% endif %}"></i>
+                            </div>
+                            <div class="document-info">
+                                <h4>{{ document.Name }}</h4>
+                                <p>{{ document.Description or 'No description' }}</p>
+                                <p class="document-meta">
+                                    <span><i class="fas fa-calendar"></i> {{ document.UploadedAt.strftime('%b %d, %Y') if document.UploadedAt else 'Unknown' }}</span>
+                                    <span><i class="fas fa-file"></i> {{ document.FileSize or 'Unknown size' }}</span>
+                                </p>
+                            </div>
+                            <div class="document-actions">
+                                <button class="btn btn-secondary" onclick="downloadDocument({{ document.id }})">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteDocument({{ document.id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </div>
-                        <div class="document-info">
-                            <h4>{{ document.name }}</h4>
-                            <p>{{ document.description }}</p>
-                            <p class="document-meta">
-                                <span><i class="fas fa-calendar"></i> {{ document.uploaded_date.strftime('%b %d, %Y') }}</span>
-                                <span><i class="fas fa-file"></i> {{ document.file_size }}</span>
-                            </p>
-                        </div>
-                        <div class="document-actions">
-                            <button class="btn btn-secondary" onclick="downloadDocument({{ document.id }})">
-                                <i class="fas fa-download"></i> Download
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteDocument({{ document.id }})">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if not documents %}
+                        {% endfor %}
+                    {% else %}
                     <div class="empty-state">
                         <i class="fas fa-file-alt"></i>
                         <h4>No Documents</h4>
                         <p>You haven't uploaded any documents yet.</p>
+                        <button class="btn btn-primary" onclick="openModal('uploadDocumentModal')">
+                            <i class="fas fa-upload"></i> Upload Your First Document
+                        </button>
                     </div>
                     {% endif %}
                 </div>
@@ -306,27 +342,27 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="firstName"><i class="fas fa-user"></i> First Name</label>
-                                <input type="text" id="firstName" name="firstName" value="{{ user.FirstName }}" required>
+                                <input type="text" id="firstName" name="firstName" value="{{ user.FirstName if user else '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="lastName"><i class="fas fa-user"></i> Last Name</label>
-                                <input type="text" id="lastName" name="lastName" value="{{ user.LastName }}" required>
+                                <input type="text" id="lastName" name="lastName" value="{{ user.LastName if user else '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="email"><i class="fas fa-envelope"></i> Email</label>
-                                <input type="email" id="email" name="email" value="{{ user.Email }}" required>
+                                <input type="email" id="email" name="email" value="{{ user.Email if user else '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="phone"><i class="fas fa-phone"></i> Phone</label>
-                                <input type="tel" id="phone" name="phone" value="{{ user.Phone or '' }}">
+                                <input type="tel" id="phone" name="phone" value="{{ user.Phone if user else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="city"><i class="fas fa-city"></i> City</label>
-                                <input type="text" id="city" name="city" value="{{ client_details.City or '' }}">
+                                <input type="text" id="city" name="city" value="{{ client_details.City if client_details else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="state"><i class="fas fa-map"></i> State</label>
-                                <input type="text" id="state" name="state" value="{{ client_details.State or '' }}">
+                                <input type="text" id="state" name="state" value="{{ client_details.State if client_details else '' }}">
                             </div>
                         </div>
                         <div class="form-actions">
@@ -408,7 +444,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="caseTitle"><i class="fas fa-heading"></i> Case Title</label>
-                        <input type="text" id="caseTitle" name="title" required>
+                        <input type="text" id="caseTitle" name="title" required placeholder="Enter a descriptive title for your case">
                     </div>
                     <div class="form-group">
                         <label for="caseCategory"><i class="fas fa-tag"></i> Category</label>
@@ -420,11 +456,13 @@
                             <option value="Corporate Law">Corporate Law</option>
                             <option value="Personal Injury">Personal Injury</option>
                             <option value="Real Estate">Real Estate</option>
+                            <option value="Immigration">Immigration</option>
+                            <option value="Employment">Employment</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="caseDescription"><i class="fas fa-file-text"></i> Description</label>
-                        <textarea id="caseDescription" name="description" rows="4" required></textarea>
+                        <textarea id="caseDescription" name="description" rows="4" required placeholder="Describe your legal issue in detail..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -432,6 +470,58 @@
                     <button type="submit" class="btn btn-primary">Create Case</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="uploadDocumentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-upload"></i> Upload Document</h4>
+                <span class="close" onclick="closeModal('uploadDocumentModal')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('upload_document') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="documentName"><i class="fas fa-heading"></i> Document Name</label>
+                        <input type="text" id="documentName" name="document_name" required placeholder="Enter document name">
+                    </div>
+                    <div class="form-group">
+                        <label for="documentFile"><i class="fas fa-file"></i> Select File</label>
+                        <input type="file" id="documentFile" name="document" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                        <small>Allowed formats: PDF, DOC, DOCX, JPG, PNG, TXT (Max 16MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentDescription"><i class="fas fa-file-text"></i> Description</label>
+                        <textarea id="documentDescription" name="description" rows="3" placeholder="Optional description..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('uploadDocumentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="newAppointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-calendar-plus"></i> Schedule New Appointment</h4>
+                <span class="close" onclick="closeModal('newAppointmentModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="appointment-info">
+                    <p><i class="fas fa-info-circle"></i> To schedule an appointment, please first select a lawyer from the "Find Lawyers" section and click "Book Consultation".</p>
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="closeModal('newAppointmentModal'); showSection('lawyers');">
+                            <i class="fas fa-user-tie"></i> Browse Lawyers
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('newAppointmentModal')">Close</button>
+            </div>
         </div>
     </div>
 
@@ -444,19 +534,40 @@
             });
             
             // Show selected section
-            document.getElementById(sectionName + '-section').classList.add('active');
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
             
             // Update URL hash
             window.location.hash = sectionName;
+            
+            // Update navigation visual state
+            document.querySelectorAll('.nav-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const activeCard = document.querySelector(`[href="#${sectionName}"]`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
         }
 
         // Modal functionality
         function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
         }
 
         // Filter lawyers by specialization
@@ -476,80 +587,592 @@
 
         // Case functions
         function viewCase(caseId) {
-            window.location.href = `/client/case/${caseId}`;
+            if (caseId) {
+                window.location.href = `/client/case/${caseId}`;
+            } else {
+                alert('Case ID not found');
+            }
         }
 
         function editCase(caseId) {
-            window.location.href = `/client/case/${caseId}/edit`;
+            if (caseId) {
+                window.location.href = `/client/case/${caseId}/edit`;
+            } else {
+                alert('Case ID not found');
+            }
         }
 
         // Lawyer functions
         function bookConsultation(lawyerId) {
-            window.location.href = `/client/book-consultation/${lawyerId}`;
+            if (lawyerId) {
+                window.location.href = `/client/book-consultation/${lawyerId}`;
+            } else {
+                alert('Lawyer ID not found');
+            }
         }
 
         function viewLawyerProfile(lawyerId) {
-            window.location.href = `/lawyer/profile/${lawyerId}`;
+            if (lawyerId) {
+                window.location.href = `/lawyer/profile/${lawyerId}`;
+            } else {
+                alert('Lawyer ID not found');
+            }
         }
 
         // Appointment functions
         function rescheduleAppointment(appointmentId) {
-            // Implementation for rescheduling
-            window.location.href = `/client/appointment/${appointmentId}/reschedule`;
+            if (appointmentId) {
+                window.location.href = `/client/appointment/${appointmentId}/reschedule`;
+            } else {
+                alert('Appointment ID not found');
+            }
         }
 
         function cancelAppointment(appointmentId) {
-            if (confirm('Are you sure you want to cancel this appointment?')) {
+            if (appointmentId && confirm('Are you sure you want to cancel this appointment?')) {
                 fetch(`/client/appointment/${appointmentId}/cancel`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                }).then(response => {
+                })
+                .then(response => {
                     if (response.ok) {
                         location.reload();
+                    } else {
+                        alert('Error cancelling appointment. Please try again.');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error cancelling appointment. Please try again.');
                 });
             }
         }
 
         // Document functions
         function downloadDocument(documentId) {
-            window.location.href = `/client/document/${documentId}/download`;
+            if (documentId) {
+                window.location.href = `/client/document/${documentId}/download`;
+            } else {
+                alert('Document ID not found');
+            }
         }
 
         function deleteDocument(documentId) {
-            if (confirm('Are you sure you want to delete this document?')) {
+            if (documentId && confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
                 fetch(`/client/document/${documentId}/delete`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                }).then(response => {
+                })
+                .then(response => {
                     if (response.ok) {
                         location.reload();
+                    } else {
+                        alert('Error deleting document. Please try again.');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting document. Please try again.');
                 });
             }
+        }
+
+        // Form validation
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.style.borderColor = '#dc3545';
+                    isValid = false;
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+            
+            return isValid;
+        }
+
+        // Auto-hide alerts
+        function hideAlert(element) {
+            setTimeout(() => {
+                element.style.opacity = '0';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 300);
+            }, 5000);
         }
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             // Show section based on URL hash
             const hash = window.location.hash.substring(1);
-            if (hash) {
+            if (hash && document.getElementById(hash + '-section')) {
                 showSection(hash);
             } else {
                 showSection('cases');
             }
 
+            // Auto-hide success/error alerts
+            document.querySelectorAll('.alert').forEach(alert => {
+                hideAlert(alert);
+            });
+
             // Close modals when clicking outside
             window.onclick = function(event) {
                 if (event.target.classList.contains('modal')) {
                     event.target.style.display = 'none';
+                    document.body.style.overflow = 'auto';
                 }
             }
+
+            // Handle file upload preview
+            const fileInput = document.getElementById('documentFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const fileName = file.name;
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                        
+                        // Auto-fill document name if empty
+                        const nameInput = document.getElementById('documentName');
+                        if (nameInput && !nameInput.value) {
+                            nameInput.value = fileName.split('.')[0];
+                        }
+                        
+                        // Show file info
+                        let fileInfo = document.querySelector('.file-info');
+                        if (!fileInfo) {
+                            fileInfo = document.createElement('div');
+                            fileInfo.className = 'file-info';
+                            fileInput.parentNode.appendChild(fileInfo);
+                        }
+                        fileInfo.innerHTML = `<small><i class="fas fa-info-circle"></i> Selected: ${fileName} (${fileSize} MB)</small>`;
+                        
+                        // Check file size
+                        if (file.size > 16 * 1024 * 1024) {
+                            fileInfo.innerHTML = `<small style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> File too large! Maximum size is 16MB.</small>`;
+                            fileInput.value = '';
+                        }
+                    }
+                });
+            }
+
+            // Form submission handlers
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        
+                        // Re-enable after 3 seconds to prevent permanent disable
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Submit';
+                        }, 3000);
+                    }
+                });
+            });
+
+            // Store original button text
+            document.querySelectorAll('button[type="submit"]').forEach(btn => {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // ESC to close modals
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+                
+                // Ctrl+N for new case
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    openModal('newCaseModal');
+                }
+            });
+
+            // Tooltip functionality
+            document.querySelectorAll('[title]').forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = this.getAttribute('title');
+                    document.body.appendChild(tooltip);
+                    
+                    const rect = this.getBoundingClientRect();
+                    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                    tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    document.querySelectorAll('.tooltip').forEach(tooltip => {
+                        tooltip.remove();
+                    });
+                });
+            });
+
+            // Loading states
+            window.showLoading = function(element) {
+                element.disabled = true;
+                element.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            };
+
+            window.hideLoading = function(element, originalText) {
+                element.disabled = false;
+                element.innerHTML = originalText;
+            };
+
+            // Search functionality for lawyers
+            const searchInput = document.getElementById('lawyerSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const lawyers = document.querySelectorAll('.lawyer-card');
+                    
+                    lawyers.forEach(lawyer => {
+                        const name = lawyer.querySelector('h4').textContent.toLowerCase();
+                        const specialization = lawyer.querySelector('.specialization').textContent.toLowerCase();
+                        
+                        if (name.includes(searchTerm) || specialization.includes(searchTerm)) {
+                            lawyer.style.display = 'block';
+                        } else {
+                            lawyer.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Print functionality
+            window.printSection = function(sectionId) {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Print - ${section.querySelector('h3').textContent}</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; margin: 20px; }
+                                    .no-print { display: none; }
+                                    table { width: 100%; border-collapse: collapse; }
+                                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                    th { background-color: #f2f2f2; }
+                                </style>
+                            </head>
+                            <body>
+                                ${section.innerHTML}
+                            </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    printWindow.print();
+                    printWindow.close();
+                }
+            };
+
+            // Export functionality
+            window.exportData = function(type, data) {
+                if (type === 'csv') {
+                    const csv = convertToCSV(data);
+                    downloadFile(csv, 'legal-aid-data.csv', 'text/csv');
+                } else if (type === 'json') {
+                    const json = JSON.stringify(data, null, 2);
+                    downloadFile(json, 'legal-aid-data.json', 'application/json');
+                }
+            };
+
+            function convertToCSV(data) {
+                if (!data || data.length === 0) return '';
+                
+                const headers = Object.keys(data[0]);
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(row => headers.map(header => JSON.stringify(row[header] || '')).join(','))
+                ].join('\n');
+                
+                return csvContent;
+            }
+
+            function downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            // Notification system
+            window.showNotification = function(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.remove()">&times;</button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            };
+
+            // Auto-refresh for appointments (every 5 minutes)
+            if (document.getElementById('appointments-section')) {
+                setInterval(() => {
+                    if (window.location.hash === '#appointments') {
+                        // Refresh appointments data
+                        fetch('/client/appointments/refresh')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.updated) {
+                                    showNotification('Appointments updated', 'info');
+                                }
+                            })
+                            .catch(error => console.log('Auto-refresh failed:', error));
+                    }
+                }, 300000); // 5 minutes
+            }
         });
+
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Application error:', e.error);
+            showNotification('An error occurred. Please refresh the page if problems persist.', 'error');
+        });
+
+        // Service worker for offline support (if needed)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered:', registration))
+                .catch(error => console.log('SW registration failed:', error));
+        }
     </script>
+
+    <style>
+        /* Additional CSS for enhanced functionality */
+        .dashboard-navbar {
+            background: var(--navbar-color);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-center h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .back-btn, .logout-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        .alert {
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        .nav-card.active {
+            background: var(--text-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .nav-card.active .nav-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+        }
+
+        .file-info small {
+            color: var(--text-color);
+            font-style: italic;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid var(--primary-blue);
+            border-radius: 5px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            min-width: 300px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 10000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger-red);
+            color: var(--danger-red);
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            margin-left: auto;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        .modal-actions {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .appointment-info {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-color);
+        }
+
+        .appointment-info i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        /* Responsive enhancements */
+        @media (max-width: 768px) {
+            .dashboard-navbar {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+            }
+
+            .navbar-center {
+                order: 3;
+                width: 100%;
+                text-align: center;
+                margin-top: 0.5rem;
+            }
+
+            .navbar-center h1 {
+                font-size: 1.2rem;
+            }
+
+            .back-btn, .logout-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+
+        /* Loading animation */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: all 0.3s ease;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+    </style>
 </body>
 </html>
