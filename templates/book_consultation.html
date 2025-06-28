@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Consultation - Legal Aid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='client_dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="dashboard-navbar">
+        <div class="navbar-left">
+            <a href="{{ url_for('client_dashboard') }}#lawyers" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Lawyers
+            </a>
+        </div>
+        <div class="navbar-center">
+            <h1>Book Consultation</h1>
+        </div>
+        <div class="navbar-right">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if lawyer %}
+        <div class="booking-content">
+            <!-- Lawyer Profile Card -->
+            <div class="lawyer-profile-card">
+                <div class="lawyer-header">
+                    <div class="lawyer-photo">
+                        {% if lawyer.Photo %}
+                        <img src="{{ url_for('static', filename='uploads/photos/' + lawyer.Photo) }}" alt="{{ lawyer.FirstName }} {{ lawyer.LastName }}">
+                        {% else %}
+                        <div class="photo-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="lawyer-info">
+                        <h3>{{ lawyer.FirstName }} {{ lawyer.LastName }}</h3>
+                        <p class="specialization">{{ lawyer.Specialization }}</p>
+                        <p class="experience">{{ lawyer.YearsOfExperience }} years of experience</p>
+                        <div class="lawyer-rating">
+                            {% for i in range(5) %}
+                                <i class="fas fa-star {% if i < (lawyer.Rating or 4.5) %}active{% endif %}"></i>
+                            {% endfor %}
+                            <span class="rating-text">({{ lawyer.Rating or 4.5 }}/5)</span>
+                        </div>
+                        <div class="lawyer-details">
+                            <p><i class="fas fa-dollar-sign"></i> ${{ lawyer.ConsultationFee or 150 }}/hour</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ lawyer.OfficeAddress or 'Office address not provided' }}</p>
+                            {% if lawyer.Languages %}
+                            <p><i class="fas fa-language"></i> {{ lawyer.Languages }}</p>
+                            {% endif %}
+                            {% if lawyer.AvailableHours %}
+                            <p><i class="fas fa-clock"></i> {{ lawyer.AvailableHours }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if lawyer.Bio %}
+                <div class="lawyer-bio">
+                    <h4>About {{ lawyer.FirstName }}</h4>
+                    <p>{{ lawyer.Bio }}</p>
+                </div>
+                {% endif %}
+                
+                {% if lawyer.Education %}
+                <div class="lawyer-education">
+                    <h4>Education & Qualifications</h4>
+                    <p>{{ lawyer.Education }}</p>
+                </div>
+                {% endif %}
+
+                {% if lawyer.BarAssociation %}
+                <div class="lawyer-bar">
+                    <h4>Bar Association</h4>
+                    <p>{{ lawyer.BarAssociation }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Booking Form -->
+            <div class="booking-form-card">
+                <h3><i class="fas fa-calendar-plus"></i> Schedule Your Consultation</h3>
+                
+                <form method="POST" action="{{ url_for('schedule_appointment') }}" class="consultation-form" id="consultationForm">
+                    <input type="hidden" name="lawyer_id" value="{{ lawyer.UserId }}">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="appointmentDate"><i class="fas fa-calendar"></i> Preferred Date</label>
+                            <input type="date" id="appointmentDate" name="appointment_date" required min="">
+                            <small>Please select a date at least 24 hours in advance</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="appointmentTime"><i class="fas fa-clock"></i> Preferred Time</label>
+                            <select id="appointmentTime" name="appointment_time" required>
+                                <option value="">Select time</option>
+                                <optgroup label="Morning">
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="09:30">9:30 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="10:30">10:30 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="11:30">11:30 AM</option>
+                                </optgroup>
+                                <optgroup label="Afternoon">
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="14:30">2:30 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="15:30">3:30 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="16:30">4:30 PM</option>
+                                </optgroup>
+                                <optgroup label="Evening">
+                                    <option value="17:00">5:00 PM</option>
+                                    <option value="17:30">5:30 PM</option>
+                                    <option value="18:00">6:00 PM</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="meetingType"><i class="fas fa-video"></i> Meeting Type</label>
+                            <div class="meeting-type-options">
+                                <label class="meeting-option">
+                                    <input type="radio" name="meeting_type" value="In-Person" required>
+                                    <div class="option-card">
+                                        <i class="fas fa-handshake"></i>
+                                        <span>In-Person</span>
+                                        <small>Meet at the lawyer's office</small>
+                                        <div class="option-price">Standard rate</div>
+                                    </div>
+                                </label>
+                                <label class="meeting-option">
+                                    <input type="radio" name="meeting_type" value="Video Call" required>
+                                    <div class="option-card">
+                                        <i class="fas fa-video"></i>
+                                        <span>Video Call</span>
+                                        <small>Online consultation via video</small>
+                                        <div class="option-price">Standard rate</div>
+                                    </div>
+                                </label>
+                                <label class="meeting-option">
+                                    <input type="radio" name="meeting_type" value="Phone Call" required>
+                                    <div class="option-card">
+                                        <i class="fas fa-phone"></i>
+                                        <span>Phone Call</span>
+                                        <small>Consultation over the phone</small>
+                                        <div class="option-price">Standard rate</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="description"><i class="fas fa-file-text"></i> Consultation Topic</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Please describe what you'd like to discuss during the consultation..." required></textarea>
+                            <small>Provide as much detail as possible to help the lawyer prepare</small>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="urgency"><i class="fas fa-exclamation-circle"></i> Urgency Level</label>
+                            <select id="urgency" name="urgency">
+                                <option value="Normal">Normal - Within a week</option>
+                                <option value="Urgent">Urgent - Within 2-3 days</option>
+                                <option value="Emergency">Emergency - ASAP</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="consultation-summary">
+                        <h4><i class="fas fa-file-invoice"></i> Consultation Summary</h4>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Lawyer:</span>
+                                <span class="value">{{ lawyer.FirstName }} {{ lawyer.LastName }}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Specialization:</span>
+                                <span class="value">{{ lawyer.Specialization }}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Consultation Fee:</span>
+                                <span class="value fee-amount">${{ lawyer.ConsultationFee or 150 }}/hour</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Location:</span>
+                                <span class="value">{{ lawyer.OfficeAddress or 'To be confirmed' }}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Duration:</span>
+                                <span class="value">1 hour (standard)</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total Cost:</span>
+                                <span class="value total-cost">${{ lawyer.ConsultationFee or 150 }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-terms">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required>
+                                <span class="checkmark"></span>
+                                I agree to the <a href="#" onclick="openModal('termsModal')">terms and conditions</a> and <a href="#" onclick="openModal('privacyModal')">privacy policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-calendar-check"></i> Book Consultation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Lawyer Not Found</h3>
+            <p>The requested lawyer could not be found or is not available for consultations.</p>
+            <a href="{{ url_for('client_dashboard') }}#lawyers" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Browse Lawyers
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-file-contract"></i> Terms and Conditions</h4>
+                <span class="close" onclick="closeModal('termsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h5>Consultation Terms</h5>
+                    <ul>
+                        <li>Consultations are billed at the lawyer's standard hourly rate</li>
+                        <li>Payment is due before or at the time of consultation</li>
+                        <li>Cancellations must be made at least 24 hours in advance</li>
+                        <li>Late cancellations may incur a 50% fee</li>
+                        <li>No-shows will be charged the full consultation fee</li>
+                    </ul>
+                    <h5>Confidentiality</h5>
+                    <ul>
+                        <li>All information shared during consultation is confidential</li>
+                        <li>Attorney-client privilege applies once consultation begins</li>
+                        <li>Lawyers are bound by professional ethics and confidentiality rules</li>
+                    </ul>
+                    <h5>Rescheduling</h5>
+                    <ul>
+                        <li>Appointments can be rescheduled up to 24 hours before the scheduled time</li>
+                        <li>Both parties may request rescheduling for valid reasons</li>
+                        <li>Emergency rescheduling may be accommodated at lawyer's discretion</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeModal('termsModal')">
+                    I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><i class="fas fa-shield-alt"></i> Privacy Policy</h4>
+                <span class="close" onclick="closeModal('privacyModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-content">
+                    <h5>Information We Collect</h5>
+                    <p>We collect only the information necessary to facilitate your legal consultation, including contact details, consultation topics, and appointment preferences.</p>
+                    
+                    <h5>How We Use Your Information</h5>
+                    <p>Your information is used solely to schedule and conduct your legal consultation. We do not share your personal information with third parties without your consent.</p>
+                    
+                    <h5>Data Security</h5>
+                    <p>We employ industry-standard security measures to protect your personal information and ensure confidentiality.</p>
+                    
+                    <h5>Your Rights</h5>
+                    <p>You have the right to access, update, or delete your personal information at any time by contacting us.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeModal('privacyModal')">
+                    I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set minimum date to tomorrow
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const dateInput = document.getElementById('appointmentDate');
+            if (dateInput) {
+                dateInput.min = tomorrow.toISOString().split('T')[0];
+            }
+
+            // Auto-hide alerts
+            document.querySelectorAll('.alert').forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+
+            // Close modals when clicking outside
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+            });
+
+            // Form validation and submission
+            const form = document.getElementById('consultationForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Validate form
+                    if (!validateConsultationForm()) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitBtn');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+                    
+                    // Submit form
+                    setTimeout(() => {
+                        form.submit();
+                    }, 1000);
+                });
+            }
+
+            // Meeting type selection handler
+            document.querySelectorAll('input[name="meeting_type"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Remove active class from all options
+                    document.querySelectorAll('.meeting-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    
+                    // Add active class to selected option
+                    this.closest('.meeting-option').classList.add('selected');
+                    
+                    // Update summary if needed
+                    updateConsultationSummary();
+                });
+            });
+
+            // Date and time change handlers
+            const dateInput = document.getElementById('appointmentDate');
+            const timeInput = document.getElementById('appointmentTime');
+            
+            if (dateInput) {
+                dateInput.addEventListener('change', function() {
+                    validateDate(this.value);
+                });
+            }
+            
+            if (timeInput) {
+                timeInput.addEventListener('change', function() {
+                    updateConsultationSummary();
+                });
+            }
+
+            // Real-time character count for description
+            const descriptionTextarea = document.getElementById('description');
+            if (descriptionTextarea) {
+                const charCounter = document.createElement('div');
+                charCounter.className = 'char-counter';
+                charCounter.innerHTML = '<small>0/500 characters</small>';
+                descriptionTextarea.parentNode.appendChild(charCounter);
+                
+                descriptionTextarea.addEventListener('input', function() {
+                    const count = this.value.length;
+                    const maxLength = 500;
+                    charCounter.innerHTML = `<small>${count}/${maxLength} characters</small>`;
+                    
+                    if (count > maxLength) {
+                        charCounter.style.color = '#dc3545';
+                        this.value = this.value.substring(0, maxLength);
+                    } else {
+                        charCounter.style.color = '#6c757d';
+                    }
+                });
+            }
+        });
+
+        // Form validation function
+        function validateConsultationForm() {
+            let isValid = true;
+            const errors = [];
+
+            // Check required fields
+            const requiredFields = ['appointmentDate', 'appointmentTime', 'description'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('error');
+                    isValid = false;
+                    errors.push(`${fieldId.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`);
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+
+            // Check meeting type selection
+            const meetingType = document.querySelector('input[name="meeting_type"]:checked');
+            if (!meetingType) {
+                isValid = false;
+                errors.push('Please select a meeting type');
+                document.querySelector('.meeting-type-options').classList.add('error');
+            } else {
+                document.querySelector('.meeting-type-options').classList.remove('error');
+            }
+
+            // Check terms agreement
+            const agreeTerms = document.getElementById('agreeTerms');
+            if (!agreeTerms.checked) {
+                isValid = false;
+                errors.push('Please agree to the terms and conditions');
+                agreeTerms.closest('.checkbox-label').classList.add('error');
+            } else {
+                agreeTerms.closest('.checkbox-label').classList.remove('error');
+            }
+
+            // Date validation
+            const selectedDate = new Date(document.getElementById('appointmentDate').value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate <= today) {
+                isValid = false;
+                errors.push('Please select a future date');
+                document.getElementById('appointmentDate').classList.add('error');
+            }
+
+            // Show errors if any
+            if (!isValid) {
+                showNotification(errors.join('<br>'), 'error');
+            }
+
+            return isValid;
+        }
+
+        // Date validation function
+        function validateDate(dateValue) {
+            const selectedDate = new Date(dateValue);
+            const today = new Date();
+            const dayOfWeek = selectedDate.getDay();
+            
+            // Check if it's a weekend
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                showNotification('Weekend appointments may have limited availability. The lawyer will confirm availability.', 'warning');
+            }
+            
+            // Check if it's too far in the future (optional)
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 3);
+            if (selectedDate > maxDate) {
+                showNotification('Please select a date within the next 3 months.', 'warning');
+            }
+        }
+
+        // Update consultation summary
+        function updateConsultationSummary() {
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            const meetingType = document.querySelector('input[name="meeting_type"]:checked');
+            
+            // You can add logic here to update pricing based on meeting type, time, etc.
+            // For now, it keeps the base rate
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, type === 'error' ? 8000 : 5000);
+        }
+
+        // Booking confirmation
+        function confirmBooking() {
+            const form = document.getElementById('consultationForm');
+            const formData = new FormData(form);
+            
+            const confirmationHtml = `
+                <div class="booking-confirmation">
+                    <h4>Confirm Your Booking</h4>
+                    <p><strong>Date:</strong> ${formData.get('appointment_date')}</p>
+                    <p><strong>Time:</strong> ${formData.get('appointment_time')}</p>
+                    <p><strong>Type:</strong> ${formData.get('meeting_type')}</p>
+                    <p><strong>Fee:</strong> ${{ lawyer.ConsultationFee or 150 }}</p>
+                    <div class="confirmation-actions">
+                        <button class="btn btn-secondary" onclick="closeModal('confirmationModal')">Edit</button>
+                        <button class="btn btn-primary" onclick="submitBooking()">Confirm Booking</button>
+                    </div>
+                </div>
+            `;
+            
+            // Create and show confirmation modal
+            const modal = document.createElement('div');
+            modal.id = 'confirmationModal';
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Confirm Booking</h4>
+                        <span class="close" onclick="closeModal('confirmationModal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        ${confirmationHtml}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Emergency contact info
+        function showEmergencyInfo() {
+            showNotification('For legal emergencies outside business hours, please call the emergency legal hotline: 1-800-LEGAL-911', 'info');
+        }
+
+        // Lawyer availability check (simulated)
+        function checkAvailability() {
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            
+            if (date && time) {
+                // Simulate availability check
+                const isAvailable = Math.random() > 0.3; // 70% chance available
+                
+                if (isAvailable) {
+                    showNotification('✓ Time slot appears to be available!', 'success');
+                } else {
+                    showNotification('⚠ This time slot may be busy. Alternative times will be suggested.', 'warning');
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .dashboard-navbar {
+            background: var(--navbar-color);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-center h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .back-btn, .logout-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        .booking-content {
+            display: grid;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lawyer-profile-card, .booking-form-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .lawyer-header {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .lawyer-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--ui-light);
+            flex-shrink: 0;
+        }
+
+        .lawyer-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .lawyer-info h3 {
+            color: var(--navbar-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .specialization {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .experience {
+            color: var(--medium-gray);
+            margin-bottom: 1rem;
+        }
+
+        .lawyer-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lawyer-rating .fa-star {
+            color: #ddd;
+            font-size: 1.2rem;
+        }
+
+        .lawyer-rating .fa-star.active {
+            color: #ffc107;
+        }
+
+        .rating-text {
+            color: var(--medium-gray);
+            font-weight: 500;
+        }
+
+        .lawyer-details p {
+            margin: 0.5rem 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lawyer-bio, .lawyer-education, .lawyer-bar {
+            border-top: 1px solid var(--ui-light);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .lawyer-bio h4, .lawyer-education h4, .lawyer-bar h4 {
+            color: var(--navbar-color);
+            margin-bottom: 1rem;
+        }
+
+        .lawyer-bio p, .lawyer-education p, .lawyer-bar p {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .booking-form-card h3 {
+            color: var(--navbar-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--navbar-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--ui-light);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--text-color);
+            box-shadow: 0 0 0 3px rgba(106, 156, 137, 0.1);
+        }
+
+        .form-group input.error,
+        .form-group select.error,
+        .form-group textarea.error {
+            border-color: var(--danger-red);
+        }
+
+        .form-group small {
+            color: var(--medium-gray);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            display: block;
+        }
+
+        .meeting-type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .meeting-option {
+            cursor: pointer;
+        }
+
+        .meeting-option input[type="radio"] {
+            display: none;
+        }
+
+        .option-card {
+            border: 2px solid var(--ui-light);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            background: white;
+            position: relative;
+        }
+
+        .meeting-option.selected .option-card,
+        .meeting-option input[type="radio"]:checked + .option-card {
+            border-color: var(--text-color);
+            background: rgba(106, 156, 137, 0.1);
+        }
+
+        .option-card:hover {
+            border-color: var(--text-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-card i {
+            font-size: 2rem;
+            color: var(--text-color);
+            margin-bottom: 0.8rem;
+        }
+
+        .option-card span {
+            display: block;
+            font-weight: 600;
+            color: var(--navbar-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .option-card small {
+            color: var(--medium-gray);
+            font-size: 0.8rem;
+        }
+
+        .option-price {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--success-green);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .consultation-summary {
+            background: var(--ui-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        .consultation-summary h4 {
+            color: var(--navbar-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .summary-item .label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .summary-item .value {
+            color: var(--navbar-color);
+            font-weight: 500;
+        }
+
+        .fee-amount, .total-cost {
+            color: var(--success-green);
+            font-weight: 700;
+        }
+
+        .booking-terms {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-color);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: var(--text-color);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .checkbox-label.error {
+            color: var(--danger-red);
+        }
+
+        .checkbox-label.error .checkmark {
+            border-color: var(--danger-red);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--medium-gray);
+        }
+
+        .error-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--danger-red);
+        }
+
+        .error-state h3 {
+            color: var(--navbar-color);
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid var(--primary-blue);
+            border-radius: 5px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            min-width: 300px;
+            max-width: 500px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 10000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger-red);
+            color: var(--danger-red);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning-yellow);
+            color: var(--warning-yellow);
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            margin-left: auto;
+        }
+
+        .char-counter {
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+
+        .char-counter small {
+            color: var(--medium-gray);
+        }
+
+        .terms-content, .privacy-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .terms-content h5, .privacy-content h5 {
+            color: var(--navbar-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .terms-content h5:first-child, .privacy-content h5:first-child {
+            margin-top: 0;
+        }
+
+        .terms-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .terms-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .dashboard-navbar {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+            }
+
+            .navbar-center {
+                order: 3;
+                width: 100%;
+                text-align: center;
+                margin-top: 0.5rem;
+            }
+
+            .lawyer-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .lawyer-photo {
+                margin: 0 auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .meeting-type-options {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+
+        /* Loading animation */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
