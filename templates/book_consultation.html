@@ -581,7 +581,7 @@
                     <p><strong>Date:</strong> ${formData.get('appointment_date')}</p>
                     <p><strong>Time:</strong> ${formData.get('appointment_time')}</p>
                     <p><strong>Type:</strong> ${formData.get('meeting_type')}</p>
-                    <p><strong>Fee:</strong> ${{ lawyer.ConsultationFee or 150 }}</p>
+                    <p><strong>Fee:</strong> ${150}</p>
                     <div class="confirmation-actions">
                         <button class="btn btn-secondary" onclick="closeModal('confirmationModal')">Edit</button>
                         <button class="btn btn-primary" onclick="submitBooking()">Confirm Booking</button>
