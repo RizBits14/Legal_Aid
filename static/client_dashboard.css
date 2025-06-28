@@ -24,8 +24,19 @@
 }
 
 /* ===== Dashboard Header ===== */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .dashboard-header {
     text-align: center;
+    width: 100%;
     margin-bottom: 2rem;
 }
 
@@ -79,6 +90,8 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
+    justify-items: center;
+    width: 100%;
 }
 
 .stat-card {
@@ -129,6 +142,8 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
+    justify-items: center;
+    width: 100%;
 }
 
 .nav-card {
@@ -199,6 +214,10 @@
 
 /* ===== Content Sections ===== */
 .content-sections {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 2rem;
 }
 
@@ -699,6 +718,7 @@
 /* ===== Empty State ===== */
 .empty-state {
     text-align: center;
+    margin: 0 auto;
     padding: 3rem;
     color: var(--medium-gray);
     grid-column: 1 / -1;
@@ -737,7 +757,8 @@
 
 .modal-content {
     background-color: white;
-    margin: 5% auto;
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 12px;
     width: 90%;
     max-width: 600px;
